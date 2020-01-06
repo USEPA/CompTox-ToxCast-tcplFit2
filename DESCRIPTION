@@ -21,8 +21,8 @@ Suggests:
 VignetteBuilder: knitr
 Imports: 
     stats,
-    RColorBrewer,
     future,
     methods,
     numDeriv,
+    RColorBrewer,
     future.apply
