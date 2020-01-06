@@ -23,9 +23,9 @@ Pointing to pdflatex ...
 
 Sys.setenv(PATH=paste(Sys.getenv("PATH"),"C:/Program Files/MiKTeX 2.9/miktex/bin/x64/",sep=";"))
 
-Running documentation - this builds the file ToxValDB_manual.pdf
+Running documentation - this builds the file tcplFit2_manual.pdf
 roxygen2::roxygenise()
 
 Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:/Program Files/MiKTeX 2.9/miktex/bin/x64", sep=.Platform$path.sep))
 Sys.setenv(R_PAPERSIZE="letter")
-system("R CMD Rd2pdf . --title=ToxValDB toxvaldb08 --output=./ToxValDB_manual.pdf --force --no-clean --internals")
+system("R CMD Rd2pdf . --title=tcplFit2 tcplFit2 --output=./tcplFit2_manual.pdf --force --no-clean --internals")
