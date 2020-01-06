@@ -18,6 +18,9 @@ git commit -m "Initial Commit"
 git remote add origin ssh://git@ncct-bitbucket.epa.gov:7999/tcplfit2/tcplfit2.git
 git push -u origin master
 
+To pull from the git repository ...
+git pull origin master
+
 To install this package ...
 devtools::install_git("http://ncct-bitbucket.epa.gov/scm/tcplFit2/tcplFit2")
 
