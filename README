@@ -33,4 +33,8 @@ roxygen2::roxygenise()
 
 Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:/Program Files/MiKTeX 2.9/miktex/bin/x64", sep=.Platform$path.sep))
 Sys.setenv(R_PAPERSIZE="letter")
-system("R CMD Rd2pdf . --title=tcplFit2 tcplFit2 --output=./tcplFit2_manual.pdf --force --no-clean --internals")
+system("R CMD Rd2pdf . --title=tcplfit2 tcplfit2 --output=./tcplfit2_manual.pdf --force --no-clean --internals")
+
+Getting ready to submit to cran
+devtools::check()
+
