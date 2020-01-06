@@ -48,7 +48,8 @@ concRespCore <- function(row,
                          bidirectional = TRUE,
                          verbose = FALSE,
                          do.plot = F) {
-
+  #variable binding to pass cmd checks
+  bmed <- cutoff <- onesd <- NULL
   #row needs to include cutoff and bmed
   #unpack row into the local environment, for ease: sample_id, dtxsid, casrn, name, time, pathway, size, con, resp
   list2env(row,envir=environment())
