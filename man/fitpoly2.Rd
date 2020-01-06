@@ -19,21 +19,21 @@ will be positive only.}
 \item{nofit}{If nofit = T, returns formatted output filled with missing values.}
 }
 \value{
-Named list containing: success, aic (Aikaike Information Criteria), 
-  cov (success of covariance calculation), rme (root mean square error), 
+Named list containing: success, aic (Aikaike Information Criteria),
+  cov (success of covariance calculation), rme (root mean square error),
   modl (vector of model values at given concentrations),
-  parameters values, parameter sd (standard deviation) estimates, pars 
+  parameters values, parameter sd (standard deviation) estimates, pars
   (vector of parameter names), sds (vector of parameter sd names).
 }
 \description{
 Function that fits to f(x) = a*(x/b + x^2/b^2) and returns generic model outputs.
 }
 \details{
-Zero background and monotonically increasing absolute response are assumed. 
+Zero background and monotonically increasing absolute response are assumed.
 Parameters are "a" (y scale), "b" (x scale), and error term "er".
-success = 1 for a successful fit, 0 if optimization failed, and NA if 
-nofit = T. cov = 1 for a successful hessian inversion, 0 if it fails, and NA 
-if nofit = T. aic, rme, modl, parameters, and parameter sds are set to 
+success = 1 for a successful fit, 0 if optimization failed, and NA if
+nofit = T. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
+if nofit = T. aic, rme, modl, parameters, and parameter sds are set to
 NA in case of nofit or failure.
 }
 \examples{

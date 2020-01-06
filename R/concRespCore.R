@@ -38,7 +38,7 @@
 #' resp = list(0,.2,.1,.4,.7,.9,.6, 1.2)
 #' row = list(conc = conc, resp = resp, bmed = 0, cutoff = 1, onesd = .5)
 #' concRespCore(row, conthits = TRUE)
-#' concRespCorec(row, aicc = TRUE)
+#' concRespCore(row, aicc = TRUE)
 concRespCore <- function(row,
                          fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
                                        "exp4", "exp5"),
@@ -48,7 +48,8 @@ concRespCore <- function(row,
                          bidirectional = TRUE,
                          verbose = FALSE,
                          do.plot = F) {
-
+  #variable binding to pass cmd checks
+  bmed <- cutoff <- onesd <- NULL
   #row needs to include cutoff and bmed
   #unpack row into the local environment, for ease: sample_id, dtxsid, casrn, name, time, pathway, size, con, resp
   list2env(row,envir=environment())

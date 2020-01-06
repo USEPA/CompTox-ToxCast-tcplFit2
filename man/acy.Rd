@@ -15,22 +15,22 @@ acy(
 )
 }
 \arguments{
-\item{y}{Activity value at which the concentration is desired. y 
+\item{y}{Activity value at which the concentration is desired. y
 should be less than the model's top, if there is one, and greater
 than zero.}
 
-\item{modpars}{List of named model parameters. Model parameters can 
+\item{modpars}{List of named model parameters. Model parameters can
 include: "a", "b", "ga", "la", "p", "q", "tp". ga and la should NOT
 be in log units.}
 
-\item{type}{Model type; must be one of: "exp1", "exp2", "exp3", "exp4", 
+\item{type}{Model type; must be one of: "exp1", "exp2", "exp3", "exp4",
 "gnls", "hill",  "poly1", "poly2", "pow".}
 
 \item{returntop}{When TRUE, returns actual top value for gnls. Has no
 effect for other models.}
 
 \item{returntoploc}{When TRUE, returns concentration of top for gnls.
-Has no effect for other models. If top location can't be found, 
+Has no effect for other models. If top location can't be found,
 NA is returned.}
 
 \item{getloss}{When TRUE, returns value on loss side of curve for gnls.

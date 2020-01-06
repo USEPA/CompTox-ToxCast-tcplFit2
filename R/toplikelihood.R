@@ -16,6 +16,8 @@
 #' @param top Model top.
 #' @param mll Winning model maximum log-likelihood.
 #'
+#' @importFrom stats pchisq
+#'
 #' @return Probability of top being above cutoff.
 #' @export
 #'

@@ -1,8 +1,8 @@
 #' Constant Model Fit
-#' 
+#'
 #' Function that fits a constant line and returns generic model outputs.
-#' 
-#' success = 1 for a successful fit, 0 if optimization failed, and NA if 
+#'
+#' success = 1 for a successful fit, 0 if optimization failed, and NA if
 #' nofit = T. aic, rme, and er are set to NA in case of nofit or failure. pars
 #' always equals "er".
 #'
@@ -10,16 +10,17 @@
 #' @param resp Vector of corresponding responses.
 #' @param nofit If nofit = T, returns formatted output filled with missing values.
 #'
-#' @return List of five elements: success, aic (Aikaike Information Criteria), 
+#' @return List of five elements: success, aic (Aikaike Information Criteria),
 #'   rme (root mean square error), er (error parameter), pars (parameter names).
 #' @export
 #' @importFrom methods is
+#' @importFrom stats mad optim
 #'
 #' @examples
 #' fitcnst(c(.1,1,10,100), c(1,2,0,-1))
 #' fitcnst(c(.1,1,10,100), c(1,2,0,-1), nofit = TRUE)
 fitcnst = function(conc, resp, nofit = F){
-  
+
   pars <- "er"
   myparams = c("success", "aic", "rme","er")
   #nofit generic output
@@ -30,7 +31,7 @@ fitcnst = function(conc, resp, nofit = F){
     return(out)
   }
   er_est <- if ((rmad <- mad(resp)) > 0) log(rmad) else log(1e-32)
-  
+
   ###----------------------- Fit the Constant Model -----------------------###
   fit <- optim(er_est,
                 tcplObj,
@@ -47,7 +48,7 @@ fitcnst = function(conc, resp, nofit = F){
     success <- 1L
     er <- fit$par
     aic <- 2 - 2*fit$value
-    
+
     ## Calculate the rmse for constant
     rme <- sqrt(mean((0 - resp)^2, na.rm = TRUE))
   } else {
@@ -56,6 +57,6 @@ fitcnst = function(conc, resp, nofit = F){
     aic <- NA_integer_
     rme <- NA_real_
   }
-  
+
   return(mget(c("success", "aic", "rme", "er", "pars")))
 }

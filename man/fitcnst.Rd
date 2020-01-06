@@ -14,14 +14,14 @@ fitcnst(conc, resp, nofit = F)
 \item{nofit}{If nofit = T, returns formatted output filled with missing values.}
 }
 \value{
-List of five elements: success, aic (Aikaike Information Criteria), 
+List of five elements: success, aic (Aikaike Information Criteria),
   rme (root mean square error), er (error parameter), pars (parameter names).
 }
 \description{
 Function that fits a constant line and returns generic model outputs.
 }
 \details{
-success = 1 for a successful fit, 0 if optimization failed, and NA if 
+success = 1 for a successful fit, 0 if optimization failed, and NA if
 nofit = T. aic, rme, and er are set to NA in case of nofit or failure. pars
 always equals "er".
 }
