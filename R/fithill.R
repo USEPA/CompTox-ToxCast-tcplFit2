@@ -23,7 +23,7 @@
 #'
 #' @importFrom methods is
 #' @importFrom numDeriv hessian
-#' @importFrom stats constrOptim
+#' @importFrom stats constrOptim median
 #'
 #' @return Named list containing: success, aic (Aikaike Information Criteria),
 #'   cov (success of covariance calculation), rme (root mean square error),
