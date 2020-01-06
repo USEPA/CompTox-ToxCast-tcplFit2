@@ -20,5 +20,9 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Imports: 
-  stats,
-  RColorBrewer
+    stats,
+    RColorBrewer,
+    future,
+    methods,
+    numDeriv,
+    future.apply

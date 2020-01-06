@@ -63,5 +63,5 @@ conc = list(.03,.1,.3,1,3,10,30,100)
 resp = list(0,.2,.1,.4,.7,.9,.6, 1.2)
 row = list(conc = conc, resp = resp, bmed = 0, cutoff = 1, onesd = .5)
 concRespCore(row, conthits = TRUE)
-concRespCorec(row, aicc = TRUE)
+concRespCore(row, aicc = TRUE)
 }

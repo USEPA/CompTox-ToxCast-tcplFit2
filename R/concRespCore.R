@@ -38,7 +38,7 @@
 #' resp = list(0,.2,.1,.4,.7,.9,.6, 1.2)
 #' row = list(conc = conc, resp = resp, bmed = 0, cutoff = 1, onesd = .5)
 #' concRespCore(row, conthits = TRUE)
-#' concRespCorec(row, aicc = TRUE)
+#' concRespCore(row, aicc = TRUE)
 concRespCore <- function(row,
                          fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
                                        "exp4", "exp5"),

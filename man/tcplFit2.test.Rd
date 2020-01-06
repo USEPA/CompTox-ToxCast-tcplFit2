@@ -9,7 +9,3 @@ tcplFit2.test()
 \description{
 This is jsut a test routine to show how tcplFit2 runs
 }
-\details{
-concRespCore(row, conthits = TRUE)
-concRespCorec(row, aicc = TRUE)
-}
