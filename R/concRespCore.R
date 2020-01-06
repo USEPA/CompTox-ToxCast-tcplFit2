@@ -5,7 +5,7 @@
 #' the top and ac50, computes the hitcall, and calculates bmd/bmdl/bmdu among other
 #' statistics. Nested model selection is used to choose between poly1/poly2, then
 #' the model with the lowest AIC (or AICc) is declared the winner. Continuous
-#' hitcalls requires tcplFit2 to be run with force.fit = T and "cnst" never to
+#' hitcalls requires tcplfit2_core to be run with force.fit = T and "cnst" never to
 #' be chosen as the winner.
 #'
 #' @param row A named list that must include:
@@ -26,8 +26,8 @@
 #' @param force.fit If TRUE force the fitting to proceed even if there are no points
 #'   outside of the bounds (default FALSE)
 #' @param bidirectional If TRUE allow fitting to happen in both directions (default TRUE)
-#' @param verbose  If TRUE, write extra output from tcplFit2 (default FALSE)
-#' @param do.plot If TRUE, create a plot in the tcplFit2 function (default FALSE)
+#' @param verbose  If TRUE, write extra output from tcplfit2_core (default FALSE)
+#' @param do.plot If TRUE, create a plot in the tcplfit2_core function (default FALSE)
 #'
 #' @return One row dataframe containing all CR output and statistics and any
 #'   identifiers from row.
@@ -63,7 +63,7 @@ concRespCore <- function(row,
 
   #run the fits
   if(conthits) fitmodels = unique(c("cnst", fitmodels)) #cnst models must be present for conthits but not chosen
-  params <- tcplFit2(conc, resp, cutoff, force.fit = conthits, bidirectional = T, fitmodels = fitmodels,
+  params <- tcplfit2_core(conc, resp, cutoff, force.fit = conthits, bidirectional = T, fitmodels = fitmodels,
                      force.fit, bidirectional, verbose, do.plot)
 
   #initialize parameters to NA
