@@ -1,7 +1,7 @@
 #' Activity Concentration y
-#' 
+#'
 #' Returns concentration at which model equals y.
-#' 
+#'
 #' Mathematically inverts model functions of the given type, except for gnls,
 #' which is numerically inverted. gnls returns NA when y > tp. Other options
 #' return the actual top (as opposed to theoretical tp) and top location for
@@ -10,25 +10,29 @@
 #' top location solution fails for gnls, top is set to tp. Returns NA if gnls
 #' numerical solver fails.
 #'
-#' @param y Activity value at which the concentration is desired. y 
+#' @param y Activity value at which the concentration is desired. y
 #'   should be less than the model's top, if there is one, and greater
 #'   than zero.
-#' @param modpars List of named model parameters. Model parameters can 
+#' @param modpars List of named model parameters. Model parameters can
 #'   include: "a", "b", "ga", "la", "p", "q", "tp". ga and la should NOT
 #'   be in log units.
-#' @param type Model type; must be one of: "exp1", "exp2", "exp3", "exp4", 
+#' @param type Model type; must be one of: "exp1", "exp2", "exp3", "exp4",
 #'   "gnls", "hill",  "poly1", "poly2", "pow".
 #' @param returntop When TRUE, returns actual top value for gnls. Has no
 #'   effect for other models.
 #' @param returntoploc When TRUE, returns concentration of top for gnls.
-#'   Has no effect for other models. If top location can't be found, 
+#'   Has no effect for other models. If top location can't be found,
 #'   NA is returned.
 #' @param getloss When TRUE, returns value on loss side of curve for gnls.
 #'   Has no effect for other models.
 #' @param verbose When TRUE, shows warnings.
 #'
 #' @return Ouputs concentration at activity y, or gnls top or top concentration,
-#'   when applicable. 
+#'   when applicable.
+#'
+#' @importFrom stats uniroot
+#'
+#'
 #' @export
 #'
 #' @examples
@@ -37,12 +41,12 @@
 #' acy(1, list(ga = .1, tp = 2, p = 3, q = 3,la = 10), type = "gnls", getloss = TRUE)
 #' acy(1, list(ga = .1, tp = 2, p = 3, q = 3,la = 10), type = "gnls", returntop = TRUE)
 #' acy(1, list(ga = .1, tp = 2, p = 3, q = 3,la = 10), type = "gnls", returntoploc = TRUE)
-#' 
+#'
 acy <- function(y, modpars, type = "hill", returntop = F, returntoploc = F, getloss =F, verbose = F) {
-  
+
   #Put model parameters in environment: a,b,tp,ga,p,q,la,er
   list2env(modpars, envir = environment())
-  
+
   #warnings
   if(!returntop){
     if(!is.null(modpars$tp) && abs(y) >= abs(tp)) {
@@ -76,9 +80,9 @@ acy <- function(y, modpars, type = "hill", returntop = F, returntoploc = F, getl
     #gnls top can be much lower than tp, so first find top location by setting derivative to zero
     #gnls outputs fraction of actual top, not theoretical top tp
     toploc = try(uniroot(gnlsderivobj, c(ga,la), tp = tp, ga = ga, p = p, la = la, q = q, tol = 1e-8)$root)
-    
+
     #If toploc fails, set topval to tp, set toploc to NA
-    if(class(toploc) == "try-error"){ 
+    if(class(toploc) == "try-error"){
       if(verbose) warning("toploc could not be found numerically")
       topval = tp
       toploc = NA_real_
@@ -88,14 +92,14 @@ acy <- function(y, modpars, type = "hill", returntop = F, returntoploc = F, getl
     }
     if(returntoploc) return(toploc)
     if(returntop) return(topval)
-    
+
     #If y >= top, don't try to solve.
     if(abs(y) > abs(topval)) {
-      if(verbose) warning("y is greater than gnls top in function acy, returning NA") 
+      if(verbose) warning("y is greater than gnls top in function acy, returning NA")
       return(NA)
     }
     if(y == topval) return(toploc)
-    
+
     #solve for acy
     if(getloss) {
       output = try(uniroot(acgnlsobj, c(toploc, 1e5), y = y, tp = tp, ga = ga, p = p, la = la, q = q, tol = 1e-8)$root)
@@ -109,7 +113,7 @@ acy <- function(y, modpars, type = "hill", returntop = F, returntoploc = F, getl
 }
 
 #' GNLS Derivative Objective Function
-#' 
+#'
 #' Derivative of the gnls function set to zero for top location solver.
 #'
 #' @param x Concentration.
@@ -125,12 +129,12 @@ gnlsderivobj = function(x,tp,ga,p,la,q){
   a = ga^p
   b = la^(-q)
   return(b*q*x^(q+p) + a*b*(q-p)*x^q -a*p)
-  
+
 }
 
 
 #' AC GNLS Objective Function
-#' 
+#'
 #' GNLS objective function set to y for gnls solver.
 #'
 #' @param x Concentration.

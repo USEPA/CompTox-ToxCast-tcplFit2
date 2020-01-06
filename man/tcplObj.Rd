@@ -32,10 +32,10 @@ Log-likelihood to be maximized during CR fitting.
 \details{
 This function is a generalized version of the log-likelihood estimation
 functions used in the ToxCast Pipeline (TCPL).
-Hill model uses fname "loghill" and gnls uses fname "loggnls". Other model 
+Hill model uses fname "loghill" and gnls uses fname "loggnls". Other model
 functions have the same fname as their model name; i.e. exp2 uses "exp2", etc.
-errfun = "dnorm" may be better suited to gsva pathway scores than "dt4". 
-Setting err could be used to fix error based on the null data noise 
+errfun = "dnorm" may be better suited to gsva pathway scores than "dt4".
+Setting err could be used to fix error based on the null data noise
 distribution instead of fitting the error when maximizing log-likelihood.
 }
 \examples{

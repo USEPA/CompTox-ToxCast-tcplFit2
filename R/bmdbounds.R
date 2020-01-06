@@ -21,7 +21,7 @@
 #'   unnecessary calculation.
 #' @param which.bound Returns BMDU if which.bound = "upper"; returns BMDL if
 #'   which.bound = "lower".
-#'
+#' @importFrom stats uniroot
 #' @return Returns either the BMDU or BMDL.
 #' @export
 #'

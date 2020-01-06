@@ -17,6 +17,8 @@
 #'   Since bmd is linked to the x-scale, type 2 should always be used. Other
 #'   types can also be vulnerable to underflow/overflow.
 #'
+#' @importFrom stats qchisq
+#'
 #' @return Objective function value to find the zero of.
 #' @export
 bmdobj= function(bmd, fname, bmr, conc, resp, ps, mll, onesp, partype = 2){

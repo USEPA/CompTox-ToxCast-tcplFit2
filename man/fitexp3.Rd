@@ -28,22 +28,22 @@ will be positive only.}
 \item{dmin}{Minimum allowed value of p.}
 }
 \value{
-Named list containing: success, aic (Aikaike Information Criteria), 
-  cov (success of covariance calculation), rme (root mean square error), 
+Named list containing: success, aic (Aikaike Information Criteria),
+  cov (success of covariance calculation), rme (root mean square error),
   modl (vector of model values at given concentrations),
-  parameters values, parameter sd (standard deviation) estimates, pars 
+  parameters values, parameter sd (standard deviation) estimates, pars
   (vector of parameter names), sds (vector of parameter sd names).
 }
 \description{
-Function that fits to f(x) = a*(e^((x/b)^p)- 1) and returns generic model 
+Function that fits to f(x) = a*(e^((x/b)^p)- 1) and returns generic model
 outputs.
 }
 \details{
-Zero background and increasing absolute response are assumed. Parameters are 
+Zero background and increasing absolute response are assumed. Parameters are
 "a" (y scale), "b" (x scale), "p" (power), and error term "er".
-success = 1 for a successful fit, 0 if optimization failed, and NA if 
-nofit = T. cov = 1 for a successful hessian inversion, 0 if it fails, and NA 
-if nofit = T. aic, rme, modl, parameters, and parameter sds are set to 
+success = 1 for a successful fit, 0 if optimization failed, and NA if
+nofit = T. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
+if nofit = T. aic, rme, modl, parameters, and parameter sds are set to
 NA in case of nofit or failure.
 }
 \examples{

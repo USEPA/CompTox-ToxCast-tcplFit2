@@ -8,6 +8,7 @@
 #' @param dfdiff Absolute difference in number of degrees of freedom
 #'   (i.e. the difference in parameters).
 #' @param pval P-value for nested model test.
+#' @importFrom stats pchisq
 #'
 #' @return Named aic vector with losing model removed.
 #' @export
