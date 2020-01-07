@@ -10,7 +10,7 @@
 #'     \item conc - conc string separated by |'s
 #'     \item resp - response string separated by |'s
 #'     \item method - scoring method determines plot bounds
-#'     \item proper_name - chemical name for plot title
+#'     \item name - chemical name for plot title
 #'     \item cutoff - noise cutoff
 #'     \item bmr - baseline median response; level at which bmd is calculated
 #'     \item er - fitted error term for plotting error bars
@@ -29,13 +29,27 @@
 #' @return No output.
 #' @export
 #'
-#' @importFrom stringr str_split
-#' @importFrom grDevices rgb
+#' @import stringr
+#' @import grDevices
+#' @importFrom stats qt
 concRespPlot <- function(row,ymin=-120,ymax=120,draw.error.arrows=FALSE) {
 
   #every variable in row goes into the environment to make it easy
   #to update this function to use new row data.
   list2env(row,envir = environment())
+  name <- unlist(name)
+  assay <- unlist(assay)
+  cutoff <- unlist(cutoff)
+  bmr <- unlist(bmr)
+  er <- unlist(er)
+  fit_method <- unlist(fit_method)
+  ac50 <- unlist(ac50)
+  top <- unlist(top)
+  bmd <- unlist(bmd)
+  acc <- unlist(acc)
+  hitcall <- unlist(hitcall)
+  bmdl <- unlist(bmdl)
+  bmdu <- unlist(bmdu)
 
   #hard-code plotting points for curves
   logc_plot <- seq(from=-3,to=2,by=0.05)
