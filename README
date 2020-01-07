@@ -36,10 +36,11 @@ Sys.setenv(R_PAPERSIZE="letter")
 system("R CMD Rd2pdf . --title=tcplfit2 tcplfit2 --output=./tcplfit2_manual.pdf --force --no-clean --internals")
 
 Getting ready to submit to cran
-Note htat libraries need to be in C:/program files/R and not in the local version
+Note that libraries need to be in C:/program files/R and not in the local version
 rm(list=ls())
 devtools::install()
 devtools::check()
 
 Creating a vignette ...
 usethis::use_vignette("tcplfit2-vignette")
+Open the Rmd file and run knitr
