@@ -2,9 +2,11 @@
 #'
 #' This function shows how to run multiple chemicals using data from invitrodb
 #'
+#' @importFrom stats sd
+#' @importFrom stats mad
 tcplFit2.test.mc3 <- function() {
 
-  file <- "data/mc3_TOX21_ERa_BLA_Agonist_ratio.RData"
+  file <- "data/mc3.RData"
   load(file=file)
   print(dim(mc3))
 
