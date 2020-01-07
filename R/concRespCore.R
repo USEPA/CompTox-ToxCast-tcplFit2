@@ -29,8 +29,10 @@
 #' @param verbose  If TRUE, write extra output from tcplfit2_core (default FALSE)
 #' @param do.plot If TRUE, create a plot in the tcplfit2_core function (default FALSE)
 #'
-#' @return One row dataframe containing all concentration-response outputs and statistics and any
-#'   identifiers from row.
+#' @return A list of two elements. The first (summary) is a dataframe of one row containing
+#' all concentration-response outputs and statistics and any identifiers from row,
+#' for the winning model. The second element is a list called all.models with the detailed
+#' results from all of the different model fits. The elements of summary are:
 #'   \itemize{
 #'     \item n_gt_cutoff - number of data points above the cutoff
 #'     \item cutoff - noise cutoff
@@ -98,6 +100,7 @@ concRespCore <- function(row,
   if(conthits) fitmodels = unique(c("cnst", fitmodels)) #cnst models must be present for conthits but not chosen
   params <- tcplfit2_core(conc, resp, cutoff, force.fit = conthits, bidirectional = bidirectional, fitmodels = fitmodels,
                      verbose=verbose, do.plot=do.plot)
+  all.params <- params
   #initialize parameters to NA
   a = b = tp = p = q = ga = la = er = top = ac50 = ac50_loss = ac5 = ac10 = ac20 = acc = ac1sd = bmd = NA_real_
   bmdl = bmdu = caikwt = mll = NA_real_
@@ -191,7 +194,7 @@ concRespCore <- function(row,
                  "top_over_cutoff", "rmse", "a", "b", "tp", "p", "q", "ga", "la", "er", "bmr", "bmdl", "bmdu", "caikwt",
                  "mll","hitcall", "ac50","ac50_loss","top", "ac5","ac10","ac20", "acc", "ac1sd", "bmd", "conc", "resp")
    row = as.data.frame(c(identifiers, mget(name.list)), stringsAsFactors = F)
-  return(row)
+  return(list(summary=row,all.models=all.params))
 }
 
 
