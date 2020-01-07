@@ -7,15 +7,16 @@
 #'
 #' This data is extracted from the database invitrodb, at level 3 (conc-response data)
 #'
-#' @format A data frame with 32175 rows and 6 variables:
-#' \describe{
-#'   \item{dtxsid}{DSSTox generic substance ID}
-#'   \item{casrn}{Chemical Abstracts Registry Number (CASRN)}
-#'   \item{name}{chemical name}
-#'   \item{spid}{sample ID - ther can be multiple samples per chemical}
-#'   \item{logc}{log10(concentraiotn uM)}
-#'   \item{resp}{response in %}
-#'   \item{assay}{name of the assay / assay component endpoint}
+#' A data frame with 32175 rows and 6 variables:
+#'   \itemize{
+#'   \item dtxsid - DSSTox generic substance ID
+#'   \item casrn - Chemical Abstracts Registry Number (CASRN)
+#'   \item name- chemical name
+#'   \item spid - sample ID - ther can be multiple samples per chemical
+#'   \item logc - log10(concentraiotn uM)
+#'   \item resp - response in %
+#'   \item assay - name of the assay / assay component endpoint
 #'   ...
 #' }
-"mc3_TOX21_ERa_BLA_Agonist_ratio"
+"mc3"
+
