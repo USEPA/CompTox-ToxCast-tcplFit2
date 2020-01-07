@@ -55,11 +55,11 @@
 #'     \item mll - anoter factor used in calcualting the continuous hitcall = length(modpars) - aic(fit_method)/2
 #'     \item hitcall - the final hitcall, a value ranging from 0 to 1
 #'     \item top - curve top
-#'     \item ac50 - curve value at 50% of top, curve value at cutoff
-#'     \item ac50 - curve value at 50% of top corresponding to the loss side of the gain-loss curve
-#'     \item ac50 - curve value at 5% of top
-#'     \item ac50 - curve value at 10% of top
-#'     \item ac50 - curve value at 20% of top
+#'     \item ac50 - curve value at 50\% of top, curve value at cutoff
+#'     \item lc50 - curve value at 50\% of top corresponding to the loss side of the gain-loss curve
+#'     \item ac5 - curve value at 5\% of top
+#'     \item ac10 - curve value at 10\% of top
+#'     \item ac20 - curve value at 20\% of top
 #'     \item acc - curve value at 1 standard deviation
 #'     \item conc - conc string separated by |'s
 #'     \item resp - response string separated by |'s

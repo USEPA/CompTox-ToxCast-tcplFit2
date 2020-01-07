@@ -17,7 +17,7 @@
 #'     \item a, tp, b, ga, p, la, q - other model parameters for fit curve
 #'     \item fit_method - curve fit method
 #'     \item bmd, bmdl, bmdu - bmd, bmd lower bound, and bmd upper bound
-#'     \item ac50, acc - curve value at 50% of top, curve value at cutoff
+#'     \item ac50, acc - curve value at 50\% of top, curve value at cutoff
 #'     \item top - curve top
 #'     \item other identifiers
 #'   }

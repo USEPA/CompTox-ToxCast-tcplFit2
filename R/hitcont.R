@@ -1,12 +1,12 @@
 #' Continuous Hitcalls
 #'
-#' Wrapper that computes continuous hitcalls for a provided PATHWAY_CR dataframe.
+#' Wrapper that computes continuous hitcalls for a provided concRespCore input row.
 #'
 #' indf parameter columns should be NA when not required by fit method. "conc"
 #' and "resp" entries should be a single string with values separated by |.
-#' Details on indf columns can be found in pathwayConcRespCore_pval.
+#' Details on indf columns can be found in concRespCore.
 #'
-#' @param indf Dataframe similar to PATHWAY_CR. Must contain "conc" and "resp"
+#' @param indf Dataframe similar to concRespCore input. Must contain "conc" and "resp"
 #'   columns if xs and ys are not provided. Must contain "top", "ac50", "er",
 #'   "fit_method", "caikwt", and "mll" columns as well as columns for each
 #'   model parameter.

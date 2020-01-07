@@ -2,9 +2,9 @@
 #'
 #' Calculates continuous hitcall using 3 statistical metrics.
 #'
-#' This function is called either directly from pathwayConcRespCore_pval or
-#' via hitcont using PATHWAY_CR. Details of how to compute function input are in
-#' pathwayConcRespCore_pval.
+#' This function is called either directly from concRespCore or
+#' via hitcont. Details of how to compute function input are in
+#' concRespCore.
 #'
 #' @param conc Vector of concentrations.
 #' @param resp Vector of responses.
