@@ -25,4 +25,5 @@ Imports:
     methods,
     numDeriv,
     RColorBrewer,
-    future.apply
+    future.apply,
+    stringr
