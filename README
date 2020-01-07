@@ -41,3 +41,5 @@ rm(list=ls())
 devtools::install()
 devtools::check()
 
+Creating a vignette ...
+usethis::use_vignette("tcplfit2-vignette")
