@@ -29,8 +29,41 @@
 #' @param verbose  If TRUE, write extra output from tcplfit2_core (default FALSE)
 #' @param do.plot If TRUE, create a plot in the tcplfit2_core function (default FALSE)
 #'
-#' @return One row dataframe containing all CR output and statistics and any
+#' @return One row dataframe containing all concentration-response outputs and statistics and any
 #'   identifiers from row.
+#'   \itemize{
+#'     \item n_gt_cutoff - number of data points above the cutoff
+#'     \item cutoff - noise cutoff
+#'     \item fit_method - curve fit method
+#'     \item top_over_cutoff - top divided by cutoff
+#'     \item rmse - RMSE of the data points arount the best model curve
+#'     \item a - fitting parameter methods: exp2, exp3, poly1, poly2, pow
+#'     \item b - fitting parameter methods: exp2, exp3, ploy2
+#'     \item p - fitting parameter methods: exp3, exp5, gnls, hill, pow
+#'     \item q - fitting parameter methods: gnls,
+#'     \item tp - top of the curve
+#'     \item ga - ac50 for the rising curve in a gnls model or the Hill model
+#'     \item la - ac50 for the falling curve in a gnls model
+#'     \item er - fitted error term for plotting error bars
+#'     \item bmr - benchmark response; level at which bmd is calculated = onesd*1.349
+#'     \item bmd - benchmark dose, curve value at bmr
+#'     \item bmdl - lower limit on the bmd
+#'     \item bmdu - upper limit on the bmd
+#'     \item caikwt - one factor used in calculating the continuous hitcall. It is calcalated from the formula
+#'       = exp(-aic(cnst)/2)/(exp(-aic(cnst)/2) + exp(-aic(fit_method)/2)) and measures how much lower the
+#'       selected method AIC is than that for the constant model
+#'     \item mll - anoter factor used in calcualting the continuous hitcall = length(modpars) - aic(fit_method)/2
+#'     \item hitcall - the final hitcall, a value ranging from 0 to 1
+#'     \item top - curve top
+#'     \item ac50 - curve value at 50% of top, curve value at cutoff
+#'     \item ac50 - curve value at 50% of top corresponding to the loss side of the gain-loss curve
+#'     \item ac50 - curve value at 5% of top
+#'     \item ac50 - curve value at 10% of top
+#'     \item ac50 - curve value at 20% of top
+#'     \item acc - curve value at 1 standard deviation
+#'     \item conc - conc string separated by |'s
+#'     \item resp - response string separated by |'s
+#'   }
 #' @export
 #'
 #' @examples
@@ -47,7 +80,7 @@ concRespCore <- function(row,
                          force.fit = FALSE,
                          bidirectional = TRUE,
                          verbose = FALSE,
-                         do.plot = F) {
+                         do.plot = FALSE) {
   #variable binding to pass cmd checks
   bmed <- cutoff <- onesd <- NULL
   #row needs to include cutoff and bmed
@@ -63,9 +96,8 @@ concRespCore <- function(row,
 
   #run the fits
   if(conthits) fitmodels = unique(c("cnst", fitmodels)) #cnst models must be present for conthits but not chosen
-  params <- tcplfit2_core(conc, resp, cutoff, force.fit = conthits, bidirectional = T, fitmodels = fitmodels,
-                     force.fit, bidirectional, verbose, do.plot)
-
+  params <- tcplfit2_core(conc, resp, cutoff, force.fit = conthits, bidirectional = bidirectional, fitmodels = fitmodels,
+                     verbose=verbose, do.plot=do.plot)
   #initialize parameters to NA
   a = b = tp = p = q = ga = la = er = top = ac50 = ac50_loss = ac5 = ac10 = ac20 = acc = ac1sd = bmd = NA_real_
   bmdl = bmdu = caikwt = mll = NA_real_
@@ -90,7 +122,12 @@ concRespCore <- function(row,
       nocnstaics = saics[names(saics) != "cnst"]
       fit_method = names(nocnstaics)[which.min(nocnstaics)]
       caikwt = exp(-saics["cnst"]/2)/(exp(-saics["cnst"]/2) + exp(-saics[fit_method]/2))
-      if(is.nan(caikwt)) caikwt <- 1
+      if(is.nan(caikwt)) {
+        term <- exp(saics["cnst"]/2-saics[fit_method]/2)
+        if(term==Inf) caikwt <- 0
+        else caikwt = 1/(1+term)
+        #caikwt <- 1
+      }
     } else  {
       fit_method = names(saics)[which.min(saics)]
     }
@@ -148,8 +185,7 @@ concRespCore <- function(row,
   conc <- paste(conc,collapse="|")
   resp <- paste(resp,collapse="|")
 
-  #PATHWAY_CR contains the specified columns and any identifying, unused columns
-  #that were in pathscoremat/
+  #row contains the specified columns and any identifying, unused columns in the input
   identifiers = row[!names(row) %in% c("conc", "resp", "bmed", "onesd", "cutoff")]
   name.list <- c("n_gt_cutoff","cutoff", "fit_method",
                  "top_over_cutoff", "rmse", "a", "b", "tp", "p", "q", "ga", "la", "er", "bmr", "bmdl", "bmdu", "caikwt",
