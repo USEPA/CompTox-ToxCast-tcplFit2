@@ -26,4 +26,6 @@ Imports:
     numDeriv,
     RColorBrewer,
     future.apply,
-    stringr
+    stringr,
+    stringi
+    
