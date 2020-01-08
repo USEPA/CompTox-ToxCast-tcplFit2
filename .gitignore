@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-man/
 R/deprecated/
 .Rd2pdf*/
 
