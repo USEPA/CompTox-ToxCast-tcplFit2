@@ -46,5 +46,6 @@ usethis::use_vignette("tcplfit2-vignette")
 Open the Rmd file and run knitr
 
 Creating a word version of the vignette
+library(rmarkdown)
 file <- "vignettes/tcplfit2-vignette.Rmd"
 render(file,output_format="word_document")
