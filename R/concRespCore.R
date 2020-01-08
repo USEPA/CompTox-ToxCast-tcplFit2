@@ -24,6 +24,7 @@
 #' @param bidirectional If TRUE allow fitting to happen in both directions (default TRUE)
 #' @param verbose  If TRUE, write extra output from tcplfit2_core (default FALSE)
 #' @param do.plot If TRUE, create a plot in the tcplfit2_core function (default FALSE)
+#' @param return.details If TRUE, return the hitcalling details and the summary, if FALSE (default), just return the summary
 #'
 #' @return A list of two elements. The first (summary) is teh output from tcplhit2_core. The second, params is the
 #' output from tcplfit2_core
@@ -45,7 +46,8 @@ concRespCore <- function(row,
                          force.fit = FALSE,
                          bidirectional = TRUE,
                          verbose = FALSE,
-                         do.plot = FALSE) {
+                         do.plot = FALSE,
+                         return.details=FALSE) {
   # variable binding to pass cmd checks
   bmed <- cutoff <- onesd <- NULL
   # row needs to include cutoff and bmed
@@ -66,7 +68,8 @@ concRespCore <- function(row,
 
   # calculate the hitcall
   summary <- tcplhit2_core(params,conc,resp,cutoff,onesd,bmed,conthits,aicc,identifiers)
-  return(list(summary=summary,all.models=params))
+  if(return.details) return(list(summary=summary,all.models=params))
+  else return(summary)
 }
 
 
