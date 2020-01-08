@@ -54,6 +54,7 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
                     ...) {
   logc = log10(conc)
   rmds <- tapply(resp, logc, median)
+  fitmodels = unique(c("cnst", fitmodels)) #cnst models must be present for conthits but not chosen
 
   #first decide which of possible models will be fit
   modelnames = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5")
