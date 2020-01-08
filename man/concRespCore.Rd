@@ -13,7 +13,8 @@ concRespCore(
   force.fit = FALSE,
   bidirectional = TRUE,
   verbose = FALSE,
-  do.plot = FALSE
+  do.plot = FALSE,
+  return.details = FALSE
 )
 }
 \arguments{
@@ -44,6 +45,8 @@ outside of the bounds (default FALSE)}
 \item{verbose}{If TRUE, write extra output from tcplfit2_core (default FALSE)}
 
 \item{do.plot}{If TRUE, create a plot in the tcplfit2_core function (default FALSE)}
+
+\item{return.details}{If TRUE, return the hitcalling details and the summary, if FALSE (default), just return the summary}
 }
 \value{
 A list of two elements. The first (summary) is teh output from tcplhit2_core. The second, params is the

@@ -21,9 +21,6 @@ git push -u origin master
 To pull from the git repository ...
 git pull origin master
 
-To install this package ...
-devtools::install_git("http://ncct-bitbucket.epa.gov/scm/tcplFit2/tcplFit2")
-
 Pointing to pdflatex ...
 
 Sys.setenv(PATH=paste(Sys.getenv("PATH"),"C:/Program Files/MiKTeX 2.9/miktex/bin/x64/",sep=";"))
@@ -49,3 +46,7 @@ Creating a word version of the vignette
 library(rmarkdown)
 file <- "vignettes/tcplfit2-vignette.Rmd"
 render(file,output_format="word_document")
+
+To install this package from git ...
+devtools::install_git("http://ncct-bitbucket.epa.gov/scm/tcplFit2/tcplFit2")
+
