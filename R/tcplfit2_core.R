@@ -45,63 +45,93 @@
 #' @export
 #'
 #' @examples
-#' conc = c(.03,.1,.3,1,3,10,30,100)
-#' resp = c(0,.1,0,.2,.6,.9,1.1,1)
-#' output = tcplfit2_core(conc,resp, .8, fitmodels = c("cnst", "hill"),verbose = TRUE,
-#'   do.plot = TRUE)
+#' conc <- c(.03, .1, .3, 1, 3, 10, 30, 100)
+#' resp <- c(0, .1, 0, .2, .6, .9, 1.1, 1)
+#' output <- tcplfit2_core(conc, resp, .8,
+#'   fitmodels = c("cnst", "hill"), verbose = TRUE,
+#'   do.plot = TRUE
+#' )
 tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional = TRUE, verbose = FALSE, do.plot = FALSE,
-                    fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"),
-                    ...) {
-  logc = log10(conc)
+                          fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"),
+                          ...) {
+  logc <- log10(conc)
   rmds <- tapply(resp, logc, median)
-  fitmodels = unique(c("cnst", fitmodels)) #cnst models must be present for conthits but not chosen
+  fitmodels <- unique(c("cnst", fitmodels)) # cnst models must be present for conthits but not chosen
 
-  #first decide which of possible models will be fit
-  modelnames = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5")
-  #decide whether to run each model, then use generic functions to run model by name
-  for(model in modelnames){
-    #only fit when four or more concentrations, the model is in fitmodels, and
-    #( either one response is above cutoff OR force.fit == T OR it's the constant model.)
-    to.fit = (length(rmds) >= 4 && model %in% fitmodels && (length(which(abs(rmds) >= cutoff)) > 0 || force.fit ||
-                                                                     model == "cnst") )
-    fname = paste0("fit",model) #requires each model function have name "fit____" where ____ is the model name
-    #use do.call to call fit function; cnst has different inputs than others.
-    if(model == "cnst") assign(model, do.call(fname, list(conc = conc, resp = resp, nofit = !to.fit))) else{
-      assign(model, do.call(fname, list(conc = conc, resp = resp, bidirectional = bidirectional, verbose = verbose,
-                                        nofit = !to.fit)))
+  # first decide which of possible models will be fit
+  modelnames <- c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5")
+  # decide whether to run each model, then use generic functions to run model by name
+  for (model in modelnames) {
+    # only fit when four or more concentrations, the model is in fitmodels, and
+    # ( either one response is above cutoff OR force.fit == T OR it's the constant model.)
+    to.fit <- (length(rmds) >= 4 && model %in% fitmodels && (length(which(abs(rmds) >= cutoff)) > 0 || force.fit ||
+      model == "cnst"))
+    fname <- paste0("fit", model) # requires each model function have name "fit____" where ____ is the model name
+    # use do.call to call fit function; cnst has different inputs than others.
+    if (model == "cnst") {
+      assign(model, do.call(fname, list(conc = conc, resp = resp, nofit = !to.fit)))
+    } else {
+      assign(model, do.call(fname, list(
+        conc = conc, resp = resp, bidirectional = bidirectional, verbose = verbose,
+        nofit = !to.fit
+      )))
+      if(model %in% c("poly1", "poly2", "pow", "exp2", "exp3")){
+        #methods that grow without bound: top defined as model value at max conc
+        assign(model,append(get(model), list(top = get(model)$modl[which.max(abs(get(model)$modl))]))) #top is taken to be highest model value
+        assign(model,append(get(model), list(ac50 = acy(.5*top, get(model), type = model))))
+      } else if(model %in% c("hill", "exp4", "exp5")){
+        #methods with a theoretical top/ac50
+        assign(model,append(get(model), list(top = get(model)$tp)))
+        assign(model,append(get(model), list(ac50 = get(model)$ga)))
+      } else if(model == "gnls"){
+        #gnls methods; use calculated top/ac50, etc.
+        assign(model,append(get(model), list(top =  acy(0, get(model), type = model, returntop = T))))
+        assign(model,append(get(model), list(ac50 = acy(.5*get(model)$top, get(model), type = model))))
+        assign(model,append(get(model), list(ac50_loss = acy(.5*get(model)$top, get(model), type = model, getloss = T))))
+      }
+      
+      
     }
   }
-  #optionally print out AICs
-  if(verbose) {
+  # optionally print out AICs
+  if (verbose) {
     print("aic values:")
-    aics = sapply(modelnames, function(x){get(x)[["aic"]]})
-    names(aics) = modelnames
+    aics <- sapply(modelnames, function(x) {
+      get(x)[["aic"]]
+    })
+    names(aics) <- modelnames
     print(aics)
     cat("Winner: ", modelnames[which.min(aics)])
   }
 
-  #optionallky plot all models if there's at least one model to plot
-  shortnames = modelnames[modelnames != "cnst"]
-  successes = sapply(shortnames, function(x){get(x)[["success"]]})
-  if(do.plot && sum(successes, na.rm = T) == length(shortnames)){
-    resp = resp[order(logc)]
+  # optionallky plot all models if there's at least one model to plot
+  shortnames <- modelnames[modelnames != "cnst"]
+  successes <- sapply(shortnames, function(x) {
+    get(x)[["success"]]
+  })
+  if (do.plot && sum(successes, na.rm = T) == length(shortnames)) {
+    resp <- resp[order(logc)]
     par(xpd = T)
-    cols = c("black",brewer.pal(9,"Set1"))
-    n = length(logc)
-    allresp =  c(resp ,sapply(shortnames, function(x){get(x)[["modl"]][order(logc)]}))
-    logc = logc[order(logc)]
-    plot(rep(logc,length.out =length(allresp)), allresp, col = rep(cols,each = n), pch = 16)
+    cols <- c("black", brewer.pal(9, "Set1"))
+    n <- length(logc)
+    allresp <- c(resp, sapply(shortnames, function(x) {
+      get(x)[["modl"]][order(logc)]
+    }))
+    logc <- logc[order(logc)]
+    plot(rep(logc, length.out = length(allresp)), allresp, col = rep(cols, each = n), pch = 16)
 
-    for(i in 1:length(allresp)){
-      points(logc,allresp[((i-1)*n + 1):(i*n)],col = cols[i], type = "l")
+    for (i in 1:length(allresp)) {
+      points(logc, allresp[((i - 1) * n + 1):(i * n)], col = cols[i], type = "l")
     }
 
-    legend("top", legend = c("resp", shortnames), col = cols, pch = 16, ncol = 10, inset = c(0,-.1))
+    legend("top", legend = c("resp", shortnames), col = cols, pch = 16, ncol = 10, inset = c(0, -.1))
   }
 
-  #put all the model outputs into one list and return
-  out <- c(mget(modelnames),
-           list(modelnames  = modelnames, ...))
+  # put all the model outputs into one list and return
+  out <- c(
+    mget(modelnames),
+    list(modelnames = modelnames, ...)
+  )
 
   return(out)
 }
