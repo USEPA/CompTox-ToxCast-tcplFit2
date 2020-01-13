@@ -68,10 +68,7 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
       model == "cnst"))
     fname <- paste0("fit", model) # requires each model function have name "fit____" where ____ is the model name
     # use do.call to call fit function; cnst has different inputs than others.
-    if (model == "cnst") {
-      assign(model, do.call(fname, list(conc = conc, resp = resp, nofit = !to.fit)))
-    } else {
-      assign(model, do.call(fname, list(
+    assign(model, do.call(fname, list(
         conc = conc, resp = resp, bidirectional = bidirectional, verbose = verbose,
         nofit = !to.fit
       )))
@@ -91,7 +88,7 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
           assign(model, append(get(model), list(ac50_loss = acy(.5 * get(model)$top, get(model), type = model, getloss = T))))
         }
       }
-    }
+
   }
   # optionally print out AICs
   if (verbose) {

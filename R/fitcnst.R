@@ -19,7 +19,7 @@
 #' @examples
 #' fitcnst(c(.1,1,10,100), c(1,2,0,-1))
 #' fitcnst(c(.1,1,10,100), c(1,2,0,-1), nofit = TRUE)
-fitcnst = function(conc, resp, nofit = F){
+fitcnst = function(conc, resp, nofit = F, ...){
 
   pars <- "er"
   myparams = c("success", "aic", "rme","er")
