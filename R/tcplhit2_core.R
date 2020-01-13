@@ -99,21 +99,12 @@ tcplhit2_core <- function(params,conc,resp,cutoff,onesd,bmed=0,conthits=T,aicc=F
     modpars = fitout[fitout$pars]
     list2env(modpars, envir = environment()) #put model parameters in environment
   }
-  #first deal with parameter output
-  if(fit_method %in% c("poly1", "poly2", "pow", "exp2", "exp3")){
-    #methods that grow without bound: top defined as model value at max conc
-    top = fitout$modl[which.max(abs(fitout$modl))] #top is taken to be highest model value
-    ac50 = acy(.5*top, modpars, type = fit_method)
-  } else if(fit_method %in% c("hill", "exp4", "exp5")){
-    #methods with a theoretical top/ac50
-    top = tp
-    ac50 = ga
-  } else if(fit_method == "gnls"){
-    #gnls methods; use calculated top/ac50, etc.
-    top =  acy(0, modpars, type = fit_method, returntop = T)
-    ac50 = acy(.5*top, modpars, type = fit_method)
-    ac50_loss = acy(.5*top, modpars, type = fit_method, getloss = T)
-  }
+
+  # model top and ac50 should be calculated in the fitting stage
+  # assign variables to environment if they exist
+  if(!is.null(fitout$top)) top <- fitout$top
+  if(!is.null(fitout$ac50)) ac50 <- fitout$ac50
+  if(!is.null(fitout$ac50_loss)) ac50_loss <- fitout$ac50_loss
   n_gt_cutoff = sum(abs(resp)>cutoff)
 
   #compute discrete or continuous hitcalls
@@ -129,6 +120,7 @@ tcplhit2_core <- function(params,conc,resp,cutoff,onesd,bmed=0,conthits=T,aicc=F
 
   bmr = onesd*1.349 #magic bmr is hard-coded
   if(hitcall > 0){
+
     #fill ac's; can put after hit logic
     ac5 = acy(.05*top, modpars, type = fit_method) #note: cnst model automatically returns NAs
     ac10 = acy(.1*top, modpars, type = fit_method)
