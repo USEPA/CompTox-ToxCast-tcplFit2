@@ -75,22 +75,22 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
         conc = conc, resp = resp, bidirectional = bidirectional, verbose = verbose,
         nofit = !to.fit
       )))
-      if(model %in% c("poly1", "poly2", "pow", "exp2", "exp3")){
-        #methods that grow without bound: top defined as model value at max conc
-        assign(model,append(get(model), list(top = get(model)$modl[which.max(abs(get(model)$modl))]))) #top is taken to be highest model value
-        assign(model,append(get(model), list(ac50 = acy(.5*get(model)$top, get(model), type = model))))
-      } else if(model %in% c("hill", "exp4", "exp5")){
-        #methods with a theoretical top/ac50
-        assign(model,append(get(model), list(top = get(model)$tp)))
-        assign(model,append(get(model), list(ac50 = get(model)$ga)))
-      } else if(model == "gnls"){
-        #gnls methods; use calculated top/ac50, etc.
-        assign(model,append(get(model), list(top =  acy(0, get(model), type = model, returntop = T))))
-        assign(model,append(get(model), list(ac50 = acy(.5*get(model)$top, get(model), type = model))))
-        assign(model,append(get(model), list(ac50_loss = acy(.5*get(model)$top, get(model), type = model, getloss = T))))
+      if (to.fit) {
+        if (model %in% c("poly1", "poly2", "pow", "exp2", "exp3")) {
+          # methods that grow without bound: top defined as model value at max conc
+          assign(model, append(get(model), list(top = get(model)$modl[which.max(abs(get(model)$modl))]))) # top is taken to be highest model value
+          assign(model, append(get(model), list(ac50 = acy(.5 * get(model)$top, get(model), type = model))))
+        } else if (model %in% c("hill", "exp4", "exp5")) {
+          # methods with a theoretical top/ac50
+          assign(model, append(get(model), list(top = get(model)$tp)))
+          assign(model, append(get(model), list(ac50 = get(model)$ga)))
+        } else if (model == "gnls") {
+          # gnls methods; use calculated top/ac50, etc.
+          assign(model, append(get(model), list(top = acy(0, get(model), type = model, returntop = T))))
+          assign(model, append(get(model), list(ac50 = acy(.5 * get(model)$top, get(model), type = model))))
+          assign(model, append(get(model), list(ac50_loss = acy(.5 * get(model)$top, get(model), type = model, getloss = T))))
+        }
       }
-
-
     }
   }
   # optionally print out AICs
