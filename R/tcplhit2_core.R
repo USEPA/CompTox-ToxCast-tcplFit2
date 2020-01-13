@@ -104,14 +104,9 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd, bmed = 0, conthits 
     fitout <- params[[fit_method]]
     rmse <- fitout$rme
     modpars <- fitout[fitout$pars]
-    list2env(modpars, envir = environment()) # put model parameters in environment
+    list2env(fitout, envir = environment()) # put all parameters in environment
   }
 
-  # model top and ac50 should be calculated in the fitting stage
-  # assign variables to environment if they exist
-  if (!is.null(fitout$top)) top <- fitout$top
-  if (!is.null(fitout$ac50)) ac50 <- fitout$ac50
-  if (!is.null(fitout$ac50_loss)) ac50_loss <- fitout$ac50_loss
   n_gt_cutoff <- sum(abs(resp) > cutoff)
 
   # compute discrete or continuous hitcalls
