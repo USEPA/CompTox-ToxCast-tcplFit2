@@ -60,92 +60,105 @@
 #'   }
 #' @export
 #'
-tcplhit2_core <- function(params,conc,resp,cutoff,onesd,bmed=0,conthits=T,aicc=F,identifiers=NULL) {
-  #initialize parameters to NA
-  a = b = tp = p = q = ga = la = er = top = ac50 = ac50_loss = ac5 = ac10 = ac20 = acc = ac1sd = bmd = NA_real_
-  bmdl = bmdu = caikwt = mll = NA_real_
-  #get aics and degrees of freedom
-  aics = sapply(params$modelnames, function(x){params[[x]][["aic"]]})
-  dfs = sapply(params$modelnames, function(x){length(params[[x]][["pars"]])})
-  aics = aics[!is.na(aics)]
-  if(sum(!is.na(aics)) == 0){
-    #if all fits failed, use none for method
-    fit_method = "none"
-    rmse = NA_real_
+tcplhit2_core <- function(params, conc, resp, cutoff, onesd, bmed = 0, conthits = T, aicc = F, identifiers = NULL) {
+  # initialize parameters to NA
+  a <- b <- tp <- p <- q <- ga <- la <- er <- top <- ac50 <- ac50_loss <- ac5 <- ac10 <- ac20 <- acc <- ac1sd <- bmd <- NA_real_
+  bmdl <- bmdu <- caikwt <- mll <- NA_real_
+  # get aics and degrees of freedom
+  aics <- sapply(params$modelnames, function(x) {
+    params[[x]][["aic"]]
+  })
+  dfs <- sapply(params$modelnames, function(x) {
+    length(params[[x]][["pars"]])
+  })
+  aics <- aics[!is.na(aics)]
+  if (sum(!is.na(aics)) == 0) {
+    # if all fits failed, use none for method
+    fit_method <- "none"
+    rmse <- NA_real_
   } else {
-    #use nested chisq to choose between poly1 and poly2, remove poly2 if it fails.
-    #pvalue hardcoded to .05
-    aics = nestselect(aics, "poly1", "poly2", dfdiff = 1, pval = .05)
-    dfs = dfs[names(dfs) %in% names(aics)]
-    #it's useful to keep original aics so we can extract loglikelihoods for nested models (above) and mll (below)
-    if(aicc)   saics = aics + 2*dfs*(dfs+1)/(length(resp)-dfs-1)   else saics = aics
-    if(conthits) {
-      #get aikaike weight of winner (vs constant) for cont hitcalls
-      #never choose constant as winner for cont hitcalls
-      nocnstaics = saics[names(saics) != "cnst"]
-      fit_method = names(nocnstaics)[which.min(nocnstaics)]
-      caikwt = exp(-saics["cnst"]/2)/(exp(-saics["cnst"]/2) + exp(-saics[fit_method]/2))
-      if(is.nan(caikwt)) {
-        term <- exp(saics["cnst"]/2-saics[fit_method]/2)
-        if(term==Inf) caikwt <- 0
-        else caikwt = 1/(1+term)
-        #caikwt <- 1
+    # use nested chisq to choose between poly1 and poly2, remove poly2 if it fails.
+    # pvalue hardcoded to .05
+    aics <- nestselect(aics, "poly1", "poly2", dfdiff = 1, pval = .05)
+    dfs <- dfs[names(dfs) %in% names(aics)]
+    # it's useful to keep original aics so we can extract loglikelihoods for nested models (above) and mll (below)
+    if (aicc) saics <- aics + 2 * dfs * (dfs + 1) / (length(resp) - dfs - 1) else saics <- aics
+    if (conthits) {
+      # get aikaike weight of winner (vs constant) for cont hitcalls
+      # never choose constant as winner for cont hitcalls
+      nocnstaics <- saics[names(saics) != "cnst"]
+      fit_method <- names(nocnstaics)[which.min(nocnstaics)]
+      caikwt <- exp(-saics["cnst"] / 2) / (exp(-saics["cnst"] / 2) + exp(-saics[fit_method] / 2))
+      if (is.nan(caikwt)) {
+        term <- exp(saics["cnst"] / 2 - saics[fit_method] / 2)
+        if (term == Inf) {
+          caikwt <- 0
+        } else {
+          caikwt <- 1 / (1 + term)
+        }
+        # caikwt <- 1
       }
-    } else  {
-      fit_method = names(saics)[which.min(saics)]
+    } else {
+      fit_method <- names(saics)[which.min(saics)]
     }
-    fitout = params[[fit_method]]
-    rmse = fitout$rme
-    modpars = fitout[fitout$pars]
-    list2env(modpars, envir = environment()) #put model parameters in environment
+    fitout <- params[[fit_method]]
+    rmse <- fitout$rme
+    modpars <- fitout[fitout$pars]
+    list2env(modpars, envir = environment()) # put model parameters in environment
   }
 
   # model top and ac50 should be calculated in the fitting stage
   # assign variables to environment if they exist
-  if(!is.null(fitout$top)) top <- fitout$top
-  if(!is.null(fitout$ac50)) ac50 <- fitout$ac50
-  if(!is.null(fitout$ac50_loss)) ac50_loss <- fitout$ac50_loss
-  n_gt_cutoff = sum(abs(resp)>cutoff)
+  if (!is.null(fitout$top)) top <- fitout$top
+  if (!is.null(fitout$ac50)) ac50 <- fitout$ac50
+  if (!is.null(fitout$ac50_loss)) ac50_loss <- fitout$ac50_loss
+  n_gt_cutoff <- sum(abs(resp) > cutoff)
 
-  #compute discrete or continuous hitcalls
-  if(fit_method == "none") {
-    hitcall = 0
-  } else if(conthits){
-    mll = length(modpars) - aics[[fit_method]]/2
-    hitcall = hitcontinner(conc, resp, top, cutoff, er, ps = unlist(modpars), fit_method,
-                           caikwt = caikwt, mll = mll)
+  # compute discrete or continuous hitcalls
+  if (fit_method == "none") {
+    hitcall <- 0
+  } else if (conthits) {
+    mll <- length(modpars) - aics[[fit_method]] / 2
+    hitcall <- hitcontinner(conc, resp, top, cutoff, er,
+      ps = unlist(modpars), fit_method,
+      caikwt = caikwt, mll = mll
+    )
   } else {
-    hitcall = hitloginner(conc, resp, top, cutoff, ac50)
+    hitcall <- hitloginner(conc, resp, top, cutoff, ac50)
   }
 
-  bmr = onesd*1.349 #magic bmr is hard-coded
-  if(hitcall > 0){
+  bmr <- onesd * 1.349 # magic bmr is hard-coded
+  if (hitcall > 0) {
 
-    #fill ac's; can put after hit logic
-    ac5 = acy(.05*top, modpars, type = fit_method) #note: cnst model automatically returns NAs
-    ac10 = acy(.1*top, modpars, type = fit_method)
-    ac20 = acy(.2*top, modpars, type = fit_method)
-    acc = acy(sign(top)*cutoff, modpars, type = fit_method)
-    ac1sd = acy(sign(top)*onesd, modpars, type = fit_method)
-    bmd = acy(sign(top)*bmr, modpars, type = fit_method)
+    # fill ac's; can put after hit logic
+    ac5 <- acy(.05 * top, modpars, type = fit_method) # note: cnst model automatically returns NAs
+    ac10 <- acy(.1 * top, modpars, type = fit_method)
+    ac20 <- acy(.2 * top, modpars, type = fit_method)
+    acc <- acy(sign(top) * cutoff, modpars, type = fit_method)
+    ac1sd <- acy(sign(top) * onesd, modpars, type = fit_method)
+    bmd <- acy(sign(top) * bmr, modpars, type = fit_method)
 
-    #get bmdl and bmdu
-    bmdl = bmdbounds(fit_method, bmr = sign(top)*bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                     bmd = bmd, which.bound = "lower")
-    bmdu = bmdbounds(fit_method, bmr = sign(top)*bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                     bmd = bmd, which.bound = "upper")
+    # get bmdl and bmdu
+    bmdl <- bmdbounds(fit_method,
+      bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
+      bmd = bmd, which.bound = "lower"
+    )
+    bmdu <- bmdbounds(fit_method,
+      bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
+      bmd = bmd, which.bound = "upper"
+    )
   }
 
-  top_over_cutoff <- abs(top)/cutoff
-  conc <- paste(conc,collapse="|")
-  resp <- paste(resp,collapse="|")
+  top_over_cutoff <- abs(top) / cutoff
+  conc <- paste(conc, collapse = "|")
+  resp <- paste(resp, collapse = "|")
 
-  #row contains the specified columns and any identifying, unused columns in the input
-  name.list <- c("n_gt_cutoff","cutoff", "fit_method",
-                 "top_over_cutoff", "rmse", "a", "b", "tp", "p", "q", "ga", "la", "er", "bmr", "bmdl", "bmdu", "caikwt",
-                 "mll","hitcall", "ac50","ac50_loss","top", "ac5","ac10","ac20", "acc", "ac1sd", "bmd", "conc", "resp")
-  row = as.data.frame(c(identifiers, mget(name.list)), stringsAsFactors = F)
+  # row contains the specified columns and any identifying, unused columns in the input
+  name.list <- c(
+    "n_gt_cutoff", "cutoff", "fit_method",
+    "top_over_cutoff", "rmse", "a", "b", "tp", "p", "q", "ga", "la", "er", "bmr", "bmdl", "bmdu", "caikwt",
+    "mll", "hitcall", "ac50", "ac50_loss", "top", "ac5", "ac10", "ac20", "acc", "ac1sd", "bmd", "conc", "resp"
+  )
+  row <- as.data.frame(c(identifiers, mget(name.list)), stringsAsFactors = F)
   return(row)
 }
-
-
