@@ -69,7 +69,8 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd, bmed = 0, conthits 
     params[[x]][["aic"]]
   })
   dfs <- sapply(params$modelnames, function(x) {
-    length(params[[x]][["pars"]])
+    if(x == "cnst") 1L
+    else length(params[[x]][gsub("_sd","",names(params[[x]])[grepl("_sd",names(params[[x]]))])])
   })
   aics <- aics[!is.na(aics)]
   if (sum(!is.na(aics)) == 0) {
