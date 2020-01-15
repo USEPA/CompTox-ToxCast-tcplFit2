@@ -33,7 +33,7 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F
 
   fenv <- environment()
   #initialize myparams
-  pars <- paste0(c("a", "b", "er"),"_par")
+  pars <- paste0(c("a", "b", "er"))
   sds <- paste0(c("a", "b", "er"), "_sd")
   myparams = c("success", "aic", "cov", "rme", "modl", pars, sds, "pars", "sds")
 

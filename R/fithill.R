@@ -39,7 +39,7 @@ fithill = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F)
   logc = log10(conc)
   fenv <- environment()
 
-  pars <- paste0(c("tp", "ga", "p", "er"),"_par")
+  pars <- paste0(c("tp", "ga", "p", "er"))
   sds <- paste0(c("tp", "ga", "p", "er"), "_sd")
   myparams = c("success", "aic", "cov", "rme", "modl", pars, sds, "pars", "sds")
 

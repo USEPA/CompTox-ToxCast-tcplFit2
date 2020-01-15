@@ -33,7 +33,7 @@ fitexp2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F)
 
   fenv <- environment()
   #initialize myparams
-  pars <- paste0(c("a", "b", "er"),"_par")
+  pars <- paste0(c("a", "b", "er"))
   sds <- paste0(c("a", "b", "er"), "_sd")
   myparams = c("success", "aic", "cov", "rme", "modl", pars, sds, "pars", "sds")
 
@@ -118,7 +118,7 @@ fitexp2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F)
     rme <- sqrt(mean((modl - resp)^2, na.rm = TRUE))
 
     ## Calculate the sd for the gnls parameters
-    fit$cov <- try(solve(-numDeriv::hessian(tcplObj,
+    fit$cov <- try(solve(-hessian(tcplObj,
                                    fit$par,
                                    conc = conc,
                                    resp = resp,
