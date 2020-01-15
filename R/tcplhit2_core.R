@@ -103,7 +103,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd, bmed = 0, conthits 
     }
     fitout <- params[[fit_method]]
     rmse <- fitout$rme
-    modpars <- fitout[fitout$pars]
+    modpars <- fitout[grepl("_par",names(fitout))]
     list2env(fitout, envir = environment()) # put all parameters in environment
   }
 

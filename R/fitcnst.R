@@ -22,7 +22,7 @@
 fitcnst = function(conc, resp, nofit = F, ...){
 
   pars <- "er"
-  myparams = c("success", "aic", "rme","er")
+  myparams = c("success", "aic", "rme","er_par")
   #nofit generic output
   if(nofit){
     out = as.list(rep(NA_real_, length(myparams)))

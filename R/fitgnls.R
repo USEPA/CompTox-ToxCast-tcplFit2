@@ -41,7 +41,7 @@ fitgnls = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F,
   logc = log10(conc)
   fenv <- environment()
 
-  pars <- paste0(c("tp", "ga", "p", "la", "q", "er"))
+  pars <- paste0(c("tp", "ga", "p", "la", "q", "er"),"_par")
   sds <- paste0(c("tp", "ga", "p", "la", "q", "er"), "_sd")
   myparams = c("success", "aic", "cov", "rme", "modl", pars, sds, "pars", "sds")
 
