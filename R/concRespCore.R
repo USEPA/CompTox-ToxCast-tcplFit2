@@ -49,7 +49,7 @@ concRespCore <- function(row,
                          do.plot = FALSE,
                          return.details=FALSE) {
   # variable binding to pass cmd checks
-  bmed <- cutoff <- onesd <- NULL
+  bmed <- cutoff <- onesd <- bmr_scale <- NULL
   # row needs to include cutoff and bmed
   # unpack row into the local environment, for ease: sample_id, dtxsid, casrn, name, time, pathway, size, con, resp
   list2env(row,envir=environment())
@@ -67,7 +67,7 @@ concRespCore <- function(row,
                      verbose=verbose, do.plot=do.plot)
 
   # calculate the hitcall
-  summary <- tcplhit2_core(params,conc,resp,cutoff,onesd,bmed,conthits,aicc,identifiers)
+  summary <- tcplhit2_core(params,conc,resp,cutoff,onesd,bmr_scale,bmed,conthits,aicc,identifiers)
   if(return.details) return(list(summary=summary,all.models=params))
   else return(summary)
 }
