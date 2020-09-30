@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 tcplFit2_manual.pdf
+tcplfit2-vignette.md
+^doc$
+^Meta$

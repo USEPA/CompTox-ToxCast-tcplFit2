@@ -10,6 +10,7 @@ tcplhit2_core(
   resp,
   cutoff,
   onesd,
+  bmr_scale = 1.349,
   bmed = 0,
   conthits = T,
   aicc = F,
@@ -26,6 +27,8 @@ tcplhit2_core(
 \item{cutoff}{noise cutoff}
 
 \item{onesd}{1 standard deviation of the noise (for bmd calculation)}
+
+\item{bmr_scale}{bmr scaling factor. Default = 1.349}
 
 \item{bmed}{median of noise estimate. Default 0}
 
@@ -58,7 +61,7 @@ The elements of summary are:
     \item ga - ac50 for the rising curve in a gnls model or the Hill model
     \item la - ac50 for the falling curve in a gnls model
     \item er - fitted error term for plotting error bars
-    \item bmr - benchmark response; level at which bmd is calculated = onesd*1.349
+    \item bmr - benchmark response; level at which bmd is calculated = onesd*bmr_scale default bmr_scale is 1.349
     \item bmd - benchmark dose, curve value at bmr
     \item bmdl - lower limit on the bmd
     \item bmdu - upper limit on the bmd

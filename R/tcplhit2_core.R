@@ -13,6 +13,7 @@
 #' @param bmed median of noise estimate. Default 0
 #' @param cutoff noise cutoff
 #' @param onesd 1 standard deviation of the noise (for bmd calculation)
+#' @param bmr_scale bmr scaling factor. Default = 1.349
 #' @param conthits conthits = TUE uses continuous hitcalls, otherwise they're
 #'   discrete. Default TRUE
 #' @param aicc aicc = TRUE uses corrected AIC to choose winning method; otherwise
