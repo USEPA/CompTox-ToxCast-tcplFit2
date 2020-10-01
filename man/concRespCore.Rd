@@ -14,7 +14,8 @@ concRespCore(
   bidirectional = TRUE,
   verbose = FALSE,
   do.plot = FALSE,
-  return.details = FALSE
+  return.details = FALSE,
+  bmr_scale = 1.349
 )
 }
 \arguments{
@@ -47,9 +48,11 @@ outside of the bounds (default FALSE)}
 \item{do.plot}{If TRUE, create a plot in the tcplfit2_core function (default FALSE)}
 
 \item{return.details}{If TRUE, return the hitcalling details and the summary, if FALSE (default), just return the summary}
+
+\item{bmr_scale}{- bmr scaling factor (for bmd calculation) default = 1.349}
 }
 \value{
-A list of two elements. The first (summary) is teh output from tcplhit2_core. The second, params is the
+A list of two elements. The first (summary) is the output from tcplhit2_core. The second, params is the
 output from tcplfit2_core
 a dataframe of one row containing
 }
@@ -59,10 +62,14 @@ function calls tcplfit2_core to get curve fits, and then tcplhit2_core to
 perform the hitcalling.
 }
 \examples{
-conc = list(.03,.1,.3,1,3,10,30,100)
-resp = list(0,.2,.1,.4,.7,.9,.6, 1.2)
-row = list(conc = conc, resp = resp, bmed = 0, cutoff = 1, onesd = .5,name="some chemical")
+conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)
+resp <- list(0, .2, .1, .4, .7, .9, .6, 1.2)
+row <- list(conc = conc,
+            resp = resp,
+            bmed = 0,
+            cutoff = 1,
+            onesd = .5,
+            name = "some chemical")
 concRespCore(row, conthits = TRUE)
 concRespCore(row, aicc = TRUE)
-
 }

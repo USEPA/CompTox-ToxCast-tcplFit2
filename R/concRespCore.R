@@ -25,51 +25,61 @@
 #' @param verbose  If TRUE, write extra output from tcplfit2_core (default FALSE)
 #' @param do.plot If TRUE, create a plot in the tcplfit2_core function (default FALSE)
 #' @param return.details If TRUE, return the hitcalling details and the summary, if FALSE (default), just return the summary
-#'
-#' @return A list of two elements. The first (summary) is teh output from tcplhit2_core. The second, params is the
+#' @param bmr_scale - bmr scaling factor (for bmd calculation) default = 1.349
+#' @return A list of two elements. The first (summary) is the output from tcplhit2_core. The second, params is the
 #' output from tcplfit2_core
 #' a dataframe of one row containing
 #' @export
 #'
 #' @examples
-#' conc = list(.03,.1,.3,1,3,10,30,100)
-#' resp = list(0,.2,.1,.4,.7,.9,.6, 1.2)
-#' row = list(conc = conc, resp = resp, bmed = 0, cutoff = 1, onesd = .5,name="some chemical")
+#' conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)
+#' resp <- list(0, .2, .1, .4, .7, .9, .6, 1.2)
+#' row <- list(conc = conc,
+#'             resp = resp,
+#'             bmed = 0,
+#'             cutoff = 1,
+#'             onesd = .5,
+#'             name = "some chemical")
 #' concRespCore(row, conthits = TRUE)
 #' concRespCore(row, aicc = TRUE)
-#'
 concRespCore <- function(row,
-                         fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
-                                       "exp4", "exp5"),
+                         fitmodels = c(
+                           "cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
+                           "exp4", "exp5"
+                         ),
                          conthits = T,
                          aicc = F,
                          force.fit = FALSE,
                          bidirectional = TRUE,
                          verbose = FALSE,
                          do.plot = FALSE,
-                         return.details=FALSE) {
+                         return.details = FALSE,
+                         bmr_scale = 1.349) {
   # variable binding to pass cmd checks
   bmed <- cutoff <- onesd <- NULL
   # row needs to include cutoff and bmed
   # unpack row into the local environment, for ease: sample_id, dtxsid, casrn, name, time, pathway, size, con, resp
-  list2env(row,envir=environment())
-  resp = unlist(resp)
-  conc = unlist(conc)
+  list2env(row, envir = environment())
+  resp <- unlist(resp)
+  conc <- unlist(conc)
 
   # prepare input
-  resp = resp - bmed
-  conc = conc[!is.na(resp)]
-  resp = resp[!is.na(resp)]
-  identifiers = row[!names(row) %in% c("conc", "resp", "bmed", "onesd", "cutoff")]
+  resp <- resp - bmed
+  conc <- conc[!is.na(resp)]
+  resp <- resp[!is.na(resp)]
+  identifiers <- row[!names(row) %in% c("conc", "resp", "bmed", "onesd", "cutoff")]
 
   # run the fits
-  params <- tcplfit2_core(conc, resp, cutoff, force.fit = conthits, bidirectional = bidirectional, fitmodels = fitmodels,
-                     verbose=verbose, do.plot=do.plot)
+  params <- tcplfit2_core(conc, resp, cutoff,
+    force.fit = conthits, bidirectional = bidirectional, fitmodels = fitmodels,
+    verbose = verbose, do.plot = do.plot
+  )
 
   # calculate the hitcall
-  summary <- tcplhit2_core(params,conc,resp,cutoff,onesd,bmed,conthits,aicc,identifiers)
-  if(return.details) return(list(summary=summary,all.models=params))
-  else return(summary)
+  summary <- tcplhit2_core(params, conc, resp, cutoff, onesd, bmr_scale, bmed, conthits, aicc, identifiers)
+  if (return.details) {
+    return(list(summary = summary, all.models = params))
+  } else {
+    return(summary)
+  }
 }
-
-

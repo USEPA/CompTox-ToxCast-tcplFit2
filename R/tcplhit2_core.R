@@ -13,6 +13,7 @@
 #' @param bmed median of noise estimate. Default 0
 #' @param cutoff noise cutoff
 #' @param onesd 1 standard deviation of the noise (for bmd calculation)
+#' @param bmr_scale bmr scaling factor. Default = 1.349
 #' @param conthits conthits = TUE uses continuous hitcalls, otherwise they're
 #'   discrete. Default TRUE
 #' @param aicc aicc = TRUE uses corrected AIC to choose winning method; otherwise
@@ -39,7 +40,7 @@
 #'     \item ga - ac50 for the rising curve in a gnls model or the Hill model
 #'     \item la - ac50 for the falling curve in a gnls model
 #'     \item er - fitted error term for plotting error bars
-#'     \item bmr - benchmark response; level at which bmd is calculated = onesd*1.349
+#'     \item bmr - benchmark response; level at which bmd is calculated = onesd*bmr_scale default bmr_scale is 1.349
 #'     \item bmd - benchmark dose, curve value at bmr
 #'     \item bmdl - lower limit on the bmd
 #'     \item bmdu - upper limit on the bmd
@@ -60,7 +61,7 @@
 #'   }
 #' @export
 #'
-tcplhit2_core <- function(params, conc, resp, cutoff, onesd, bmed = 0, conthits = T, aicc = F, identifiers = NULL) {
+tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = T, aicc = F, identifiers = NULL) {
   # initialize parameters to NA
   a <- b <- tp <- p <- q <- ga <- la <- er <- top <- ac50 <- ac50_loss <- ac5 <- ac10 <- ac20 <- acc <- ac1sd <- bmd <- NA_real_
   bmdl <- bmdu <- caikwt <- mll <- NA_real_
@@ -127,7 +128,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd, bmed = 0, conthits 
     hitcall <- hitloginner(conc, resp, top, cutoff, ac50)
   }
 
-  bmr <- onesd * 1.349 # magic bmr is hard-coded
+  bmr <- onesd * bmr_scale # magic bmr is default 1.349
   if (hitcall > 0) {
 
     # fill ac's; can put after hit logic

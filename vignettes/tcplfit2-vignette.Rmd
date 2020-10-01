@@ -38,7 +38,7 @@ put into a named list called 'row':
 * `resp` - a vector of responses, of the same length as `conc`. Note that replicates are allowed, i.e. there can be multiple pairs of conc and resp with the same concentration value.
 * `cutoff`- this is the value that the response must exceed before a a curve can be called a hit. For ToxCast, this is usually some multiple (typically 3) of the medain absolute deviation (BMAD) around baseline for the lowest two concentration. The user is free to make other choices
 * `bmed` - this is the median of the baseline, and will usually be set to zero. If not, the entire response series will be shifted by this amount.
-* `onesd`- This is one standard deviation of the nose around the baseline. The BMR value = `onesd`*1.349.
+* `onesd`- This is one standard deviation of the nose around the baseline. The BMR value = `onesd`*`bmr_scale`. The default `bmr_scale` is 1.349.
 
 The list `row` can also have other optional elements which will be included in the output. These can be,
 for instance, the name of the chemical (or other identifiers) or the name of the assay being modeled. Two other 
