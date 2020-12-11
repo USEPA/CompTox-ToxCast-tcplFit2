@@ -104,11 +104,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     }
     fitout <- params[[fit_method]]
     rmse <- fitout$rme
-    # hacky way to get modpars without hardcoding the names or needing the list
-    # basically each model (except cnst) has an sd for each parameter
-    # we can use that to select all model parameters
-    modpars <- fitout[gsub("_sd","",names(fitout)[grepl("_sd",names(fitout))])]
-    if(fit_method == "cnst") modpars <- fitout["er"]  #since no sd for cnst
+    modpars <- fitout[fitout$pars]
     list2env(fitout, envir = environment()) # put all parameters in environment
   }
 
