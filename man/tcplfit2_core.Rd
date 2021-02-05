@@ -69,8 +69,10 @@ To add more models in the future, write a fit____ function, and add the model
 name to the fitmodels and modelnames vectors.
 }
 \examples{
-conc = c(.03,.1,.3,1,3,10,30,100)
-resp = c(0,.1,0,.2,.6,.9,1.1,1)
-output = tcplfit2_core(conc,resp, .8, fitmodels = c("cnst", "hill"),verbose = TRUE,
-  do.plot = TRUE)
+conc <- c(.03, .1, .3, 1, 3, 10, 30, 100)
+resp <- c(0, .1, 0, .2, .6, .9, 1.1, 1)
+output <- tcplfit2_core(conc, resp, .8,
+  fitmodels = c("cnst", "hill"), verbose = TRUE,
+  do.plot = TRUE
+)
 }

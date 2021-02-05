@@ -14,7 +14,9 @@ tcplhit2_core(
   bmed = 0,
   conthits = T,
   aicc = F,
-  identifiers = NULL
+  identifiers = NULL,
+  bmd_low_bnd = NULL,
+  bmd_up_bnd = NULL
 )
 }
 \arguments{
@@ -42,6 +44,12 @@ regular AIC. Default FALSE}
 such as the chemical name or other identifiers, and any assay identifiers. The column names
 identify the type of value. This can be NULL. The values will be included in the output
 summary data frame}
+
+\item{bmd_low_bnd}{Multiplier for bmd lower bound.  A value of .1 would require the bmd to be no lower
+than 1/10th of the lowest concentration tested.}
+
+\item{bmd_up_bnd}{Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
+than 10 times the highest concentration tested.}
 }
 \value{
 A list of with the detailed results from all of the different model fits.

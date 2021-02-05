@@ -4,7 +4,7 @@
 \alias{fitcnst}
 \title{Constant Model Fit}
 \usage{
-fitcnst(conc, resp, nofit = F)
+fitcnst(conc, resp, nofit = F, ...)
 }
 \arguments{
 \item{conc}{Vector of concentration values NOT in log units.}
