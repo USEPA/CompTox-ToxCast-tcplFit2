@@ -164,7 +164,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     # apply bmd max
     if(!is.null(bmd_up_bnd)){
       max_conc <- max(conc)
-      max_bnd <- max_conc*bmd_up_bnd
+      max_bmd <- max_conc*bmd_up_bnd
       if(bmd > max_bmd){
         #shift all bmd to the left
         bmd_diff <- bmd - max_bmd
