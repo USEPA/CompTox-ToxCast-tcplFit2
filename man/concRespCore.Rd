@@ -15,7 +15,9 @@ concRespCore(
   verbose = FALSE,
   do.plot = FALSE,
   return.details = FALSE,
-  bmr_scale = 1.349
+  bmr_scale = 1.349,
+  bmd_low_bnd = NULL,
+  bmd_up_bnd = NULL
 )
 }
 \arguments{
@@ -50,6 +52,12 @@ outside of the bounds (default FALSE)}
 \item{return.details}{If TRUE, return the hitcalling details and the summary, if FALSE (default), just return the summary}
 
 \item{bmr_scale}{- bmr scaling factor (for bmd calculation) default = 1.349}
+
+\item{bmd_low_bnd}{Multiplier for bmd lower bound.  A value of .1 would require the bmd to be no lower
+than 1/10th of the lowest concentration tested.}
+
+\item{bmd_up_bnd}{Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
+than 10 times the highest concentration tested.}
 }
 \value{
 A list of two elements. The first (summary) is the output from tcplhit2_core. The second, params is the
