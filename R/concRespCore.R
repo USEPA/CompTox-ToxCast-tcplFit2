@@ -29,6 +29,12 @@
 #' @return A list of two elements. The first (summary) is the output from tcplhit2_core. The second, params is the
 #' output from tcplfit2_core
 #' a dataframe of one row containing
+#' @param bmd_low_bnd Multiplier for bmd lower bound.  A value of .1 would require the bmd to be no lower
+#'   than 1/10th of the lowest concentration tested.
+#' @param bmd_up_bnd Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
+#'   than 10 times the highest concentration tested.
+#'
+#'
 #' @export
 #'
 #' @examples
@@ -54,7 +60,9 @@ concRespCore <- function(row,
                          verbose = FALSE,
                          do.plot = FALSE,
                          return.details = FALSE,
-                         bmr_scale = 1.349) {
+                         bmr_scale = 1.349,
+                         bmd_low_bnd = NULL,
+                         bmd_up_bnd = NULL) {
   # variable binding to pass cmd checks
   bmed <- cutoff <- onesd <- NULL
   # row needs to include cutoff and bmed
@@ -76,7 +84,7 @@ concRespCore <- function(row,
   )
 
   # calculate the hitcall
-  summary <- tcplhit2_core(params, conc, resp, cutoff, onesd, bmr_scale, bmed, conthits, aicc, identifiers)
+  summary <- tcplhit2_core(params, conc, resp, cutoff, onesd, bmr_scale, bmed, conthits, aicc, identifiers,bmd_low_bnd, bmd_up_bnd)
   if (return.details) {
     return(list(summary = summary, all.models = params))
   } else {

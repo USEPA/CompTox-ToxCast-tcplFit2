@@ -22,6 +22,10 @@
 #'   such as the chemical name or other identifiers, and any assay identifiers. The column names
 #'   identify the type of value. This can be NULL. The values will be included in the output
 #'   summary data frame
+#' @param bmd_low_bnd Multiplier for bmd lower bound.  A value of .1 would require the bmd to be no lower
+#'   than 1/10th of the lowest concentration tested.
+#' @param bmd_up_bnd Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
+#'   than 10 times the highest concentration tested.
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:
@@ -61,7 +65,7 @@
 #'   }
 #' @export
 #'
-tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = T, aicc = F, identifiers = NULL) {
+tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = T, aicc = F, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL) {
   # initialize parameters to NA
   a <- b <- tp <- p <- q <- ga <- la <- er <- top <- ac50 <- ac50_loss <- ac5 <- ac10 <- ac20 <- acc <- ac1sd <- bmd <- NA_real_
   bmdl <- bmdu <- caikwt <- mll <- NA_real_
@@ -143,6 +147,36 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
       bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
       bmd = bmd, which.bound = "upper"
     )
+
+    # apply bmd min
+    if(!is.null(bmd_low_bnd)){
+      min_conc <- min(conc)
+      min_bmd <- min_conc*bmd_low_bnd
+      if(bmd < min_bmd){
+        bmd_diff <- min_bmd - bmd
+        #shift all bmd to the right
+        bmd <- bmd + bmd_diff
+        bmdl <- bmdl + bmd_diff
+        bmdu <- bmdu + bmd_diff
+      }
+    }
+
+    # apply bmd max
+    if(!is.null(bmd_up_bnd)){
+      max_conc <- max(conc)
+      max_bnd <- max_conc*bmd_up_bnd
+      if(bmd > max_bmd){
+        #shift all bmd to the left
+        bmd_diff <- bmd - max_bmd
+        bmd <- bmd - bmd_diff
+        bmdl <- bmdl - bmd_diff
+        bmdu <- bmdu - bmd_diff
+      }
+    }
+
+
+
+
   }
 
   top_over_cutoff <- abs(top) / cutoff
