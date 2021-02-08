@@ -149,7 +149,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     )
 
     # apply bmd min
-    if(!is.null(bmd_low_bnd)){
+    if(!is.null(bmd_low_bnd) & !is.na(bmd)){
       min_conc <- min(conc)
       min_bmd <- min_conc*bmd_low_bnd
       if(bmd < min_bmd){
@@ -162,7 +162,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     }
 
     # apply bmd max
-    if(!is.null(bmd_up_bnd)){
+    if(!is.null(bmd_up_bnd) & !is.na(bmd)){
       max_conc <- max(conc)
       max_bmd <- max_conc*bmd_up_bnd
       if(bmd > max_bmd){
