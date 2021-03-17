@@ -60,6 +60,13 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
 
   # first decide which of possible models will be fit
   modelnames <- c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5")
+  # check for edge case where all responses are equal
+  if(max(resp)==min(resp) && resp[1]==0){ # check if all response values are zero
+    warning(paste("all response values are 0: add epsilon (1e-6) to all response elements.",
+                  paste("\tResponse Range:",paste(range(resp),collapse = ",")),
+                  sep = "\n")) # return a warning
+    resp <- resp+1e-6 # adding epsilon to resp vector
+  }
   # decide whether to run each model, then use generic functions to run model by name
   for (model in modelnames) {
     # only fit when four or more concentrations, the model is in fitmodels, and
