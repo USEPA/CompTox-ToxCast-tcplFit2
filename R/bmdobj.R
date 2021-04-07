@@ -8,7 +8,7 @@
 #' @param bmr Benchmark response.
 #' @param conc Vector of concentrations NOT in log units.
 #' @param resp Vector of corresponding responses.
-#' @param ps Named list of paramters.
+#' @param ps Named list of parameters.
 #' @param mll Maximum log-likelihood of winning model.
 #' @param onesp One-sided p-value.
 #' @param partype Number for parameter type. Type 1 is y-scaling: a or tp.

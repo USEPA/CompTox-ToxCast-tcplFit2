@@ -32,7 +32,7 @@
 #'     \item aic - the AIC value
 #'     \item cov - success of the the covariance matrix calculation
 #'     \item rme - root mean error of the data around the curve
-#'     \item modl - vector of model values at the civen concentrations
+#'     \item modl - vector of model values at the given concentrations
 #'     \item tp - the top of the curve fit
 #'     \item ga - the AC50 or Hill paramters
 #'     \item er - the error term

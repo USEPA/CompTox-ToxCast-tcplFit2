@@ -1,7 +1,7 @@
 #' Concentration Response Plot
 #'
 #' Plots a concentration response curve for one sample/endpoint combination.
-#' This is a generic function and it is expected that useers will make their own versions
+#' This is a generic function and it is expected that users will make their own versions
 #'
 #' row is one row of data from concRespCore
 #'
@@ -25,7 +25,7 @@
 #' @param ymin Minimum value of respone for the plot
 #' @param ymax Maximum value of respone for the plot
 #' @param draw.error.arrows If TRUE, draw lines prepresenting the uncertainty in the response estimate,
-#'   instead of hte actual response points
+#'   instead of the actual response points
 #' @return No output.
 #' @export
 #'

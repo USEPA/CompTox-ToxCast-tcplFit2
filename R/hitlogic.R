@@ -2,7 +2,7 @@
 #'
 #' Wrapper that computes discrete hitcalls for a provided concRespCore dataframe.
 #'
-#' @param indf Dataframe similar to concRespCore inpu Must contain "conc" and "resp"
+#' @param indf Dataframe similar to concRespCore input Must contain "conc" and "resp"
 #'   columns if xs and ys are not provided. Must contain "cutoff" and "bmad_factor"
 #'   columns if newbmad is not NULL. Must contain "top" and "ac50" columns. "conc"
 #'   and "resp" entries should be a single string with values separated by |.
