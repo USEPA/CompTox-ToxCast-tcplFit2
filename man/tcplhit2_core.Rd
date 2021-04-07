@@ -60,7 +60,7 @@ The elements of summary are:
     \item cutoff - noise cutoff
     \item fit_method - curve fit method
     \item top_over_cutoff - top divided by cutoff
-    \item rmse - RMSE of the data points arount the best model curve
+    \item rmse - RMSE of the data points around the best model curve
     \item a - fitting parameter methods: exp2, exp3, poly1, poly2, pow
     \item b - fitting parameter methods: exp2, exp3, ploy2
     \item p - fitting parameter methods: exp3, exp5, gnls, hill, pow
@@ -76,7 +76,7 @@ The elements of summary are:
     \item caikwt - one factor used in calculating the continuous hitcall. It is calcalated from the formula
       = exp(-aic(cnst)/2)/(exp(-aic(cnst)/2) + exp(-aic(fit_method)/2)) and measures how much lower the
       selected method AIC is than that for the constant model
-    \item mll - anoter factor used in calcualting the continuous hitcall = length(modpars) - aic(fit_method)/2
+    \item mll - another factor used in calcualting the continuous hitcall = length(modpars) - aic(fit_method)/2
     \item hitcall - the final hitcall, a value ranging from 0 to 1
     \item top - curve top
     \item ac50 - curve value at 50\% of top, curve value at cutoff

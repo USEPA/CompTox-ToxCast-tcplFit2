@@ -18,7 +18,7 @@ bmdobj(bmd, fname, bmr, conc, resp, ps, mll, onesp, partype = 2)
 
 \item{resp}{Vector of corresponding responses.}
 
-\item{ps}{Named list of paramters.}
+\item{ps}{Named list of parameters.}
 
 \item{mll}{Maximum log-likelihood of winning model.}
 
