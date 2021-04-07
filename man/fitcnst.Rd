@@ -12,6 +12,8 @@ fitcnst(conc, resp, nofit = F, ...)
 \item{resp}{Vector of corresponding responses.}
 
 \item{nofit}{If nofit = T, returns formatted output filled with missing values.}
+
+\item{...}{Space for parameters so fitcnst can be called similar to other fitting functions (currently unused)}
 }
 \value{
 List of five elements: success, aic (Aikaike Information Criteria),
