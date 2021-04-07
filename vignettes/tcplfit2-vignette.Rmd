@@ -24,9 +24,9 @@ the US EPA. Much of the rest of the code in tcpl is used to do data processing, 
 and database storage. We wanted to reuse the core concentration-response code for other projects,
 and add extensions to it, which was the origin of the current package *tcplfit2*. The main set of extensions 
 was to include all of the concentration-response models that are contained in the program BMDExpress. 
-These include exposnentail and power functions in addition to the original Hill, gain-loss and constant models.
-Additionall, we wanted to include BMD (Benchmark Dose Modeling) outputs, which is simply defining a 
-Benchmark Response (BMR) level and setting the BMD to the concentration where the curve crosses the BMR lavel. 
+These include exponential and power functions in addition to the original Hill, gain-loss and constant models.
+Additionally, we wanted to include BMD (Benchmark Dose Modeling) outputs, which is simply defining a 
+Benchmark Response (BMR) level and setting the BMD to the concentration where the curve crosses the BMR level. 
 One final addition was to let the hitcall value be a continuous number ranging from 0 to 1. This vignette describes 
 the basic functionality of this package with two simple examples.
 
@@ -36,16 +36,16 @@ put into a named list called 'row':
 
 * `conc` - a vector of concentrations (not log concentrations)
 * `resp` - a vector of responses, of the same length as `conc`. Note that replicates are allowed, i.e. there can be multiple pairs of conc and resp with the same concentration value.
-* `cutoff`- this is the value that the response must exceed before a a curve can be called a hit. For ToxCast, this is usually some multiple (typically 3) of the medain absolute deviation (BMAD) around baseline for the lowest two concentration. The user is free to make other choices
+* `cutoff`- this is the value that the response must exceed before a a curve can be called a hit. For ToxCast, this is usually some multiple (typically 3) of the median absolute deviation (BMAD) around baseline for the lowest two concentration. The user is free to make other choices
 * `bmed` - this is the median of the baseline, and will usually be set to zero. If not, the entire response series will be shifted by this amount.
 * `onesd`- This is one standard deviation of the nose around the baseline. The BMR value = `onesd`*`bmr_scale`. The default `bmr_scale` is 1.349.
 
 The list `row` can also have other optional elements which will be included in the output. These can be,
 for instance, the name of the chemical (or other identifiers) or the name of the assay being modeled. Two other 
-parameters might be used. The first is a boolean `conthits`. If TRUE (the default, and recommended usage), the hitcall
+parameters might be used. The first is a Boolean `conthits`. If TRUE (the default, and recommended usage), the hitcall
 returned will be a continuous value between 0 and 1. The other is `do.plot`. If this is set to TRUE (default is FALSE),
 a plot of the curve will be generated. The user can also select only a subset of the models to be run. The example below has all of the possible ones
-included. the model `cnst` alwasy needs to be included. For some applications, we exclude the `gnls` model.
+included. the model `cnst` always needs to be included. For some applications, we exclude the `gnls` model.
 
 To run a simple example, use the following code ...
 ```r
@@ -60,7 +60,7 @@ The output of this run will be a list with two elements. The first (`summary`) i
 
 ## Example 2: Running a series of concentration-response models for a single assay
 The input data for this example is taken from one of the Tox21 HTS assays, for estrogen receptor (ER) 
-agonsit activity. The data is from the mc3 table in the database `invitrodb`, which is the backend for
+agonist activity. The data is from the mc3 table in the database `invitrodb`, which is the back end for
 *tcpl*. This example will run 6 chemicals out of the 100 that are included in the data set, and will create plots 
 for these. The plotting routine `concRespPlot` is somewhat generic, and we anticipate that users will make
 their own version of this. To run this example, use the following code ...
