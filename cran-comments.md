@@ -8,7 +8,16 @@
 
 ## R CMD check results
 
-0 ERRORs | 0 WARNINGs | 1 NOTES.
+0 ERRORs | 0 WARNINGs | 1 NOTE.
+
+Possibly mis-spelled words in DESCRIPTION:
+  BMDExpress (12:39)
+  Transcriptomics (3:9)
+  bmd (13:50)
+  tcpl (10:12)
+  tcplFit (10:62)
+  
+These words are all correct.
 
 ## Downstream dependencies
 
