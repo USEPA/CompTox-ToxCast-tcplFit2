@@ -9,7 +9,7 @@ Description: This package performs the basic concentration response curve fittin
     in the tcpl package. It is a substitute for the original tcplFit function 
     (and sub-functions) and allows a wider variety of concentration-response models. 
     All of the models included in the BMDExpress package are now part of this package,
-    and the output includes a calculation of the bmd (Benchmark Dse or concentration) 
+    and the output includes a calculation of the bmd (Benchmark Dose or concentration) 
     value.
 License: MIT + file LICENSE
 Encoding: UTF-8
