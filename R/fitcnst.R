@@ -9,6 +9,7 @@
 #' @param conc Vector of concentration values NOT in log units.
 #' @param resp Vector of corresponding responses.
 #' @param nofit If nofit = T, returns formatted output filled with missing values.
+#' @param ... Space for parameters so fitcnst can be called similar to other fitting functions (currently unused)
 #'
 #' @return List of five elements: success, aic (Aikaike Information Criteria),
 #'   rme (root mean square error), er (error parameter), pars (parameter names).
