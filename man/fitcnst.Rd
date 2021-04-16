@@ -4,14 +4,14 @@
 \alias{fitcnst}
 \title{Constant Model Fit}
 \usage{
-fitcnst(conc, resp, nofit = F, ...)
+fitcnst(conc, resp, nofit = FALSE, ...)
 }
 \arguments{
 \item{conc}{Vector of concentration values NOT in log units.}
 
 \item{resp}{Vector of corresponding responses.}
 
-\item{nofit}{If nofit = T, returns formatted output filled with missing values.}
+\item{nofit}{If nofit = TRUE, returns formatted output filled with missing values.}
 
 \item{...}{Space for parameters so fitcnst can be called similar to other fitting functions (currently unused)}
 }
@@ -24,7 +24,7 @@ Function that fits a constant line and returns generic model outputs.
 }
 \details{
 success = 1 for a successful fit, 0 if optimization failed, and NA if
-nofit = T. aic, rme, and er are set to NA in case of nofit or failure. pars
+nofit = TRUE. aic, rme, and er are set to NA in case of nofit or failure. pars
 always equals "er".
 }
 \examples{

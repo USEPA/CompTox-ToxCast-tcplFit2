@@ -23,15 +23,15 @@ tcplfit2_core(
 \item{resp}{Vector of responses.}
 
 \item{cutoff}{Desired cutoff. If no absolute responses > cutoff and
-force.fit = F, will only fit constant model.}
+force.fit = FALSE, will only fit constant model.}
 
-\item{force.fit}{If force.fit = T, will fit all models regardless of cutoff.}
+\item{force.fit}{If force.fit = TRUE, will fit all models regardless of cutoff.}
 
-\item{bidirectional}{If bidirectional = F, will only give positive fits.}
+\item{bidirectional}{If bidirectional = FALSE, will only give positive fits.}
 
-\item{verbose}{If verbose = T, will print optimization details and aics.}
+\item{verbose}{If verbose = TRUE, will print optimization details and aics.}
 
-\item{do.plot}{If do.plot = T, will generate a plot comparing model curves.}
+\item{do.plot}{If do.plot = TRUE, will generate a plot comparing model curves.}
 
 \item{fitmodels}{Vector of model names to try fitting. Missing models still
 return a skeleton output filled with NAs.}

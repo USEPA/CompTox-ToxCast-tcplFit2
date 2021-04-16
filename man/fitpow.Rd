@@ -9,7 +9,7 @@ fitpow(
   resp,
   bidirectional = TRUE,
   verbose = FALSE,
-  nofit = F,
+  nofit = FALSE,
   nmin = 0.3
 )
 }
@@ -23,7 +23,7 @@ will be positive only.}
 
 \item{verbose}{If TRUE, gives optimization and hessian inversion details.}
 
-\item{nofit}{If nofit = T, returns formatted output filled with missing values.}
+\item{nofit}{If nofit = TRUE, returns formatted output filled with missing values.}
 
 \item{nmin}{Minimum allowed value of p.}
 }
@@ -41,8 +41,8 @@ Function that fits tof(x) = a*x^p and returns generic model outputs.
 Zero background and monotonically increasing absolute response are assumed.
 Parameters are "a" (y scale), "p" (power), and error term "er".
 success = 1 for a successful fit, 0 if optimization failed, and NA if
-nofit = T. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
-if nofit = T. aic, rme, modl, parameters, and parameter sds are set to
+nofit = TRUE. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
+if nofit = TRUE. aic, rme, modl, parameters, and parameter sds are set to
 NA in case of nofit or failure.
 }
 \examples{
