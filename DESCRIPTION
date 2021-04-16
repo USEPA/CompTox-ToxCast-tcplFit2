@@ -1,5 +1,5 @@
 Package: tcplfit2
-Title: Performs Concentration-Response Modeling on HTS or Transcriptomics Data 
+Title: Concentration-Response Modeling of HTS or Transcriptomics Data 
 Version: 0.1.0
 Authors@R: c(person("Thomas", "Sheffield", email = "tysheff@gmail.com", role = c("aut")),
 				person("Richard", "Judson", role = c("ctb"),email = "Judson.Richard@epa.gov"),
