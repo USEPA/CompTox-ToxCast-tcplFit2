@@ -1,3 +1,12 @@
+## Addressed comments from last submission
+* reduced length of title to less than 65 characters
+* added single quotes to names of packages/software
+* added parenthesis behind functions in description
+* Changed T/F to TRUE FALSE throughout package
+* removed some references to par() and added on.exit when it is used
+* There are no references that need to be added to description
+
+
 ## Test environments
 
 * local Windows 10 install, R 3.6.1
