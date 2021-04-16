@@ -6,3 +6,4 @@ tcplfit2-vignette.md
 ^doc$
 ^Meta$
 cran-comments.md
+^CRAN-RELEASE$
