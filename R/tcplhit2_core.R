@@ -4,7 +4,7 @@
 #' extracts the top and ac50, computes the hitcall, and calculates bmd/bmdl/bmdu among other
 #' statistics. Nested model selection is used to choose between poly1/poly2, then
 #' the model with the lowest AIC (or AICc) is declared the winner. Continuous
-#' hitcalls requires tcplfit2_core to be run with force.fit = T and "cnst" never to
+#' hitcalls requires tcplfit2_core to be run with force.fit = TRUE and "cnst" never to
 #' be chosen as the winner.
 #'
 #' @param params The output from tcplfit2_core
@@ -14,7 +14,7 @@
 #' @param cutoff noise cutoff
 #' @param onesd 1 standard deviation of the noise (for bmd calculation)
 #' @param bmr_scale bmr scaling factor. Default = 1.349
-#' @param conthits conthits = TUE uses continuous hitcalls, otherwise they're
+#' @param conthits conthits = TRUE uses continuous hitcalls, otherwise they're
 #'   discrete. Default TRUE
 #' @param aicc aicc = TRUE uses corrected AIC to choose winning method; otherwise
 #'   regular AIC. Default FALSE
@@ -65,7 +65,7 @@
 #'   }
 #' @export
 #'
-tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = T, aicc = F, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL) {
+tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL) {
   # initialize parameters to NA
   a <- b <- tp <- p <- q <- ga <- la <- er <- top <- ac50 <- ac50_loss <- ac5 <- ac10 <- ac20 <- acc <- ac1sd <- bmd <- NA_real_
   bmdl <- bmdu <- caikwt <- mll <- NA_real_
@@ -189,6 +189,6 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     "top_over_cutoff", "rmse", "a", "b", "tp", "p", "q", "ga", "la", "er", "bmr", "bmdl", "bmdu", "caikwt",
     "mll", "hitcall", "ac50", "ac50_loss", "top", "ac5", "ac10", "ac20", "acc", "ac1sd", "bmd", "conc", "resp"
   )
-  row <- as.data.frame(c(identifiers, mget(name.list)), stringsAsFactors = F)
+  row <- as.data.frame(c(identifiers, mget(name.list)), stringsAsFactors = FALSE)
   return(row)
 }

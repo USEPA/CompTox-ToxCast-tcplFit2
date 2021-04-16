@@ -8,10 +8,10 @@ acy(
   y,
   modpars,
   type = "hill",
-  returntop = F,
-  returntoploc = F,
-  getloss = F,
-  verbose = F
+  returntop = FALSE,
+  returntoploc = FALSE,
+  getloss = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{

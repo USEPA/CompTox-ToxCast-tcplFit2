@@ -47,17 +47,17 @@ bmdbounds = function(fit_method, bmr, pars, conc, resp, onesidedp = .05, bmd = N
     xs = 10^seq(-5,log10(bmd), length.out = 100)
     ys = sapply(X = xs, FUN = bmdobj, fname = fname, bmr = bmr, conc = conc, resp = resp, ps = pars, mll = maxloglik,
                 onesp = onesidedp, partype = 2)
-    if(!any(ys >= 0, na.rm = T) | !any(ys < 0, na.rm = T)) return(NA_real_)
+    if(!any(ys >= 0, na.rm = TRUE) | !any(ys < 0, na.rm = TRUE)) return(NA_real_)
     bmdrange = c(max(xs[ys >= 0]), bmd)
   }
   if(which.bound == "upper") {
     if(fit_method == "gnls"){
-      toploc = acy(bmr, as.list(pars), type = "gnls", returntoploc = T)
+      toploc = acy(bmr, as.list(pars), type = "gnls", returntoploc = TRUE)
       xs = 10^seq(log10(bmd), log10(toploc), length.out = 100)
     } else xs = 10^seq(log10(bmd), 5, length.out = 100)
     ys = sapply(X = xs, FUN = bmdobj, fname = fname, bmr = bmr, conc = conc, resp = resp, ps = pars, mll = maxloglik,
                 onesp = onesidedp, partype = 2)
-    if(!any(ys >= 0, na.rm = T) | !any(ys < 0, na.rm = T)) return(NA_real_)
+    if(!any(ys >= 0, na.rm = TRUE) | !any(ys < 0, na.rm = TRUE)) return(NA_real_)
 
     bmdrange = c(bmd, min(xs[ys >= 0]))
   }

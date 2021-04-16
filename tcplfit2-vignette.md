@@ -68,6 +68,8 @@ their own version of this. To run this example, use the following code ...
   print(dim(mc3))
 
   # set up a 3 x 2 grid for the plots
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))            
   par(mfrow=c(3,2),mar=c(4,4,2,2))
 
   # determine the background variation

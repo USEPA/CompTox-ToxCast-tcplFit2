@@ -5,8 +5,8 @@
 #' Zero background and monotonically increasing absolute response are assumed.
 #' Parameters are "a" (y scale), "p" (power), and error term "er".
 #' success = 1 for a successful fit, 0 if optimization failed, and NA if
-#' nofit = T. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
-#' if nofit = T. aic, rme, modl, parameters, and parameter sds are set to
+#' nofit = TRUE. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
+#' if nofit = TRUE. aic, rme, modl, parameters, and parameter sds are set to
 #' NA in case of nofit or failure.
 #'
 #' @param conc Vector of concentration values NOT in log units.
@@ -14,7 +14,7 @@
 #' @param bidirectional If TRUE, model can be positive or negative; if FALSE, it
 #'   will be positive only.
 #' @param verbose If TRUE, gives optimization and hessian inversion details.
-#' @param nofit If nofit = T, returns formatted output filled with missing values.
+#' @param nofit If nofit = TRUE, returns formatted output filled with missing values.
 #' @param nmin Minimum allowed value of p.
 #'
 #' @importFrom methods is
@@ -30,7 +30,7 @@
 #'
 #' @examples
 #' fitpow(c(.03,.1,.3,1,3,10,30,100), c(0,.01,.1, .1, .2, .5, 2, 8))
-fitpow = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F, nmin = .3){
+fitpow = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, nmin = .3){
 
   fenv <- environment()
   #initialize myparams

@@ -3,12 +3,12 @@
 #' Function that fits a constant line and returns generic model outputs.
 #'
 #' success = 1 for a successful fit, 0 if optimization failed, and NA if
-#' nofit = T. aic, rme, and er are set to NA in case of nofit or failure. pars
+#' nofit = TRUE. aic, rme, and er are set to NA in case of nofit or failure. pars
 #' always equals "er".
 #'
 #' @param conc Vector of concentration values NOT in log units.
 #' @param resp Vector of corresponding responses.
-#' @param nofit If nofit = T, returns formatted output filled with missing values.
+#' @param nofit If nofit = TRUE, returns formatted output filled with missing values.
 #' @param ... Space for parameters so fitcnst can be called similar to other fitting functions (currently unused)
 #'
 #' @return List of five elements: success, aic (Aikaike Information Criteria),
@@ -20,7 +20,7 @@
 #' @examples
 #' fitcnst(c(.1,1,10,100), c(1,2,0,-1))
 #' fitcnst(c(.1,1,10,100), c(1,2,0,-1), nofit = TRUE)
-fitcnst = function(conc, resp, nofit = F, ...){
+fitcnst = function(conc, resp, nofit = FALSE, ...){
 
   pars <- "er"
   myparams = c("success", "aic", "rme","er")

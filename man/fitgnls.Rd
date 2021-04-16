@@ -9,7 +9,7 @@ fitgnls(
   resp,
   bidirectional = TRUE,
   verbose = FALSE,
-  nofit = F,
+  nofit = FALSE,
   minwidth = 1.5
 )
 }
@@ -23,7 +23,7 @@ will be positive only.}
 
 \item{verbose}{If TRUE, gives optimization and hessian inversion details.}
 
-\item{nofit}{If nofit = T, returns formatted output filled with missing values.}
+\item{nofit}{If nofit = TRUE, returns formatted output filled with missing values.}
 
 \item{minwidth}{Minimum allowed distance between gain ac50 and loss ac50 (in
 log10 units).}
@@ -47,8 +47,8 @@ Zero background and increasing initial absolute response are assumed.
 Parameters are "tp" (top), "ga" (gain AC50), "p" (gain power), "la"
 (loss AC50),"q" (loss power) and error term "er".
 success = 1 for a successful fit, 0 if optimization failed, and NA if
-nofit = T. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
-if nofit = T. aic, rme, modl, parameters, and parameter sds are set to
+nofit = TRUE. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
+if nofit = TRUE. aic, rme, modl, parameters, and parameter sds are set to
 NA in case of nofit or failure.
 }
 \examples{

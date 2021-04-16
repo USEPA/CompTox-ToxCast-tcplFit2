@@ -4,7 +4,9 @@
 \name{mc3}
 \alias{mc3}
 \title{Sample concentration-response data set from invitrodb}
-\format{An object of class \code{data.frame} with 32175 rows and 7 columns.}
+\format{
+An object of class \code{data.frame} with 32175 rows and 7 columns.
+}
 \usage{
 mc3
 }

@@ -9,11 +9,11 @@
 #' @param conc Vector of concentrations (NOT in log units).
 #' @param resp Vector of responses.
 #' @param cutoff Desired cutoff. If no absolute responses > cutoff and
-#'   force.fit = F, will only fit constant model.
-#' @param force.fit If force.fit = T, will fit all models regardless of cutoff.
-#' @param bidirectional If bidirectional = F, will only give positive fits.
-#' @param verbose If verbose = T, will print optimization details and aics.
-#' @param do.plot If do.plot = T, will generate a plot comparing model curves.
+#'   force.fit = FALSE, will only fit constant model.
+#' @param force.fit If force.fit = TRUE, will fit all models regardless of cutoff.
+#' @param bidirectional If bidirectional = FALSE, will only give positive fits.
+#' @param verbose If verbose = TRUE, will print optimization details and aics.
+#' @param do.plot If do.plot = TRUE, will generate a plot comparing model curves.
 #' @param fitmodels Vector of model names to try fitting. Missing models still
 #'   return a skeleton output filled with NAs.
 #' @param ... Other fitting parameters (deprecated).
@@ -115,7 +115,7 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
   })
   if (do.plot && sum(successes, na.rm = T) == length(shortnames)) {
     resp <- resp[order(logc)]
-    par(xpd = T)
+    #par(xpd = T)
     cols <- c("black", brewer.pal(9, "Set1"))
     n <- length(logc)
     allresp <- c(resp, sapply(shortnames, function(x) {

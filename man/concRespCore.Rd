@@ -6,10 +6,10 @@
 \usage{
 concRespCore(
   row,
-  fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
-    "exp5"),
-  conthits = T,
-  aicc = F,
+  fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
+    "exp4", "exp5"),
+  conthits = TRUE,
+  aicc = FALSE,
   force.fit = FALSE,
   bidirectional = TRUE,
   verbose = FALSE,
@@ -34,10 +34,10 @@ the final output.}
 
 \item{fitmodels}{Vector of model names to use.}
 
-\item{conthits}{conthits = T uses continuous hitcalls, otherwise they're
+\item{conthits}{conthits = TRUE uses continuous hitcalls, otherwise they're
 discrete.}
 
-\item{aicc}{aicc = T uses corrected AIC to choose winning method; otherwise
+\item{aicc}{aicc = TRUE uses corrected AIC to choose winning method; otherwise
 regular AIC.}
 
 \item{force.fit}{If TRUE force the fitting to proceed even if there are no points

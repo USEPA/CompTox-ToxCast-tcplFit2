@@ -1,20 +1,20 @@
 Package: tcplfit2
-Title: Performs Concentration-Response Modeling on HTS or Transcriptomics Data 
-Version: 0.1.0
+Title: Concentration-Response Modeling of HTS or Transcriptomics Data 
+Version: 0.1.1
 Authors@R: c(person("Thomas", "Sheffield", email = "tysheff@gmail.com", role = c("aut")),
 				person("Richard", "Judson", role = c("ctb"),email = "Judson.Richard@epa.gov"),
 				person("Jason", "Brown", role = c("ctb", "cre"),email = "brown.jason@epa.gov")
 			)
 Description: Performs the basic concentration response curve fitting used 
-    in the tcpl package. It is a substitute for the original tcplFit function 
+    in the 'tcpl' package. It is a substitute for the original tcplFit() function 
     (and sub-functions) and allows a wider variety of concentration-response models. 
-    All of the models included in the BMDExpress package are now part of this package,
+    All of the models included in the 'BMDExpress' package are now part of this package,
     and the output includes a calculation of the bmd (Benchmark Dose or concentration) 
     value.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 Suggests: 
     knitr,
     rmarkdown
@@ -28,4 +28,3 @@ Imports:
     future.apply,
     stringr,
     stringi
-    

@@ -10,8 +10,8 @@
 #' Parameters are "tp" (top), "ga" (gain AC50), "p" (gain power), "la"
 #' (loss AC50),"q" (loss power) and error term "er".
 #' success = 1 for a successful fit, 0 if optimization failed, and NA if
-#' nofit = T. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
-#' if nofit = T. aic, rme, modl, parameters, and parameter sds are set to
+#' nofit = TRUE. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
+#' if nofit = TRUE. aic, rme, modl, parameters, and parameter sds are set to
 #' NA in case of nofit or failure.
 #'
 #' @param conc Vector of concentration values NOT in log units.
@@ -19,7 +19,7 @@
 #' @param bidirectional If TRUE, model can be positive or negative; if FALSE, it
 #'   will be positive only.
 #' @param verbose If TRUE, gives optimization and hessian inversion details.
-#' @param nofit If nofit = T, returns formatted output filled with missing values.
+#' @param nofit If nofit = TRUE, returns formatted output filled with missing values.
 #' @param minwidth Minimum allowed distance between gain ac50 and loss ac50 (in
 #'   log10 units).
 #'
@@ -36,7 +36,7 @@
 #'
 #' @examples
 #' fitgnls(c(.03,.1,.3,1,3,10,30,100), c(0,.3,1, 2, 2.1, 1.5, .8, .2))
-fitgnls = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F, minwidth = 1.5){
+fitgnls = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, minwidth = 1.5){
 
   logc = log10(conc)
   fenv <- environment()
