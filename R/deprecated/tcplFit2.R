@@ -68,7 +68,7 @@ tcplFit2 <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional = TRUE
   successes = sapply(shortnames, function(x){get(x)[["success"]]})
   if(do.plot && sum(successes, na.rm = T) == length(shortnames)){
     resp = resp[order(logc)]
-    par(xpd = T)
+    #par(xpd = T)
     cols = c("black",brewer.pal(9,"Set1"))
     n = length(logc)
     allresp =  c(resp ,sapply(shortnames, function(x){get(x)[["modl"]][order(logc)]}))
