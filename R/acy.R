@@ -42,7 +42,7 @@
 #' acy(1, list(ga = .1, tp = 2, p = 3, q = 3,la = 10), type = "gnls", returntop = TRUE)
 #' acy(1, list(ga = .1, tp = 2, p = 3, q = 3,la = 10), type = "gnls", returntoploc = TRUE)
 #'
-acy <- function(y, modpars, type = "hill", returntop = F, returntoploc = F, getloss =F, verbose = F) {
+acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FALSE, getloss =FALSE, verbose = FALSE) {
   #variable binding to pass cmd checks
   a <- b <- tp <- ga <- p <- q <- la <- NULL
   #Put model parameters in environment: a,b,tp,ga,p,q,la,er

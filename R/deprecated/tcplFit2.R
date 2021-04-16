@@ -9,11 +9,11 @@
 #' @param conc Vector of concentrations (NOT in log units).
 #' @param resp Vector of responses.
 #' @param cutoff Desired cutoff. If no absolute responses > cutoff and
-#'   force.fit = F, will only fit constant model.
-#' @param force.fit If force.fit = T, will fit all models regardless of cutoff.
-#' @param bidirectional If bidirectional = F, will only give positive fits.
-#' @param verbose If verbose = T, will print optimization details and aics.
-#' @param do.plot If do.plot = T, will generate a plot comparing model curves.
+#'   force.fit = FALSE, will only fit constant model.
+#' @param force.fit If force.fit = TRUE, will fit all models regardless of cutoff.
+#' @param bidirectional If bidirectional = FALSE, will only give positive fits.
+#' @param verbose If verbose = TRUE, will print optimization details and aics.
+#' @param do.plot If do.plot = TRUE, will generate a plot comparing model curves.
 #' @param fitmodels Vector of model names to try fitting. Missing models still
 #'   return a skeleton output filled with NAs.
 #' @param ... Other fitting parameters (deprecated).
@@ -32,7 +32,7 @@
 #' resp = c(0,.1,0,.2,.6,.9,1.1,1)
 #' output = httrFit(conc,resp, .8, fitmodels = c("cnst", "hill"),verbose = TRUE,
 #'   do.plot = TRUE)
-tcplFit2 <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional = TRUE, verbose = FALSE, do.plot = F,
+tcplFit2 <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional = TRUE, verbose = FALSE, do.plot = FALSE,
                     fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"),
                     ...) {
 

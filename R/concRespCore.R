@@ -15,9 +15,9 @@
 #'   Other elements (usually identifiers, like casrn) of row will be attached to
 #'   the final output.
 #' @param fitmodels Vector of model names to use.
-#' @param conthits conthits = T uses continuous hitcalls, otherwise they're
+#' @param conthits conthits = TRUE uses continuous hitcalls, otherwise they're
 #'   discrete.
-#' @param aicc aicc = T uses corrected AIC to choose winning method; otherwise
+#' @param aicc aicc = TRUE uses corrected AIC to choose winning method; otherwise
 #'   regular AIC.
 #' @param force.fit If TRUE force the fitting to proceed even if there are no points
 #'   outside of the bounds (default FALSE)
@@ -53,8 +53,8 @@ concRespCore <- function(row,
                            "cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
                            "exp4", "exp5"
                          ),
-                         conthits = T,
-                         aicc = F,
+                         conthits = TRUE,
+                         aicc = FALSE,
                          force.fit = FALSE,
                          bidirectional = TRUE,
                          verbose = FALSE,
