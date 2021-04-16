@@ -6,9 +6,9 @@ Authors@R: c(person("Thomas", "Sheffield", email = "tysheff@gmail.com", role = c
 				person("Jason", "Brown", role = c("ctb", "cre"),email = "brown.jason@epa.gov")
 			)
 Description: Performs the basic concentration response curve fitting used 
-    in the tcpl package. It is a substitute for the original tcplFit function 
+    in the 'tcpl' package. It is a substitute for the original tcplFit() function 
     (and sub-functions) and allows a wider variety of concentration-response models. 
-    All of the models included in the BMDExpress package are now part of this package,
+    All of the models included in the 'BMDExpress' package are now part of this package,
     and the output includes a calculation of the bmd (Benchmark Dose or concentration) 
     value.
 License: MIT + file LICENSE
