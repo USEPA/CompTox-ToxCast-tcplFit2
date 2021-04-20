@@ -89,27 +89,37 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     # it's useful to keep original aics so we can extract loglikelihoods for nested models (above) and mll (below)
     if (aicc) saics <- aics + 2 * dfs * (dfs + 1) / (length(resp) - dfs - 1) else saics <- aics
     if (conthits) {
-      # get aikaike weight of winner (vs constant) for cont hitcalls
-      # never choose constant as winner for cont hitcalls
-      nocnstaics <- saics[names(saics) != "cnst"]
-      fit_method <- names(nocnstaics)[which.min(nocnstaics)]
-      caikwt <- exp(-saics["cnst"] / 2) / (exp(-saics["cnst"] / 2) + exp(-saics[fit_method] / 2))
-      if (is.nan(caikwt)) {
-        term <- exp(saics["cnst"] / 2 - saics[fit_method] / 2)
-        if (term == Inf) {
-          caikwt <- 0
-        } else {
-          caikwt <- 1 / (1 + term)
+      # if all fits, except the constant fail, use none for the fit method
+      # when continuous hit calling is in use
+      if(sum(!is.na(aics)) == 1 & names(aics)=="cnst"){
+        fit_method <- "none"
+        rmse <- NA_real_
+      }else{
+        # get aikaike weight of winner (vs constant) for cont hitcalls
+        # never choose constant as winner for cont hitcalls
+        nocnstaics <- saics[names(saics) != "cnst"]
+        fit_method <- names(nocnstaics)[which.min(nocnstaics)]
+        caikwt <- exp(-saics["cnst"] / 2) / (exp(-saics["cnst"] / 2) + exp(-saics[fit_method] / 2))
+        if (is.nan(caikwt)) {
+          term <- exp(saics["cnst"] / 2 - saics[fit_method] / 2)
+          if (term == Inf) {
+            caikwt <- 0
+          } else {
+            caikwt <- 1 / (1 + term)
+          }
+          # caikwt <- 1
         }
-        # caikwt <- 1
       }
     } else {
       fit_method <- names(saics)[which.min(saics)]
     }
-    fitout <- params[[fit_method]]
-    rmse <- fitout$rme
-    modpars <- fitout[fitout$pars]
-    list2env(fitout, envir = environment()) # put all parameters in environment
+    # if the fit_method is not reported as 'none' the obtain model information
+    if(fit_method!="none"){
+      fitout <- params[[fit_method]]
+      rmse <- fitout$rme
+      modpars <- fitout[fitout$pars]
+      list2env(fitout, envir = environment()) # put all parameters in environment
+    }
   }
 
   n_gt_cutoff <- sum(abs(resp) > cutoff)
