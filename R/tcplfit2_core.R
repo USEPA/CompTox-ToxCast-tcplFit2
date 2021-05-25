@@ -91,8 +91,17 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
         } else if (model == "gnls") {
           # gnls methods; use calculated top/ac50, etc.
           assign(model, append(get(model), list(top = acy(0, get(model), type = model, returntop = T))))
-          assign(model, append(get(model), list(ac50 = acy(.5 * get(model)$top, get(model), type = model))))
-          assign(model, append(get(model), list(ac50_loss = acy(.5 * get(model)$top, get(model), type = model, getloss = T))))
+          # check if the theoretical top was calculated
+          if(is.na(get(model)$top)){
+            # if the theoretical top is NA return NA for ac50 and ac50_loss
+            if(verbose){
+              warning("'top' for 'gnls' is not able to be calculated returning NA.  AC50 for gain and loss directions are returned as NA.")
+            }
+            assign(model,append(get(model), list(ac50 = NA_real_,ac50_loss = NA_real_)))
+          }else{
+            assign(model, append(get(model), list(ac50 = acy(.5 * get(model)$top, get(model), type = model))))
+            assign(model, append(get(model), list(ac50_loss = acy(.5 * get(model)$top, get(model), type = model, getloss = T))))
+          }
         }
       }
 
@@ -108,7 +117,7 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
     cat("Winner: ", modelnames[which.min(aics)])
   }
 
-  # optionallky plot all models if there's at least one model to plot
+  # optionally plot all models if there's at least one model to plot
   shortnames <- modelnames[modelnames != "cnst"]
   successes <- sapply(shortnames, function(x) {
     get(x)[["success"]]
