@@ -91,7 +91,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     if (conthits) {
       # if all fits, except the constant fail, use none for the fit method
       # when continuous hit calling is in use
-      if(sum(!is.na(aics)) == 1 & names(aics)=="cnst"){
+      if(sum(!is.na(aics)) == 1 & "cnst" %in% names(aics[!is.na(aics)])){
         fit_method <- "none"
         rmse <- NA_real_
       }else{
