@@ -20,11 +20,9 @@
 0 ERRORs | 0 WARNINGs | 1 NOTE.
 
 Possibly mis-spelled words in DESCRIPTION:
-  BMDExpress (12:39)
-  Transcriptomics (3:9)
-  bmd (13:50)
-  tcpl (10:12)
-  tcplFit (10:62)
+  bmd (12:50)
+  Transcriptomics (2:50)
+
   
 These words are all correct.
 
