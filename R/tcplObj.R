@@ -47,73 +47,91 @@ tcplObj = function(p, conc, resp, fname, errfun = "dt4", err = NULL) {
 
 }
 
-#' Constant Model
+#' Constant Model - returns zero
 #'
 #' @param ps Vector of parameters (ignored)
 #' @param x Vector of concentrations (regular units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' cnst(1,1)
+#'
 cnst = function(ps,x){
   #ignores ps
   return(rep(0,length(x)))
 }
 
-#' Exponential 2 Model
+#' Exponential 2 Model - ps[1]*(exp(x/ps[2]) - 1)
 #'
 #' @param ps Vector of parameters: a,b,er
 #' @param x Vector of concentrations (regular units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' exp2(c(1,2),1)
+#'
 exp2 = function(ps,x){
   #a = ps[1], b = ps[2]
   return(ps[1]*(exp(x/ps[2]) - 1)  )
 }
 
-#' Exponential 3 Model
+#' Exponential 3 Model - ps[1]*(exp((x/ps[2])^ps[3]) - 1)
 #'
 #' @param ps Vector of parameters: a,b,p,er
 #' @param x Vector of concentrations (regular units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' exp3(c(1,2,2),1)
+#'
 exp3 = function(ps,x){
   #a = ps[1], b = ps[2], p = ps[3]
   return(ps[1]*(exp((x/ps[2])^ps[3]) - 1)  )
 }
 
-#' Exponential 4 Model
+#' Exponential 4 Model- ps[1]*(1-2^(-x/ps[2]))
 #'
 #' @param ps Vector of parameters: tp,ga,er
 #' @param x Vector of concentrations (regular units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' exp4(c(1,2),1)
+#'
 exp4 = function(ps,x){
   #tp = ps[1], ga = ps[2]
   return(ps[1]*(1-2^(-x/ps[2]))  )
 }
 
-#' Exponential 5 Model
+#' Exponential 5 Model - ps[1]*(1-2^(-(x/ps[2])^ps[3]))
 #'
 #' @param ps Vector of parameters: tp,ga,p,er
 #' @param x Vector of concentrations (regular units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' exp5(c(1,2,3),1)
+#'
 exp5 = function(ps,x){
   #tp = ps[1], ga = ps[2], p = ps[3]
   return(ps[1]*(1-2^(-(x/ps[2])^ps[3]))  )
 }
 
-#' Gain-Loss Model
+#' Gain-Loss Model - ps[1] * (1/(1 + (ps[2]/x)^ps[3])) * (1/(1 + (x/ps[4])^ps[5]))
 #'
 #' @param ps Vector of parameters: tp,ga,p,la,q,er
 #' @param x Vector of concentrations (regular units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' gnls(c(1,2,1,2,2),1)
+#'
 gnls = function(ps, x){
   #gnls function with regular units
   #tp = ps[1], ga = ps[2], p = ps[3], la = ps[4], q = ps[5]
@@ -122,13 +140,16 @@ gnls = function(ps, x){
   return(ps[1]*gn*ls )
 }
 
-#' Log Gain-Loss Model
+#' Log Gain-Loss Model - ps[1] * (1/(1 + 10^((ps[2] - x)*ps[3]))) * (1/(1 + 10^((x - ps[4])*ps[5])))
 #'
 #' @param ps Vector of parameters: tp,ga,p,la,q,er
 #' @param x Vector of concentrations (log10 units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' loggnls(c(1,2,1,2,2),1)
+#'
 loggnls = function(ps, x){
   #gnls function with log units: x = log10(conc) and ga/la = log10(gain/loss ac50)
   #tp = ps[1], ga = ps[2], p = ps[3], la = ps[4], q = ps[5]
@@ -137,64 +158,79 @@ loggnls = function(ps, x){
   return(ps[1]*gn*ls )
 }
 
-#' Hill Model
+#' Hill Model - ps[1]/(1 +  (ps[2]/x)^ps[3])
 #'
 #' @param ps Vector of parameters: tp,ga,p,er
 #' @param x Vector of concentrations (regular units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' hillfn(c(1,2,3),1)
+#'
 hillfn = function(ps,x){
   #hill function with regular units
   #tp = ps[1], ga = ps[2], p = ps[3]
   return(ps[1]/(1 +  (ps[2]/x)^ps[3]) )
 }
 
-#' Log Hill Model
+#' Log Hill Model - ps[1]/(1 + 10^(ps[3]*(ps[2]-x)))
 #'
 #' @param ps Vector of parameters: tp,ga,p,er
 #' @param x Vector of concentrations (log10 units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' loghill(c(1,2,3),1)
+#'
 loghill = function(ps,x){
   #hill function with log units: x = log10(conc) and ga = log10(ac50)
   #tp = ps[1], ga = ps[2], p = ps[3]
   return(ps[1]/(1 + 10^(ps[3]*(ps[2]-x)) ) )
 }
 
-#' Polynomial 1 Model
+#' Polynomial 1 Model - ps[1]*x
 #'
 #' @param ps Vector of parameters: a,er
 #' @param x Vector of concentrations (regular units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' poly1(1,1)
+#'
 poly1 = function(ps,x){
   #a = ps[1]
   return(ps[1]*x)
 }
 
-#' Polynomial 2 Model
+#' Polynomial 2 Model - ps[1]*(x0 + x0*x0)
 #'
 #' @param ps Vector of parameters: a,b,er
 #' @param x Vector of concentrations (regular units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' poly2(c(1,2),1)
+#'
 poly2 = function(ps,x){
   #a = ps[1], b = ps[2]
   x0 = x/ps[2]
   return(ps[1]*(x0 + x0*x0))
 }
 
-#' Power Model
+#' Power Model - ps[1]*x^ps[2]
 #'
 #' @param ps Vector of parameters: a,p,er
 #' @param x Vector of concentrations (regular units)
 #'
 #' @return Vector of model responses
 #' @export
+#' @examples
+#' pow(c(1,2),1)
+#'
 pow = function(ps,x){
   #a = ps[1], p = ps[2]
   return(ps[1]*x^ps[2]  )
