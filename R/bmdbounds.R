@@ -1,6 +1,6 @@
 #' BMD Bounds
 #'
-#' Computes BMDU or BMDL.
+#' Uses maximum liklihood method to tune the upper and lower bounds on the BMD (BMDU, BMDL)
 #'
 #' Takes in concentration response fit details and outputs a bmdu or bmdl, as
 #' desired. If bmd is not finite, returns NA. If the objective function doesn't
