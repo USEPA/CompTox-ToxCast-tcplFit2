@@ -6,7 +6,7 @@
 #' and "resp" entries should be a single string with values separated by |.
 #' Details on indf columns can be found in concRespCore.
 #'
-#' @param indf Dataframe similar to concRespCore input. Must contain "conc" and "resp"
+#' @param indf Dataframe similar to concRespCore output. Must contain "conc" and "resp"
 #'   columns if xs and ys are not provided. Must contain "top", "ac50", "er",
 #'   "fit_method", "caikwt", and "mll" columns as well as columns for each
 #'   model parameter.
@@ -22,6 +22,19 @@
 #' @return Vector of hitcalls between 0 and 1 with length equal to indf row
 #'   number.
 #' @export
+#' @example
+#' conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)
+#' resp <- list(0, .2, .1, .4, .7, .9, .6, 1.2)
+#' row <- list(conc = conc,
+#'             resp = resp,
+#'             bmed = 0,
+#'             cutoff = 1,
+#'             onesd = .5,
+#'             name = "some chemical",
+#'             assay = "some assay")
+#' res <- concRespCore(row, conthits = TRUE)
+#' hitcont(res,newcutoff=0.2)
+#'
 hitcont = function(indf, xs = NULL, ys = NULL, newcutoff, mc.cores = 1){
 
   # reformat concs and resps
