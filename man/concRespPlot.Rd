@@ -21,15 +21,17 @@ concRespPlot(row, ymin = -120, ymax = 120, draw.error.arrows = FALSE)
   \item bmd, bmdl, bmdu - bmd, bmd lower bound, and bmd upper bound
   \item ac50, acc - curve value at 50\% of top, curve value at cutoff
   \item top - curve top
+  \item name - name of the chemical
+  \item assay - name of the assay, signature, or other endpoint
   \item other identifiers
 }
 Other elements are ignored.}
 
-\item{ymin}{Minimum value of respone for the plot}
+\item{ymin}{Minimum value of response for the plot}
 
-\item{ymax}{Maximum value of respone for the plot}
+\item{ymax}{Maximum value of response for the plot}
 
-\item{draw.error.arrows}{If TRUE, draw lines prepresenting the uncertainty in the response estimate,
+\item{draw.error.arrows}{If TRUE, draw lines representing the uncertainty in the response estimate,
 instead of the actual response points}
 }
 \value{
@@ -41,4 +43,20 @@ This is a generic function and it is expected that users will make their own ver
 }
 \details{
 row is one row of data from concRespCore
+}
+\examples{
+
+conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)
+resp <- list(0, .2, .1, .4, .7, .9, .6, 1.2)
+row <- list(conc = conc,
+            resp = resp,
+            bmed = 0,
+            cutoff = 0.25,
+            onesd = 0.125,
+            name = "some chemical",
+            assay = "some assay")
+res <- concRespCore(row, conthits = TRUE)
+concRespPlot(res,ymin=-2.5,ymax=2.,5)
+
+
 }

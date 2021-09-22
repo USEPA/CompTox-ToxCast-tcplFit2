@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{exp4}
 \alias{exp4}
-\title{Exponential 4 Model}
+\title{Exponential 4 Model- ps[1]*(1-2^(-x/ps[2]))}
 \usage{
 exp4(ps, x)
 }
@@ -15,5 +15,9 @@ exp4(ps, x)
 Vector of model responses
 }
 \description{
-Exponential 4 Model
+Exponential 4 Model- ps[1]*(1-2^(-x/ps[2]))
+}
+\examples{
+exp4(c(1,2),1)
+
 }

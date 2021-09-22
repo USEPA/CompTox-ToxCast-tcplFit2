@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{hillfn}
 \alias{hillfn}
-\title{Hill Model}
+\title{Hill Model - ps[1]/(1 +  (ps[2]/x)^ps[3])}
 \usage{
 hillfn(ps, x)
 }
@@ -15,5 +15,9 @@ hillfn(ps, x)
 Vector of model responses
 }
 \description{
-Hill Model
+Hill Model - ps[1]/(1 +  (ps[2]/x)^ps[3])
+}
+\examples{
+hillfn(c(1,2,3),1)
+
 }

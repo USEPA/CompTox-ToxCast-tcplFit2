@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{pow}
 \alias{pow}
-\title{Power Model}
+\title{Power Model - ps[1]*x^ps[2]}
 \usage{
 pow(ps, x)
 }
@@ -15,5 +15,9 @@ pow(ps, x)
 Vector of model responses
 }
 \description{
-Power Model
+Power Model - ps[1]*x^ps[2]
+}
+\examples{
+pow(c(1,2),1)
+
 }

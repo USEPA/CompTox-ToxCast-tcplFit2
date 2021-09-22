@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{cnst}
 \alias{cnst}
-\title{Constant Model}
+\title{Constant Model - returns zero}
 \usage{
 cnst(ps, x)
 }
@@ -15,5 +15,9 @@ cnst(ps, x)
 Vector of model responses
 }
 \description{
-Constant Model
+Constant Model - returns zero
+}
+\examples{
+cnst(1,1)
+
 }

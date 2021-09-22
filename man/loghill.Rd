@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{loghill}
 \alias{loghill}
-\title{Log Hill Model}
+\title{Log Hill Model - ps[1]/(1 + 10^(ps[3]*(ps[2]-x)))}
 \usage{
 loghill(ps, x)
 }
@@ -15,5 +15,9 @@ loghill(ps, x)
 Vector of model responses
 }
 \description{
-Log Hill Model
+Log Hill Model - ps[1]/(1 + 10^(ps[3]*(ps[2]-x)))
+}
+\examples{
+loghill(c(1,2,3),1)
+
 }

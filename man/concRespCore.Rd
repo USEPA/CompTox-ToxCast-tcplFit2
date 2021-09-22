@@ -77,7 +77,8 @@ row <- list(conc = conc,
             bmed = 0,
             cutoff = 1,
             onesd = .5,
-            name = "some chemical")
+            name = "some chemical",
+            assay = "some assay")
 concRespCore(row, conthits = TRUE)
 concRespCore(row, aicc = TRUE)
 }

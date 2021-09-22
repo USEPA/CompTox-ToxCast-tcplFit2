@@ -41,7 +41,7 @@ which.bound = "lower".}
 Returns either the BMDU or BMDL.
 }
 \description{
-Computes BMDU or BMDL.
+Uses maximum liklihood method to tune the upper and lower bounds on the BMD (BMDU, BMDL)
 }
 \details{
 Takes in concentration response fit details and outputs a bmdu or bmdl, as

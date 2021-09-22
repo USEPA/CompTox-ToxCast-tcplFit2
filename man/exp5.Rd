@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{exp5}
 \alias{exp5}
-\title{Exponential 5 Model}
+\title{Exponential 5 Model - ps[1]*(1-2^(-(x/ps[2])^ps[3]))}
 \usage{
 exp5(ps, x)
 }
@@ -15,5 +15,9 @@ exp5(ps, x)
 Vector of model responses
 }
 \description{
-Exponential 5 Model
+Exponential 5 Model - ps[1]*(1-2^(-(x/ps[2])^ps[3]))
+}
+\examples{
+exp5(c(1,2,3),1)
+
 }

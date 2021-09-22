@@ -7,7 +7,7 @@
 hitcont(indf, xs = NULL, ys = NULL, newcutoff, mc.cores = 1)
 }
 \arguments{
-\item{indf}{Dataframe similar to concRespCore input. Must contain "conc" and "resp"
+\item{indf}{Dataframe similar to concRespCore output. Must contain "conc" and "resp"
 columns if xs and ys are not provided. Must contain "top", "ac50", "er",
 "fit_method", "caikwt", and "mll" columns as well as columns for each
 model parameter.}

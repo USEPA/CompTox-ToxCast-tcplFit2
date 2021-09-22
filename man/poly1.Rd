@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{poly1}
 \alias{poly1}
-\title{Polynomial 1 Model}
+\title{Polynomial 1 Model - ps[1]*x}
 \usage{
 poly1(ps, x)
 }
@@ -15,5 +15,9 @@ poly1(ps, x)
 Vector of model responses
 }
 \description{
-Polynomial 1 Model
+Polynomial 1 Model - ps[1]*x
+}
+\examples{
+poly1(1,1)
+
 }
