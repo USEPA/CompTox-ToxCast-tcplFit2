@@ -19,12 +19,14 @@
 #'     \item bmd, bmdl, bmdu - bmd, bmd lower bound, and bmd upper bound
 #'     \item ac50, acc - curve value at 50\% of top, curve value at cutoff
 #'     \item top - curve top
+#'     \item name - name of the chemical
+#'     \item assay - name of the assay, signature, or other endpoint
 #'     \item other identifiers
 #'   }
 #'   Other elements are ignored.
-#' @param ymin Minimum value of respone for the plot
-#' @param ymax Maximum value of respone for the plot
-#' @param draw.error.arrows If TRUE, draw lines prepresenting the uncertainty in the response estimate,
+#' @param ymin Minimum value of response for the plot
+#' @param ymax Maximum value of response for the plot
+#' @param draw.error.arrows If TRUE, draw lines representing the uncertainty in the response estimate,
 #'   instead of the actual response points
 #' @return No output.
 #' @export
@@ -32,6 +34,22 @@
 #' @import stringr
 #' @import grDevices
 #' @importFrom stats qt
+#'
+#' @examples
+#'
+#' conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)
+#' resp <- list(0, .2, .1, .4, .7, .9, .6, 1.2)
+#' row <- list(conc = conc,
+#'             resp = resp,
+#'             bmed = 0,
+#'             cutoff = 0.25,
+#'             onesd = 0.125,
+#'             name = "some chemical",
+#'             assay = "some assay")
+#' res <- concRespCore(row, conthits = TRUE)
+#' concRespPlot(res,ymin=-2.5,ymax=2.,5)
+#'
+#'
 concRespPlot <- function(row,ymin=-120,ymax=120,draw.error.arrows=FALSE) {
 
   #every variable in row goes into the environment to make it easy
