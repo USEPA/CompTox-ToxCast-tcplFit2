@@ -2,8 +2,10 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 tcplFit2_manual.pdf
+tcplfit2.pdf
 tcplfit2-vignette.md
 ^doc$
 ^Meta$
 cran-comments.md
 ^CRAN-RELEASE$
+^data-raw$
