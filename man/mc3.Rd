@@ -15,7 +15,7 @@ mc3
 }
 \description{
 A data set containing 100 chemicals worth of data for the Tox21 assay
-TOX21_ERa_BLA_Agonist_ratio, which measures response to estrogen receptor agonist.
+TOX21_ERa_BLA_Agonist_ratio, which measures response to estrogen receptor agonists.
 The data can be accessed further through the Comptox Chemicals Dashboard
 (\url{https://comptox.epa.gov/dashboard}).
 }
