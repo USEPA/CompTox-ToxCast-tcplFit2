@@ -1,10 +1,8 @@
-## Addressed comments from last submission
-* reduced length of title to less than 65 characters
-* added single quotes to names of packages/software
-* added parenthesis behind functions in description
-* Changed T/F to TRUE FALSE throughout package
-* removed some references to par() and added on.exit when it is used
-* There are no references that need to be added to description
+## Changes from last version
+* Created example data and added documentation
+* Updated documentation for certain functions
+* Addressed NOTE on cran builds - Moved stringi from imports to suggests
+* Included additional contributor
 
 
 ## Test environments
@@ -17,14 +15,12 @@
 
 ## R CMD check results
 
-0 ERRORs | 0 WARNINGs | 1 NOTE.
+  unable to verify current time
 
-Possibly mis-spelled words in DESCRIPTION:
-  bmd (12:50)
-  Transcriptomics (2:50)
+0 errors √ | 0 warnings √ | 1 note x
 
   
-These words are all correct.
+Service to check time is unavailable
 
 ## Downstream dependencies
 

@@ -22,7 +22,7 @@
 #' @return Vector of hitcalls between 0 and 1 with length equal to indf row
 #'   number.
 #' @export
-#' @example
+#' @examples
 #' conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)
 #' resp <- list(0, .2, .1, .4, .7, .9, .6, 1.2)
 #' row <- list(conc = conc,

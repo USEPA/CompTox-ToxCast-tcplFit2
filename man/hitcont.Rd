@@ -33,3 +33,17 @@ indf parameter columns should be NA when not required by fit method. "conc"
 and "resp" entries should be a single string with values separated by |.
 Details on indf columns can be found in concRespCore.
 }
+\examples{
+conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)
+resp <- list(0, .2, .1, .4, .7, .9, .6, 1.2)
+row <- list(conc = conc,
+            resp = resp,
+            bmed = 0,
+            cutoff = 1,
+            onesd = .5,
+            name = "some chemical",
+            assay = "some assay")
+res <- concRespCore(row, conthits = TRUE)
+hitcont(res,newcutoff=0.2)
+
+}

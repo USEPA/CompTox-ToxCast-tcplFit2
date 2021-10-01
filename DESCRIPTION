@@ -18,7 +18,8 @@ LazyData: true
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    stringi
 VignetteBuilder: knitr
 Imports: 
     stats,
@@ -27,7 +28,6 @@ Imports:
     numDeriv,
     RColorBrewer,
     future.apply,
-    stringr,
-    stringi
+    stringr
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5.0)
