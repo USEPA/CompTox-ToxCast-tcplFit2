@@ -8,7 +8,7 @@
 An object of class \code{data.frame} with 32175 rows and 7 columns.
 }
 \source{
-\url{https://doi.org/10.23645/epacomptox.6062623.v5}
+\doi{https://doi.org/10.23645/epacomptox.6062623.v5}
 }
 \usage{
 mc3
