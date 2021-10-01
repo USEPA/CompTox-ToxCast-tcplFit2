@@ -1,4 +1,9 @@
-tcpl v0.1.0 
+tcpl v0.1.2 
+==============
+* Updated Documentation
+* Added 'signatures' example data and associated documenation
+
+tcpl v0.1.1 
 ==============
 
 Changes from beta versions:
