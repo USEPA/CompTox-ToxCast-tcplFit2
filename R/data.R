@@ -43,5 +43,7 @@
 #'   Thomas Sheffield, Joseph L. Bundy, Clinton M. Willis, Russell S. Thomas,
 #'   Imran Shah, Richard S. Judson, High-Throughput Transcriptomics Platform for
 #'   Screening Environmental Chemicals, Toxicological Sciences, Volume 181,
-#'   Issue 1, May 2021, Pages 68 - 89, \doi{https://doi.org/10.1093/toxsci/kfab009}.
+#'   Issue 1, May 2021, Pages 68 - 89, https://doi.org/10.1093/toxsci/kfab009.
+#'
+#' @source \doi{https://doi.org/10.1093/toxsci/kfab009}
 "signatures"
