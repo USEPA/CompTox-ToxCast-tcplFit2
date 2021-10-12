@@ -118,4 +118,43 @@ One would typically save the `summary` rows in a data frame end export these for
 remove the plotting function from the current loop and have a loop that read from the overall results 
 data frame and only plot selected results (e.g. those with significant responses).
 
+## Example 3: Plotting concentration-response modeling on transcriptional signatures
+The input data for this example contains 6 signatures for one chemical in a transcriptomics data set.  This data set is a sample from the signature scoring method that provides the cutoff, one standard deviation, and the concentration-response data. The example illustrates two kinds of plots available in *tcplfit2*. In the call to `concRespCore()`, the argument `do.plot` is set to `TRUE`, which provides a simple plot showing results of all the different curve fitting methods. Next, utilizing the function `concRespPlot()` provides a more informative plot for the winning model.
+```{r eval=TRUE}
+  # call additional R packages
+  library(stringr)  # string management package
+
+  # read in the file
+  data("signatures")
+  print(dim(signatures))
+  
+  # set up a 3 x 2 grid for the plots
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))            
+  par(mfrow=c(3,2),mar=c(4,4,2,2))
+    
+  # fit 6 observations in signatures
+  for(i in 1:nrow(signatures)){
+    # set up input data
+    row = list(conc=as.numeric(str_split(signatures[i,"conc"],"\\|")[[1]]),
+               resp=as.numeric(str_split(signatures[i,"resp"],"\\|")[[1]]),
+               bmed=0,
+               cutoff=signatures[i,"cutoff"],
+               onesd=signatures[i,"onesd"],
+               name=signatures[i,"name"],
+               assay=signatures[i,"signature"])
+    # run concentration-response modeling (1st plotting option)
+    out = concRespCore(row,conthits=F,do.plot=T)
+    if(i==1){
+      res <- out
+    }else{
+      res <- rbind.data.frame(res,out)
+    }
+  }
+  
+  # plot results using `concRespPlot`(2nd plotting option)
+  for(i in 1:nrow(res)){
+    concRespPlot(res[i,],ymin=-1,ymax=1)
+  }
+```
 
