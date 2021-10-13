@@ -68,7 +68,7 @@ their own version of this. To run this example, use the following code ...
 
 ```{r example2, fig.height = 8, fig.width = 7, eval = FALSE}
   # read in the data
-  file <- "../data/mc3.RData"
+  file <- "data/mc3.RData"
   load(file=file)
 
   # set up a 3 x 2 grid for the plots
