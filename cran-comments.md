@@ -1,25 +1,19 @@
 ## Changes from last version
-* Created example data and added documentation
-* Updated documentation for certain functions
-* Addressed NOTE on cran builds - Moved stringi from imports to suggests
-* Included additional contributor
+* Added additional example in vignette that uses signatures data
 
 
 ## Test environments
 
 * local Windows 10 install, R 3.6.1
-* winbuilder R Under development (unstable) (2021-09-30 r80997)
+* winbuilder R Under development (unstable) (2021-10-07 r81018)
 * rhub Fedora Linux, R-devel, clang, gfortran,
 	   Windows Server 2008 R2 SP1, R-devel, 32/64 bit,
 	   Ubuntu Linux 20.04.1 LTS, R-release, GCC
 
 ## R CMD check results
+Duration: 49.3s
 
-> checking for future file timestamps ... NOTE
-  unable to verify current time
-0 errors √ | 0 warnings √ | 1 note x
-  
-* Service to check time is unavailable, don't believe this should be an issue
+0 errors √ | 0 warnings √ | 0 notes √
 
 ## rhub results
 One note from the rhub check suggests the doi returns 403 status.

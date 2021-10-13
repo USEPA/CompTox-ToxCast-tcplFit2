@@ -1,3 +1,8 @@
+tcpl v0.1.3
+==============
+* Added additional example to the vignette
+
+
 tcpl v0.1.2 
 ==============
 * Updated Documentation
