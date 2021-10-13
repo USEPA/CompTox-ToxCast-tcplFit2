@@ -48,15 +48,16 @@ a plot of the curve will be generated. The user can also select only a subset of
 included. the model `cnst` always needs to be included. For some applications, we exclude the `gnls` model.
 
 To run a simple example, use the following code ...
-```r
+```{r example1, fig.height = 7, fig.width = 7}
   conc <- list(.03,.1,.3,1,3,10,30,100)
   resp <- list(0,.2,.1,.4,.7,.9,.6, 1.2)
   row = list(conc = conc, resp = resp, bmed = 0, cutoff = 1, onesd = .5,name="some chemical")
   res <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
                                         "exp4", "exp5"),conthits = T, do.plot=T)
-  res$summary
+  
 ```
-The output of this run will be a list with two elements. The first (`summary`) is a data frame with one row, summarizing the results for the winning model. The second (`all.models`) is a list giving detailed results for all of the models that were run.
+
+The output of this run will be a data frame with one row, summarizing the results for the winning model.
 
 ## Example 2: Running a series of concentration-response models for a single assay
 The input data for this example is taken from one of the Tox21 HTS assays, for estrogen receptor (ER) 
@@ -65,11 +66,10 @@ agonist activity. The data is from the mc3 table in the database `invitrodb`, wh
 for these. The plotting routine `concRespPlot` is somewhat generic, and we anticipate that users will make
 their own version of this. To run this example, use the following code ...
 
-```r
+```{r example2, fig.height = 8, fig.width = 7, eval = FALSE}
   # read in the data
   file <- "data/mc3.RData"
   load(file=file)
-  print(dim(mc3))
 
   # set up a 3 x 2 grid for the plots
   oldpar <- par(no.readonly = TRUE)
@@ -108,14 +108,56 @@ their own version of this. To run this example, use the following code ...
                                           "exp4", "exp5"),conthits = T, aicc = F,bidirectional=F)
 
     # plot the results
-    concRespPlot(res$summary,ymin=-10,ymax=100)
+    concRespPlot(res,ymin=-10,ymax=100)
   }
 
 
 ```
 
-One would typically save the `summary` rows in a data frame end export these for further analysis. You could
-remove the plotting function from the current loop and have a loop that read from the overall results 
-data frame and only plot selected results (e.g. those with significant responses).
+One would typically save the result rows in a data frame end export these for further analysis. You could remove the plotting function from the current loop and have a loop that read from the overall results data frame and only plot selected results (e.g. those with significant responses).
 
+## Example 3: Plotting concentration-response modeling on transcriptional signatures
+The input data for this example contains 6 signatures for one chemical in a transcriptomics data set.  This data set is a sample from the signature scoring method that provides the cutoff, one standard deviation, and the concentration-response data. The example illustrates two kinds of plots available in *tcplfit2*. In the call to `concRespCore()`, the argument `do.plot` is set to `TRUE`, which provides a simple plot showing results of all the different curve fitting methods. Next, utilizing the function `concRespPlot()` provides a more informative plot for the winning model.
+```{r example3, fig.height = 6, fig.width = 7}
+  # call additional R packages
+  library(stringr)  # string management package
+
+  # read in the file
+  data("signatures")
+  
+  # set up a 3 x 2 grid for the plots
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))            
+  par(mfrow=c(3,2),mar=c(4,4,2,2))
+    
+  # fit 6 observations in signatures
+  for(i in 1:nrow(signatures)){
+    # set up input data
+    row = list(conc=as.numeric(str_split(signatures[i,"conc"],"\\|")[[1]]),
+               resp=as.numeric(str_split(signatures[i,"resp"],"\\|")[[1]]),
+               bmed=0,
+               cutoff=signatures[i,"cutoff"],
+               onesd=signatures[i,"onesd"],
+               name=signatures[i,"name"],
+               assay=signatures[i,"signature"])
+    # run concentration-response modeling (1st plotting option)
+    out = concRespCore(row,conthits=F,do.plot=T)
+    if(i==1){
+      res <- out
+    }else{
+      res <- rbind.data.frame(res,out)
+    }
+  }
+```
+
+```{r example3_plot2, fig.height = 8, fig.width = 7}
+  # set up a 3 x 2 grid for the plots
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))            
+  par(mfrow=c(3,2),mar=c(4,4,2,2))
+  # plot results using `concRespPlot`(2nd plotting option)
+  for(i in 1:nrow(res)){
+    concRespPlot(res[i,],ymin=-1,ymax=1)
+  }
+```
 
