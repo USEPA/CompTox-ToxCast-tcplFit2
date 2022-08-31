@@ -84,7 +84,8 @@ The elements of summary are:
     \item ac5 - curve value at 5\% of top
     \item ac10 - curve value at 10\% of top
     \item ac20 - curve value at 20\% of top
-    \item acc - curve value at 1 standard deviation
+    \item acc - curve value at cutoff
+    \item ac1sd - curve value at 1 standard deviation
     \item conc - conc string separated by |'s
     \item resp - response string separated by |'s
   }
