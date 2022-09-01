@@ -8,7 +8,7 @@
 #' gnls model. gnls model defaults to giving concentration on gain side. Only
 #' one of getloss, returntop, and returntoploc should be TRUE at a time.  If
 #' top location solution fails for gnls, top is set to tp. Returns NA if gnls
-#' numerical solver fails.
+#' numerical solver fails. Returns NA if model was not successfully fit.
 #'
 #' @param y Activity value at which the concentration is desired. y
 #'   should be less than the model's top, if there is one, and greater
