@@ -8,7 +8,7 @@
 #' gnls model. gnls model defaults to giving concentration on gain side. Only
 #' one of getloss, returntop, and returntoploc should be TRUE at a time.  If
 #' top location solution fails for gnls, top is set to tp. Returns NA if gnls
-#' numerical solver fails.
+#' numerical solver fails. Returns NA if model was not successfully fit.
 #'
 #' @param y Activity value at which the concentration is desired. y
 #'   should be less than the model's top, if there is one, and greater
@@ -49,6 +49,9 @@ acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FAL
   list2env(modpars, envir = environment())
 
   #warnings
+  if(success == 0){
+    return(NA)
+  }
   if(!returntop){
     if(!is.null(modpars$tp) && abs(y) >= abs(tp)) {
       if(verbose) warning("y is greater than top in function acy, returning NA")

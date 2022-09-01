@@ -52,7 +52,7 @@ return the actual top (as opposed to theoretical tp) and top location for
 gnls model. gnls model defaults to giving concentration on gain side. Only
 one of getloss, returntop, and returntoploc should be TRUE at a time.  If
 top location solution fails for gnls, top is set to tp. Returns NA if gnls
-numerical solver fails.
+numerical solver fails. Returns NA if model was not successfully fit.
 }
 \examples{
 acy(1, list(ga = 10, tp = 2, p = 3), type = "hill")
