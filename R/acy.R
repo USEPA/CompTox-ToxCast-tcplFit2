@@ -49,6 +49,9 @@ acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FAL
   list2env(modpars, envir = environment())
 
   #warnings
+  if(success == 0){
+    return(NA)
+  }
   if(!returntop){
     if(!is.null(modpars$tp) && abs(y) >= abs(tp)) {
       if(verbose) warning("y is greater than top in function acy, returning NA")
