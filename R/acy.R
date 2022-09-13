@@ -44,13 +44,15 @@
 #'
 acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FALSE, getloss =FALSE, verbose = FALSE) {
   #variable binding to pass cmd checks
-  a <- b <- tp <- ga <- p <- q <- la <- NULL
+  a <- b <- tp <- ga <- p <- q <- la <- success <- NULL
   #Put model parameters in environment: a,b,tp,ga,p,q,la,er
   list2env(modpars, envir = environment())
 
   #warnings
-  if(success == 0){
-    return(NA)
+  if(!is.null(success)){
+    if(success == 0){
+      return(NA)
+    }
   }
   if(!returntop){
     if(!is.null(modpars$tp) && abs(y) >= abs(tp)) {
