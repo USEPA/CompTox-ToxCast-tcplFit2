@@ -138,6 +138,11 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     hitcall <- hitloginner(conc, resp, top, cutoff, ac50)
   }
 
+  if(is.nan(hitcall)){
+    hitcall <- 0
+  }
+
+
   bmr <- onesd * bmr_scale # magic bmr is default 1.349
   if (hitcall > 0) {
 
