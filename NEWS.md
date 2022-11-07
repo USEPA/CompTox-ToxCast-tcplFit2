@@ -1,3 +1,5 @@
+# tcplfit2 0.1.4
+
 tcpl v0.1.3
 ==============
 * Added additional example to the vignette
