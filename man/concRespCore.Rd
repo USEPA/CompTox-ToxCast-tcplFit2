@@ -6,8 +6,8 @@
 \usage{
 concRespCore(
   row,
-  fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
-    "exp4", "exp5"),
+  fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
+    "exp5"),
   conthits = TRUE,
   aicc = FALSE,
   force.fit = FALSE,
