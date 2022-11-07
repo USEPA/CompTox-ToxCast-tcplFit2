@@ -1,4 +1,6 @@
 # tcplfit2 0.1.4
+==============
+* Added minor fixes for edge cases when bidirectional = false
 
 tcpl v0.1.3
 ==============
