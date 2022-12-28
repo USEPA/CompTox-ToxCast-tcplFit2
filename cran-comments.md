@@ -1,31 +1,39 @@
 ## Changes from last version
-* Added additional example in vignette that uses signatures data
-
+* Minor bug fixes for when using unidirectional model fitting.
 
 ## Test environments
 
-* local Windows 10 install, R 3.6.1
-* winbuilder R Under development (unstable) (2021-10-07 r81018)
+* local Windows 10 install, R 4.2.1
+* R Under development (unstable) (2022-10-11 r83083 ucrt)
 * rhub Fedora Linux, R-devel, clang, gfortran,
-	   Windows Server 2008 R2 SP1, R-devel, 32/64 bit,
+	   Windows Server 2022, R-devel, 64 bit,
 	   Ubuntu Linux 20.04.1 LTS, R-release, GCC
 
 ## R CMD check results
-Duration: 49.3s
+── R CMD check results ────────────────────────────────────── tcplfit2 0.1.3 ────
+Duration: 1m 3s
 
-0 errors √ | 0 warnings √ | 0 notes √
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 
 ## rhub results
-One note from the rhub check suggests the doi returns 403 status.
-Believe this is a false positive as the link is valid and viewable.
+One note from the rhub check suggests detritus in the temp directory
+Believe this is a common note that only shows up on Windows Server 2022, R-devel, 64 bit.
 
-	Found the following (possibly) invalid URLs:
-	  URL: https://doi.org/10.1093/toxsci/kfab009
-		From: man/signatures.Rd
-		Status: 403
-		Message: Forbidden
+* checking for detritus in the temp directory ... NOTE
+Found the following files/directories:
+
+  'lastMiKTeXException'
+See
+  'C:/Users/USERQvjyxVChRg/tcplfit2.Rcheck/00check.log'
+for details.
+
 
 
 ## Downstream dependencies
 
-* There are 0 Downstream dependencies for this package.
+* There are 1 Downstream dependencies for this package.
+── CHECK ────────────────────────────────────────────────────────── 1 packages ──
+✔ tcpl 3.0.0                             ── E: 0     | W: 0     | N: 0           
+OK: 1                                                                          
+BROKEN: 0
+Total time: 8 min

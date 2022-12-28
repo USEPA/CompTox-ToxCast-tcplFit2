@@ -67,7 +67,7 @@ bmdbounds = function(fit_method, bmr, pars, conc, resp, onesidedp = .05, bmd = N
                 onesp = onesidedp, partype = 2)$root)
 
   #sometimes there's no lower/upper bound because the model is such a poor fit, in this case, return NA
-  if(class(out) == "try-error") return(NA_real_) else return(out)
+  if(is(out,"try-error")) return(NA_real_) else return(out)
 
 }
 

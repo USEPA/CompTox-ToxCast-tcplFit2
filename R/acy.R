@@ -88,7 +88,7 @@ acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FAL
     toploc = try(uniroot(gnlsderivobj, c(ga,la), tp = tp, ga = ga, p = p, la = la, q = q, tol = 1e-8)$root)
 
     #If toploc fails, set topval to tp, set toploc to NA
-    if(class(toploc) == "try-error"){
+    if(is(toploc,"try-error")){
       if(verbose) warning("toploc could not be found numerically")
       topval = tp
       toploc = NA_real_
@@ -112,7 +112,7 @@ acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FAL
     } else {
       output = try(uniroot(acgnlsobj, c(1e-8, toploc), y = y, tp = tp, ga = ga, p = p, la = la, q = q, tol = 1e-8)$root)
     }
-    if(class(output) == "try-error") return(NA_real_) else return(output)
+    if(is(output,"try-error")) return(NA_real_) else return(output)
   }
 
   return(NA)
