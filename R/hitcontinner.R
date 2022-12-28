@@ -43,8 +43,8 @@ hitcontinner = function(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll
   P1 = 1-caikwt
 
   P2 = 1
-  mean_resp <- aggregate(resp ~ conc, data = data.frame(conc,resp), FUN = median)
-  for(y in mean_resp$resp){
+  med_resp <- aggregate(resp ~ conc, data = data.frame(conc,resp), FUN = median)
+  for(y in med_resp$resp){
     #multiply odds of each point falling below cutoff to get odds of all falling below
     P2 = P2*pt((y-sign(top)*cutoff)/exp(er),4, lower.tail = top < 0) #use lower tail for positive top and upper tail for neg top
   }
