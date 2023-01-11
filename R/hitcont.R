@@ -52,7 +52,7 @@ hitcont = function(indf, xs = NULL, ys = NULL, newcutoff, mc.cores = 1){
 
   #run hitcontinner for every row of indf
   if(mc.cores > 1){
-    plan(multiprocess, workers = mc.cores)
+    plan(multisession, workers = mc.cores)
     pin = future_lapply(1:nrow(indf), function(i){indf[i, parnames]})
     hitcall = future_mapply(hitcontinner, conc= xs, resp = ys, top = indf$top, cutoff = newcutoff, er = indf$er, ps = pin,
                             fit_method = indf$fit_method, caikwt = indf$caikwt, mll = indf$mll,
