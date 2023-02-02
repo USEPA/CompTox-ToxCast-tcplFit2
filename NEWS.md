@@ -1,3 +1,7 @@
+# tcplfit2 0.1.5
+==============
+* P2 probability in the continuous hitcall has been changed to use the median response so that replicate data more closely resembles what is done in HTTr/HTPP workflows
+
 # tcplfit2 0.1.4
 ==============
 * Added minor fixes for edge cases when bidirectional = false
