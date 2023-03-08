@@ -122,7 +122,6 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
       list2env(fitout, envir = environment()) # put all parameters in environment
     }
   }
-  browser()
   n_gt_cutoff <- sum(abs(resp) > cutoff)
 
   # compute discrete or continuous hitcalls
