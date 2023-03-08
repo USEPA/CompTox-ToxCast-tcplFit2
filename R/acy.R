@@ -44,7 +44,7 @@
 #'
 acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FALSE, getloss =FALSE, verbose = FALSE) {
   #variable binding to pass cmd checks
-  a <- b <- tp <- ga <- p <- q <- la <- success <- NULL
+  a <- b <- tp <- ga <- p <- q <- la <- success <- top <- NULL
   #Put model parameters in environment: a,b,tp,ga,p,q,la,er
   list2env(modpars, envir = environment())
 
@@ -56,6 +56,10 @@ acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FAL
   }
   if(!returntop){
     if(!is.null(modpars$tp) && abs(y) >= abs(tp)) {
+      if(verbose) warning("y is greater than tp in function acy, returning NA")
+      return(NA)
+    }
+    if(!is.null(modpars$top) && abs(y) >= abs(top)) {
       if(verbose) warning("y is greater than top in function acy, returning NA")
       return(NA)
     }
