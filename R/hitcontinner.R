@@ -17,6 +17,7 @@
 #' @param mll Maximum log-likelihood of winning model.
 #'
 #' @importFrom stats pt
+#' @importFrom stats aggregate
 #'
 #' @return Continuous hitcall between 0 and 1.
 #' @export

@@ -23,11 +23,9 @@ Suggests:
 VignetteBuilder: knitr
 Imports: 
     stats,
-    future,
     methods,
     numDeriv,
     RColorBrewer,
-    future.apply,
     stringr
 Depends: 
     R (>= 3.5.0)

@@ -2,6 +2,7 @@
 ==============
 * Removed dependency of 'future' package for 'acy' function as our implementation of future package was being deprecated and testing showed it was generally no faster
 * P2 probability in the continuous hitcall has been changed to use the median response so that replicate data more closely resembles what is done in HTTr/HTPP workflows
+* Bugfix for how tcplhit2_core interacts with 'acy' function so that if the cutoff is higher than the model top it will return NA for the calculated ACC value.  Previously would give very large or small values significantly outside of the tested concentration range for models that did not have a tp value.
 
 # tcplfit2 0.1.4
 ==============
