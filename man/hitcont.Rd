@@ -4,7 +4,7 @@
 \alias{hitcont}
 \title{Continuous Hitcalls}
 \usage{
-hitcont(indf, xs = NULL, ys = NULL, newcutoff, mc.cores = 1)
+hitcont(indf, xs = NULL, ys = NULL, newcutoff)
 }
 \arguments{
 \item{indf}{Dataframe similar to concRespCore output. Must contain "conc" and "resp"
@@ -18,8 +18,6 @@ model parameter.}
 
 \item{newcutoff}{Vector of new cutoff values to use. Length should be equal
 to rows in indf.}
-
-\item{mc.cores}{Number of cores to use for large dataframes.}
 }
 \value{
 Vector of hitcalls between 0 and 1 with length equal to indf row
@@ -36,14 +34,16 @@ Details on indf columns can be found in concRespCore.
 \examples{
 conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)
 resp <- list(0, .2, .1, .4, .7, .9, .6, 1.2)
-row <- list(conc = conc,
-            resp = resp,
-            bmed = 0,
-            cutoff = 1,
-            onesd = .5,
-            name = "some chemical",
-            assay = "some assay")
+row <- list(
+  conc = conc,
+  resp = resp,
+  bmed = 0,
+  cutoff = 1,
+  onesd = .5,
+  name = "some chemical",
+  assay = "some assay"
+)
 res <- concRespCore(row, conthits = TRUE)
-hitcont(res,newcutoff=0.2)
+hitcont(res, newcutoff = 0.2)
 
 }

@@ -1,5 +1,6 @@
 # tcplfit2 0.1.5
 ==============
+* Removed dependency of 'future' package for 'acy' function as our implementation of future package was being deprecated and testing showed it was generally no faster
 * P2 probability in the continuous hitcall has been changed to use the median response so that replicate data more closely resembles what is done in HTTr/HTPP workflows
 
 # tcplfit2 0.1.4

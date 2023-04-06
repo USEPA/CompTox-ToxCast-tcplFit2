@@ -1,6 +1,6 @@
 Package: tcplfit2
 Title: Concentration-Response Modeling of HTS or Transcriptomics Data 
-Version: 0.1.4
+Version: 0.1.5
 Authors@R: c(person("Thomas", "Sheffield", email = "tysheff@gmail.com", role = c("aut")),
 				person("Richard", "Judson", role = c("ctb"),email = "Judson.Richard@epa.gov"),
 				person("Jason", "Brown", role = c("ctb", "cre"),email = "brown.jason@epa.gov"),
@@ -15,7 +15,7 @@ Description: Performs the basic concentration response curve fitting used
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Suggests: 
     knitr,
     rmarkdown,
