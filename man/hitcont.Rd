@@ -4,7 +4,7 @@
 \alias{hitcont}
 \title{Continuous Hitcalls}
 \usage{
-hitcont(indf, xs = NULL, ys = NULL, newcutoff, mc.cores = 1)
+hitcont(indf, xs = NULL, ys = NULL, newcutoff)
 }
 \arguments{
 \item{indf}{Dataframe similar to concRespCore output. Must contain "conc" and "resp"
@@ -18,8 +18,6 @@ model parameter.}
 
 \item{newcutoff}{Vector of new cutoff values to use. Length should be equal
 to rows in indf.}
-
-\item{mc.cores}{Number of cores to use for large dataframes.}
 }
 \value{
 Vector of hitcalls between 0 and 1 with length equal to indf row

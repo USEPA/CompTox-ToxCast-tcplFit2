@@ -14,7 +14,6 @@
 #' @param ys List of response vectors that can be provided for speed.
 #' @param newcutoff Vector of new cutoff values to use. Length should be equal
 #'   to rows in indf.
-#' @param mc.cores Number of cores to use for large dataframes.
 #'
 #'
 #' @return Vector of hitcalls between 0 and 1 with length equal to indf row
@@ -35,7 +34,7 @@
 #' res <- concRespCore(row, conthits = TRUE)
 #' hitcont(res, newcutoff = 0.2)
 #'
-hitcont <- function(indf, xs = NULL, ys = NULL, newcutoff, mc.cores = 1) {
+hitcont <- function(indf, xs = NULL, ys = NULL, newcutoff) {
   # reformat concs and resps
   if (is.null(xs)) {
     xs <- strsplit(indf$conc, "\\|")
