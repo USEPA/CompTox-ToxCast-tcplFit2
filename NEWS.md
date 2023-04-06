@@ -1,3 +1,8 @@
+# tcplfit2 0.1.5
+==============
+* Removed dependency of 'future' package as function was being deprecated and testing showed it was generally no faster
+
+
 # tcplfit2 0.1.4
 ==============
 * Added minor fixes for edge cases when bidirectional = false
