@@ -1,39 +1,36 @@
 ## Changes from last version
-* Minor bug fixes for when using unidirectional model fitting.
+* Minor bug fixes and removing future package dependency
 
 ## Test environments
 
-* local Windows 10 install, R 4.2.1
-* R Under development (unstable) (2022-10-11 r83083 ucrt)
+* local Windows 10 install, R 4.2.2
+* R version 4.3.0 alpha (2023-04-05 r84174 ucrt)
 * rhub Fedora Linux, R-devel, clang, gfortran,
 	   Windows Server 2022, R-devel, 64 bit,
 	   Ubuntu Linux 20.04.1 LTS, R-release, GCC
 
 ## R CMD check results
-── R CMD check results ────────────────────────────────────── tcplfit2 0.1.3 ────
-Duration: 1m 3s
+── R CMD check results ─────────────────────────────────────────────────────────────────────────────────── tcplfit2 0.1.5 ────
+Duration: 54s
 
 0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 
 ## rhub results
-One note from the rhub check suggests detritus in the temp directory
-Believe this is a common note that only shows up on Windows Server 2022, R-devel, 64 bit.
+Ubuntu Linux 20.04.1 LTS, R-release, GCC: OK
+Fedora Linux, R-devel, clang, gfortran: NOTE related to unavailable tidy function for html checking. I believe this is due to the testing system and unrelated to this package
+Windows Server 2022, R-devel, 64 bit: ERROR certain packages were not available during testing and caused an error.  I believe this is also due to the testing environment
 
-* checking for detritus in the temp directory ... NOTE
-Found the following files/directories:
-
-  'lastMiKTeXException'
-See
-  'C:/Users/USERQvjyxVChRg/tcplfit2.Rcheck/00check.log'
-for details.
-
+## win-builder results
+Check time in seconds: 116
+Status: OK
+R version 4.3.0 alpha (2023-04-05 r84174 ucrt)
 
 
 ## Downstream dependencies
 
 * There are 1 Downstream dependencies for this package.
-── CHECK ────────────────────────────────────────────────────────── 1 packages ──
-✔ tcpl 3.0.0                             ── E: 0     | W: 0     | N: 0           
-OK: 1                                                                          
+── CHECK ─────────────────────────────────────────────────────────────────────────────────────────────────────── 1 packages ──
+✔ tcpl 3.0.1                             ── E: 0     | W: 0     | N: 0                                                        
+OK: 1                                                                                                                       
 BROKEN: 0
-Total time: 8 min
+Total time: 4 min
