@@ -163,43 +163,56 @@ The input data for this example contains 6 signatures for one chemical in a tran
 
 ## Example 4: Running tcplfit2 on standalone tcpl-like data from mc0.
 
-```{r example4}
+The input for this example is from ACEA data that has been released in past versions of invitrodb. Those familiar with the data fromat in tcpl will recognize the data in the format of multiconcentration level 0 data otherwise known as mc0.  Data from the assay component ACEA_AR_agonist_80hr was analyzed in the positive analysis fitting direction relative to DMSO as the negative control and baseline of activity. Using a type of growth reporter, measures of the cells for gain-of-signal activity can be used to understand the signaling at the pathway-level as they relate to the gene AR.
+
+```{r example4_init, fig.height = 6, fig.width = 7}
 
 load(file = "../data/mc0.rda")
-
-
 library(tcpl)
 library(data.table)
 dat <- mc0
-#apply no lvl 1 or 2 methods
+DT::datatable(head(dat),options = list(scrollX = T))
+```
+
+The above table is identical to the mc0 table that would be seen in tcpl.  However, some users may want to run standalone tcplfit2 fitting without the need for a database connection.  The first steps (levels 1 through 3 in tcpl) are used to adjust the data and determine the noise levels that will later be used for cutoff calcualtion.
+```{r example4_mc2, fig.height = 6, fig.width = 7}
+#In this case there are no adjustments required for the data so we set cval to the original rval
 dat[,cval := rval]
-## remove na
+## Fitting generally cannot occur if response values are NA or null so we remove them
 dat <- dat[!is.na(cval),]
-
-methods <- tcplMthdList(3)
-
-## Add column for log10 concentration
+## Add column for log10 concentration as some of the mc3 methods require logc
 dat[ , logc := log10(conc)]
 
-## Initialize the bval, pval, and resp columns
-dat[ , c('bval', 'pval', 'resp') := NA_real_]
+# ## Initialize the bval, pval, and resp columns
+# dat[ , c('bval', 'pval', 'resp') := NA_real_]
 
-## initialize dummy aeid
+## initialize dummy aeid required if using mc3_mthds from tcpl
 dummy_aeid <- 99999
 dat[,aeid := dummy_aeid]
+
+## Set aeid as a key
 setkey(dat,aeid)
+```
 
+Once the data is initialized to a point where the required fields are available we can use the methods included in the tcpl package without the need for a database connection.  You can see the list of available methods for mc3 in the table below.
 
+```{r example4_mthdlist, fig.height = 6, fig.width = 7}
 mthd_funcs <- tcpl:::mc3_mthds()
+DT::datatable(tcpl::tcplMthdList(3),options = list(scrollX = T))
+```
+
+The following 3 methods are selected from the list above and are applied to the data.  Note because of the way tcpl handles the application of functions, the dataframe must be called `dat`.  In the future tcpl will export these functions so that they can be applied to any dataset without the need for a specific name or dummy aeid.
+
+```{r example4_mc3methods, fig.height = 6, fig.width = 7, results = 'hide'}
 # apply level 3 methods
 lapply(mthd_funcs[["bval.apid.nwlls.med"]](dummy_aeid), eval)
 lapply(mthd_funcs[["pval.apid.medncbyconc.min"]](dummy_aeid),eval)
 lapply(mthd_funcs[["resp.pc"]](dummy_aeid),eval)
+```
 
+We then must remember to calculate the concentration index.  The concentration index is simply the distinct concentrations ranked from lowest to highest.  Generally this index is used to calculate the baseline median absolute deviation for an assay.
 
-mthd_funcs_l4 <- tcpl:::mc4_mthds()
-methods <- tcplMthdList(4)
-
+```{r example4_cndx, fig.height = 6, fig.width = 7}
 
 #calculate cndx (concentration index)
 # this code can be simplified
@@ -226,12 +239,29 @@ dat[, rpid := paste0(rpid,"_rep",dat_rpid)]
 ## Define concentration index
 indexfunc <- function(x) as.integer(rank(unique(x))[match(x, unique(x))])
 dat[ , cndx := indexfunc(conc), by = list(rpid)]
+```
 
-# apply level 4 functions
+Once the concentration index has been calculated, the level 4 methods can be loaded in a similar way to level 3.
+
+```{r example4_mthdlist_l4, fig.height = 6, fig.width = 7}
+mthd_funcs_l4 <- tcpl:::mc4_mthds()
+DT::datatable(tcpl::tcplMthdList(4),options = list(scrollX = T))
+```
+
+There are much fewer level 4 methods, but generally it is a requirement to have a method that calculates the bmad and a method that calculates the standard deviation of the noise.
+
+```{r example4_mc4methods, fig.height = 6, fig.width = 7, results = 'hide'}
+# apply level 4 methods
 lapply(mthd_funcs_l4[["bmad.aeid.lowconc.twells"]](),eval)
 lapply(mthd_funcs_l4[["onesd.aeid.lowconc.twells"]](),eval)
 lapply(mthd_funcs_l4[["bidirectional.false"]](),eval)
 
+```
+
+After all methods up to level 4 have been applied, the model fitting steps can begin.  In tcpl this would be considered level 4, and is where `tcplfit2` is used to fit all of the models.
+
+
+```{r example4_fitting, fig.height = 6, fig.width = 7}
 
 #do tcplfit2 fitting
 
@@ -242,7 +272,9 @@ myfun <- function(y) {
                           bidirectional = TRUE,
                           verbose = FALSE,
                           force.fit = TRUE,
-                          fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3","exp4", "exp5")
+                          fitmodels = c("cnst", "hill", "gnls", "poly1",
+                                        "poly2", "pow", "exp2", "exp3",
+                                        "exp4", "exp5")
                           )
   list(list(res)) #use list twice because data.table uses list(.) to look for values to assign to columns
 }
@@ -250,7 +282,12 @@ myfun <- function(y) {
 
 # only want to run tcplfit2 for test wells in this case
 dat[wllt == 't',params:= myfun(.SD), by = .(spid)]
+```
 
+
+After all of the models have been fit, hitcalling can occur.  The output of level 4 can be fed directly into the `tcplhit2_core` function.  The results are then pivoted and shown in the resulting datatable.
+
+```{r example4_hitcalling, fig.height = 6, fig.width = 7}
 
 myfun2 <- function(y) {
   res <- tcplfit2::tcplhit2_core(params = y$params[[1]],
@@ -268,7 +305,6 @@ res <- dat[wllt == 't', myfun2(.SD), by = .(spid)]
 #pivot wider
 res_wide <- rbindlist(Map(cbind, spid = res$spid, res$V1))
 
-head(res_wide)
-
+DT::datatable(res_wide,options = list(scrollX = T))
 
 ```
