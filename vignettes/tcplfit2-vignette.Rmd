@@ -183,9 +183,6 @@ dat <- dat[!is.na(cval),]
 ## Add column for log10 concentration as some of the mc3 methods require logc
 dat[ , logc := log10(conc)]
 
-# ## Initialize the bval, pval, and resp columns
-# dat[ , c('bval', 'pval', 'resp') := NA_real_]
-
 ## initialize dummy aeid required if using mc3_mthds from tcpl
 dummy_aeid <- 99999
 dat[,aeid := dummy_aeid]
@@ -215,7 +212,6 @@ The next step is to calculate the concentration index.  The concentration index 
 ```{r example4_cndx, fig.height = 6, fig.width = 7}
 
 #calculate cndx (concentration index)
-# this code can be simplified
 ## Define replicate id
 # Order by the following columns
 setkeyv(dat, c('acid', 'srcf', 'apid', 'coli', 'rowi', 'spid', 'conc'))
