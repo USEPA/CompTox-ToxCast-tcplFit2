@@ -163,7 +163,7 @@ The input data for this example contains 6 signatures for one chemical in a tran
 
 ## Example 4: Running tcplfit2 on standalone tcpl-like data from mc0.
 
-The input for this example is from ACEA data that has been released in past versions of invitrodb. Those familiar with the data fromat in tcpl will recognize the data in the format of multiconcentration level 0 data otherwise known as mc0.  Data from the assay component ACEA_AR_agonist_80hr was analyzed in the positive analysis fitting direction relative to DMSO as the negative control and baseline of activity. Using a type of growth reporter, measures of the cells for gain-of-signal activity can be used to understand the signaling at the pathway-level as they relate to the gene AR.
+The input for this example is from ACEA data that has been released in past versions of invitrodb. Those familiar with the data format in tcpl will recognize the data in the format of multiconcentration level 0 data otherwise known as mc0.  Data from the assay component ACEA_AR_agonist_80hr was analyzed in the positive analysis fitting direction relative to DMSO as the negative control and baseline of activity. Using a type of growth reporter, measures of the cells for gain-of-signal activity can be used to understand the signaling at the pathway-level as they relate to the gene AR.
 
 ```{r example4_init, fig.height = 6, fig.width = 7}
 
@@ -210,7 +210,7 @@ lapply(mthd_funcs[["pval.apid.medncbyconc.min"]](dummy_aeid),eval)
 lapply(mthd_funcs[["resp.pc"]](dummy_aeid),eval)
 ```
 
-We then must remember to calculate the concentration index.  The concentration index is simply the distinct concentrations ranked from lowest to highest.  Generally this index is used to calculate the baseline median absolute deviation for an assay.
+The next step is to calculate the concentration index.  The concentration index is simply the distinct concentrations ranked from lowest to highest.  Generally this index is used to calculate the baseline median absolute deviation for an assay.
 
 ```{r example4_cndx, fig.height = 6, fig.width = 7}
 
