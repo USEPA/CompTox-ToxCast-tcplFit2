@@ -161,3 +161,114 @@ The input data for this example contains 6 signatures for one chemical in a tran
   }
 ```
 
+## Example 4: Running tcplfit2 on standalone tcpl-like data from mc0.
+
+```{r example4}
+
+load(file = "../data/mc0.rda")
+
+
+library(tcpl)
+library(data.table)
+dat <- mc0
+#apply no lvl 1 or 2 methods
+dat[,cval := rval]
+## remove na
+dat <- dat[!is.na(cval),]
+
+methods <- tcplMthdList(3)
+
+## Add column for log10 concentration
+dat[ , logc := log10(conc)]
+
+## Initialize the bval, pval, and resp columns
+dat[ , c('bval', 'pval', 'resp') := NA_real_]
+
+## initialize dummy aeid
+dummy_aeid <- 99999
+dat[,aeid := dummy_aeid]
+setkey(dat,aeid)
+
+
+mthd_funcs <- tcpl:::mc3_mthds()
+# apply level 3 methods
+lapply(mthd_funcs[["bval.apid.nwlls.med"]](dummy_aeid), eval)
+lapply(mthd_funcs[["pval.apid.medncbyconc.min"]](dummy_aeid),eval)
+lapply(mthd_funcs[["resp.pc"]](dummy_aeid),eval)
+
+
+mthd_funcs_l4 <- tcpl:::mc4_mthds()
+methods <- tcplMthdList(4)
+
+
+#calculate cndx (concentration index)
+# this code can be simplified
+## Define replicate id
+# Order by the following columns
+setkeyv(dat, c('acid', 'srcf', 'apid', 'coli', 'rowi', 'spid', 'conc'))
+# Define rpid column for test compound wells
+nconc <- dat[wllt == "t" ,
+             list(n = lu(conc)),
+             by = list(acid, apid, spid)][ , list(nconc = min(n)), by = acid]
+dat[wllt == "t" & acid %in% nconc[nconc > 1, acid],
+    rpid := paste(acid, spid, wllt, srcf, apid, "rep1", conc, sep = "_")]
+dat[wllt == "t" & acid %in% nconc[nconc == 1, acid],
+    rpid := paste(acid, spid, wllt, srcf, "rep1", conc, sep = "_")]
+# Define rpid column for non-test compound wells
+dat[wllt != "t",
+    rpid := paste(acid, spid, wllt, srcf, apid, "rep1", conc, sep = "_")]
+
+# set repid based on rowid
+dat[, dat_rpid := rowid(rpid)]
+dat[, rpid := sub("_rep[0-9]+.*", "",rpid, useBytes = TRUE)]
+dat[, rpid := paste0(rpid,"_rep",dat_rpid)]
+
+## Define concentration index
+indexfunc <- function(x) as.integer(rank(unique(x))[match(x, unique(x))])
+dat[ , cndx := indexfunc(conc), by = list(rpid)]
+
+# apply level 4 functions
+lapply(mthd_funcs_l4[["bmad.aeid.lowconc.twells"]](),eval)
+lapply(mthd_funcs_l4[["onesd.aeid.lowconc.twells"]](),eval)
+lapply(mthd_funcs_l4[["bidirectional.false"]](),eval)
+
+
+#do tcplfit2 fitting
+
+myfun <- function(y) {
+  res <- tcplfit2::tcplfit2_core(y$conc,
+                          y$resp,
+                          cutoff = unique(y$bmad),
+                          bidirectional = TRUE,
+                          verbose = FALSE,
+                          force.fit = TRUE,
+                          fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3","exp4", "exp5")
+                          )
+  list(list(res)) #use list twice because data.table uses list(.) to look for values to assign to columns
+}
+
+
+# only want to run tcplfit2 for test wells in this case
+dat[wllt == 't',params:= myfun(.SD), by = .(spid)]
+
+
+myfun2 <- function(y) {
+  res <- tcplfit2::tcplhit2_core(params = y$params[[1]],
+                                 conc = y$conc,
+                                 resp = y$resp,
+                                 cutoff = 3*unique(y$bmad),
+                                 onesd = unique(y$osd)
+                                 )
+  list(list(res))
+}
+
+# continute with hitcalling
+res <- dat[wllt == 't', myfun2(.SD), by = .(spid)]
+
+#pivot wider
+res_wide <- rbindlist(Map(cbind, spid = res$spid, res$V1))
+
+head(res_wide)
+
+
+```
