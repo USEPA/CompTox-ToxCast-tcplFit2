@@ -163,7 +163,7 @@ The input data for this example contains 6 signatures for one chemical in a tran
 
 ## Example 4: Running tcplfit2 on standalone tcpl-like data from mc0.
 
-The input for this example is from ACEA data that has been released in past versions of invitrodb. Those familiar with the data format in tcpl will recognize the data in the format of multiconcentration level 0 data otherwise known as mc0.  Data from the assay component ACEA_AR_agonist_80hr was analyzed in the positive analysis fitting direction relative to DMSO as the negative control and baseline of activity. Using a type of growth reporter, measures of the cells for gain-of-signal activity can be used to understand the signaling at the pathway-level as they relate to the gene AR.
+The input for this example is from ACEA data that has been released in past versions of the ToxCast database, invitrodb. Those familiar with the data format in the ToxCast Pipeline (tcpl) will recognize the data in the format of multi-concentration level 0 data otherwise known as mc0.  Data from the assay component ACEA_AR_agonist_80hr was analyzed in the positive analysis fitting direction relative to DMSO as the neutral control and baseline of activity. Using a electrical impedance as a cell growth reporter, increased activity can be used to infer increased signaling at the pathway-level for the androgen receptor (as encoded by the AR gene).
 
 ```{r example4_init, fig.height = 6, fig.width = 7}
 
@@ -174,7 +174,7 @@ dat <- mc0
 DT::datatable(head(dat),options = list(scrollX = T))
 ```
 
-The above table is identical to the mc0 table that would be seen in tcpl.  However, some users may want to run standalone tcplfit2 fitting without the need for a database connection.  The first steps (levels 1 through 3 in tcpl) are used to adjust the data and determine the noise levels that will later be used for cutoff calcualtion.
+The above table is identical to the mc0 table that would be seen in invitrodb and recognized by tcpl.  However, some users may want to run standalone tcplfit2 fitting without the need for a MySQL database connection to invitrodb.  The first steps (levels 1 through 3 in tcpl) are used to adjust the data and determine the baseline sampling variability, or noise, that will later be used for cutoff calculation. For further information on normalization and determination of a cutoff, see vignettes for library(tcpl) at https://CRAN.R-project.org/package=tcpl .
 ```{r example4_mc2, fig.height = 6, fig.width = 7}
 #In this case there are no adjustments required for the data so we set cval to the original rval
 dat[,cval := rval]
@@ -214,9 +214,10 @@ The next step is to calculate the concentration index.  The concentration index 
 #calculate cndx (concentration index)
 ## Define replicate id
 # Order by the following columns
+## acid = assay component identifier; srcf = source file name; apid = assay plate identifier; coli = column index (location on assay plate); rowi = row index (location on assay plate); spid = sample identifier; conc = concentration
 setkeyv(dat, c('acid', 'srcf', 'apid', 'coli', 'rowi', 'spid', 'conc'))
 # Define rpid column for test compound wells
-nconc <- dat[wllt == "t" ,
+nconc <- dat[wllt == "t" , ## denotes test well as the well type (wllt)
              list(n = lu(conc)),
              by = list(acid, apid, spid)][ , list(nconc = min(n)), by = acid]
 dat[wllt == "t" & acid %in% nconc[nconc > 1, acid],
@@ -244,7 +245,7 @@ mthd_funcs_l4 <- tcpl:::mc4_mthds()
 DT::datatable(tcpl::tcplMthdList(4),options = list(scrollX = T))
 ```
 
-There are much fewer level 4 methods, but generally it is a requirement to have a method that calculates the bmad and a method that calculates the standard deviation of the noise.
+There are much fewer level 4 methods, but generally it is a requirement to assign a method that calculates the bmad and assign a method that calculates the standard deviation of the noise.
 
 ```{r example4_mc4methods, fig.height = 6, fig.width = 7, results = 'hide'}
 # apply level 4 methods
@@ -254,7 +255,7 @@ lapply(mthd_funcs_l4[["bidirectional.false"]](),eval)
 
 ```
 
-After all methods up to level 4 have been applied, the model fitting steps can begin.  In tcpl this would be considered level 4, and is where `tcplfit2` is used to fit all of the models.
+After all methods up to level 4 have been applied, the model fitting steps can begin.  In tcpl this would be considered level 4, and is where `tcplfit2` is used to fit all of the models as a dependency of tcpl.
 
 
 ```{r example4_fitting, fig.height = 6, fig.width = 7}
