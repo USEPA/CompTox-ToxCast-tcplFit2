@@ -13,7 +13,7 @@
 #' @param er Model error parameter.
 #' @param ps Vector of used model parameters in order: a, tp, b, ga, p, la, q, er.
 #' @param fit_method Name of winning fit method (should never be constant).
-#' @param caikwt Aikaike weight of constant model relative to winning model.
+#' @param caikwt Akaike weight of constant model relative to winning model.
 #' @param mll Maximum log-likelihood of winning model.
 #'
 #' @importFrom stats pt

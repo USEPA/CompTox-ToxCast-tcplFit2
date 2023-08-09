@@ -16,7 +16,7 @@ fitcnst(conc, resp, nofit = FALSE, ...)
 \item{...}{Space for parameters so fitcnst can be called similar to other fitting functions (currently unused)}
 }
 \value{
-List of five elements: success, aic (Aikaike Information Criteria),
+List of five elements: success, aic (Akaike Information Criteria),
   rme (root mean square error), er (error parameter), pars (parameter names).
 }
 \description{

@@ -21,7 +21,7 @@
 #' @importFrom numDeriv hessian
 #' @importFrom stats constrOptim median
 #'
-#' @return Named list containing: success, aic (Aikaike Information Criteria),
+#' @return Named list containing: success, aic (Akaike Information Criteria),
 #'   cov (success of covariance calculation), rme (root mean square error),
 #'   modl (vector of model values at given concentrations),
 #'   parameters values, parameter sd (standard deviation) estimates, pars
