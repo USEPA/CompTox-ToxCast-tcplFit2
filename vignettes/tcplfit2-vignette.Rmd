@@ -1,6 +1,9 @@
 ---
 title: "tcplfit2-vignette"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
 vignette: >
   %\VignetteIndexEntry{tcplfit2-vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -22,7 +25,7 @@ The package tcplfit2 contains the core concentration-response functionality of t
 (The ToxCast Pipeline) built to process all of the ToxCast high-throughput screen (HTS) data at
 the US EPA. Much of the rest of the code in tcpl is used to do data processing, normalization,
 and database storage. We wanted to reuse the core concentration-response code for other projects,
-and add extensions to it, which was the origin of the current package *tcplfit2*. The main set of extensions 
+and add extensions to it, which was the origin of the current package `tcplfit2`. The main set of extensions 
 was to include all of the concentration-response models that are contained in the program BMDExpress. 
 These include exponential and power functions in addition to the original Hill, gain-loss and constant models.
 Additionally, we wanted to include BMD (Benchmark Dose Modeling) outputs, which is simply defining a 
@@ -62,7 +65,7 @@ The output of this run will be a data frame with one row, summarizing the result
 ## Example 2: Running a series of concentration-response models for a single assay
 The input data for this example is taken from one of the Tox21 HTS assays, for estrogen receptor (ER) 
 agonist activity. The data is from the mc3 table in the database `invitrodb`, which is the back end for
-*tcpl*. This example will run 6 chemicals out of the 100 that are included in the data set, and will create plots 
+`tcpl`. This example will run 6 chemicals out of the 100 that are included in the data set, and will create plots 
 for these. The plotting routine `concRespPlot` is somewhat generic, and we anticipate that users will make
 their own version of this. To run this example, use the following code ...
 
@@ -117,7 +120,7 @@ their own version of this. To run this example, use the following code ...
 One would typically save the result rows in a data frame end export these for further analysis. You could remove the plotting function from the current loop and have a loop that read from the overall results data frame and only plot selected results (e.g. those with significant responses).
 
 ## Example 3: Plotting concentration-response modeling on transcriptional signatures
-The input data for this example contains 6 signatures for one chemical in a transcriptomics data set.  This data set is a sample from the signature scoring method that provides the cutoff, one standard deviation, and the concentration-response data. The example illustrates two kinds of plots available in *tcplfit2*. In the call to `concRespCore()`, the argument `do.plot` is set to `TRUE`, which provides a simple plot showing results of all the different curve fitting methods. Next, utilizing the function `concRespPlot()` provides a more informative plot for the winning model.
+The input data for this example contains 6 signatures for one chemical in a transcriptomics data set.  This data set is a sample from the signature scoring method that provides the cutoff, one standard deviation, and the concentration-response data. The example illustrates two kinds of plots available in `tcplfit2`. In the call to `concRespCore()`, the argument `do.plot` is set to `TRUE`, which provides a simple plot showing results of all the different curve fitting methods. Next, utilizing the function `concRespPlot()` provides a more informative plot for the winning model.
 ```{r example3, fig.height = 6, fig.width = 7}
   # call additional R packages
   library(stringr)  # string management package
@@ -163,7 +166,7 @@ The input data for this example contains 6 signatures for one chemical in a tran
 
 ## Example 4: Running tcplfit2 on standalone tcpl-like data from mc0.
 
-The input for this example is from ACEA data that has been released in past versions of invitrodb. Those familiar with the data format in tcpl will recognize the data in the format of multiconcentration level 0 data otherwise known as mc0.  Data from the assay component ACEA_AR_agonist_80hr was analyzed in the positive analysis fitting direction relative to DMSO as the negative control and baseline of activity. Using a type of growth reporter, measures of the cells for gain-of-signal activity can be used to understand the signaling at the pathway-level as they relate to the gene AR.
+The input for this example is from ACEA data that has been released in past versions of invitrodb. Those familiar with the data format in `tcpl` will recognize the data in the format of multiconcentration level 0 data otherwise known as mc0.  Data from the assay component ACEA_AR_agonist_80hr was analyzed in the positive analysis fitting direction relative to DMSO as the negative control and baseline of activity. Using a type of growth reporter, measures of the cells for gain-of-signal activity can be used to understand the signaling at the pathway-level as they relate to the gene AR.
 
 ```{r example4_init, fig.height = 6, fig.width = 7}
 
@@ -174,7 +177,7 @@ dat <- mc0
 DT::datatable(head(dat),options = list(scrollX = T))
 ```
 
-The above table is identical to the mc0 table that would be seen in tcpl.  However, some users may want to run standalone tcplfit2 fitting without the need for a database connection.  The first steps (levels 1 through 3 in tcpl) are used to adjust the data and determine the noise levels that will later be used for cutoff calcualtion.
+The above table is identical to the mc0 table that would be seen in tcpl.  However, some users may want to run standalone `tcplfit2` fitting without the need for a database connection.  The first steps (levels 1 through 3 in tcpl) are used to adjust the data and determine the noise levels that will later be used for cutoff calcualtion.
 ```{r example4_mc2, fig.height = 6, fig.width = 7}
 #In this case there are no adjustments required for the data so we set cval to the original rval
 dat[,cval := rval]
@@ -191,14 +194,14 @@ dat[,aeid := dummy_aeid]
 setkey(dat,aeid)
 ```
 
-Once the data is initialized to a point where the required fields are available we can use the methods included in the tcpl package without the need for a database connection.  You can see the list of available methods for mc3 in the table below.
+Once the data is initialized to a point where the required fields are available we can use the methods included in the `tcpl` package without the need for a database connection.  You can see the list of available methods for mc3 in the table below.
 
 ```{r example4_mthdlist, fig.height = 6, fig.width = 7}
 mthd_funcs <- tcpl:::mc3_mthds()
 DT::datatable(tcpl::tcplMthdList(3),options = list(scrollX = T))
 ```
 
-The following 3 methods are selected from the list above and are applied to the data.  Note because of the way tcpl handles the application of functions, the dataframe must be called `dat`.  In the future tcpl will export these functions so that they can be applied to any dataset without the need for a specific name or dummy aeid.
+The following 3 methods are selected from the list above and are applied to the data.  Note because of the way `tcpl` handles the application of functions, the dataframe must be called `dat`.  In the future `tcpl` will export these functions so that they can be applied to any dataset without the need for a specific name or dummy aeid.
 
 ```{r example4_mc3methods, fig.height = 6, fig.width = 7, results = 'hide'}
 # apply level 3 methods
@@ -254,10 +257,10 @@ lapply(mthd_funcs_l4[["bidirectional.false"]](),eval)
 
 ```
 
-After all methods up to level 4 have been applied, the model fitting steps can begin.  In tcpl this would be considered level 4, and is where `tcplfit2` is used to fit all of the models.
+After all methods up to level 4 have been applied, the model fitting steps can begin.  In `tcpl` this would be considered level 4, and is where `tcplfit2` is used to fit all of the models.
 
 
-```{r example4_fitting, fig.height = 6, fig.width = 7}
+```{r example4_fitting, fig.height = 6, fig.width = 7, eval = F}
 
 #do tcplfit2 fitting
 
@@ -283,7 +286,7 @@ dat[wllt == 't',params:= myfun(.SD), by = .(spid)]
 
 After all of the models have been fit, hitcalling can occur.  The output of level 4 can be fed directly into the `tcplhit2_core` function.  The results are then pivoted and shown in the resulting datatable.
 
-```{r example4_hitcalling, fig.height = 6, fig.width = 7}
+```{r example4_hitcalling, fig.height = 6, fig.width = 7, eval = F}
 
 myfun2 <- function(y) {
   res <- tcplfit2::tcplhit2_core(params = y$params[[1]],
