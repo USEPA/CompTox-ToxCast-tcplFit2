@@ -266,7 +266,7 @@ After all methods up to level 4 have been applied, the model fitting steps can b
 
 
 
-```{r example4_fitting, fig.height = 6, fig.width = 7, eval = F}
+```{r example4_fitting, fig.height = 6, fig.width = 7}
 
 #do tcplfit2 fitting
 
@@ -292,7 +292,7 @@ dat[wllt == 't',params:= myfun(.SD), by = .(spid)]
 
 After all of the models have been fit, hitcalling can occur.  The output of level 4 can be fed directly into the `tcplhit2_core` function.  The results are then pivoted and shown in the resulting datatable.
 
-```{r example4_hitcalling, fig.height = 6, fig.width = 7, eval = F}
+```{r example4_hitcalling, fig.height = 6, fig.width = 7}
 
 myfun2 <- function(y) {
   res <- tcplfit2::tcplhit2_core(params = y$params[[1]],
