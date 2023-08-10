@@ -7,7 +7,7 @@ output:
     toc: yes
     toc_depth: 4
 vignette: >
-  %\VignetteIndexEntry{Assay Registration}
+  %\VignetteIndexEntry{tcplfit2_vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -33,9 +33,9 @@ was to include all of the concentration-response models that are contained in th
 These include exponential and power functions in addition to the original Hill, gain-loss and constant models.
 Additionally, we wanted to include BMD (Benchmark Dose Modeling) outputs, which is simply defining a 
 Benchmark Response (BMR) level and setting the BMD to the concentration where the curve crosses the BMR level. 
-One final addition was to let the hitcall value be a continuous number ranging from 0 to 1. This vignette describes the basic functionality of this package with two simple examples.
+One final addition was to let the hitcall value be a continuous number ranging from 0 to 1. This vignette describes some functionality of the `tcplfit2` package with a few simple examples.
 
-## Example 1 - Running a single concentration-response calculation
+## Example 1: Running a single concentration-response calculation
 All calculations use the function `concRespCore` which has several key inputs. The first set are 
 put into a named list called 'row':
 
@@ -166,8 +166,7 @@ The input data for this example contains 6 signatures for one chemical in a tran
   }
 ```
 
-## Example 4: Running tcplfit2 on standalone tcpl-like data from mc0
-
+## Example 4: Running tcpl-like multi-concentration response data without a database connection
 The ToxCast pipeline `tcpl` is an R package that manages, curve-fits, plots, and stores ToxCast data to populate its linked MySQL database, InvitroDB. The original `tcplFit()` function within `tcpl` performed basic concentration response curve fitting. Processing with tcpl_v3 and beyond depends on `tcplfit2` to allow a wider variety of concentration-response models when using `invitrodb` in the 4.0 schema and beyond. Within this update, `tcplLite` became deprecated within `tcpl` because `tcplFit2` can be used to curve-fit data and make hitcalls independent of invitrodb, as the example below illustrates.  For additional information, please consult vignettes for `library(tcpl)` at https://CRAN.R-project.org/package=tcpl. 
 
 The input for this example comes from the ACEA_AR assay. Data from the assay component ACEA_AR_agonist_80hr was analyzed in the positive analysis fitting direction relative to DMSO as the neutral control and baseline of activity. Using a electrical impedance as a cell growth reporter, increased activity can be used to infer increased signaling at the pathway-level for the androgen receptor (as encoded by the AR gene).Given heterogeneous assay data, source data often must go through pre-processing steps to transform into a uniform data format, often like this level 0. The below table is identical to the multi-concentration level 0 data (mc0) table that would be seen in `invitrodb` and recognized by `tcpl`. Columns include:
