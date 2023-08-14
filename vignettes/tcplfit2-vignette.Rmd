@@ -187,7 +187,6 @@ The input for this example comes from the ACEA_AR assay. Data from the assay com
 
 ```{r example4_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE, echo = FALSE}
 load(file = "../data/mc0.rda")
-library(tcpl)
 library(data.table)
 dat <- mc0
 DT::datatable(head(dat[wllt=='t',]),rownames= FALSE, options = list(scrollX = T))
@@ -197,12 +196,13 @@ To run standalone `tcplfit2` fitting without the need for a MySQL database conne
 Level 1 importantly establishes the concentration index. The concentration index is simply the distinct concentrations ranked from lowest to highest, and this index can be used to calculate the baseline median absolute deviation for an assay.
 
 ```{r example4_cndx, fig.height = 6, fig.width = 7}
+library(tcpl)
 ## Order by the following columns
 setkeyv(dat, c('acid', 'srcf', 'apid', 'coli', 'rowi', 'spid', 'conc'))
 
 ## Define replicate id (rpid) column for test compound wells
 nconc <- dat[wllt == "t" , ## denotes test well as the well type (wllt)
-             list(n = lu(conc)),
+             list(n = lu(conc)), #total number of unique concentrations
              by = list(acid, apid, spid)][ , list(nconc = min(n)), by = acid]
 dat[wllt == "t" & acid %in% nconc[nconc > 1, acid],
     rpid := paste(acid, spid, wllt, srcf, apid, "rep1", conc, sep = "_")]
@@ -223,6 +223,8 @@ indexfunc <- function(x) as.integer(rank(unique(x))[match(x, unique(x))])
 dat[ , cndx := indexfunc(conc), by = list(rpid)]
 ```
 
+### Adjustments
+
 Levels 2 and 3 are used for data adjustments and normalization. 
 
 ```{r example4_mc2, fig.height = 6, fig.width = 7}
@@ -236,7 +238,7 @@ dat <- dat[!wllq == 0,]
 dat <- dat[!is.na(cval),]
 
 ## A column for log10 concentration is added as some of the mc3 methods require logc. Given logging concentration, conc=0 are not allowed therefore a dummy non-zero value should be used
-dat[conc == 0 , conc := 0.01]
+dat[conc == 0 , conc := 0.0001]
 dat[ , logc := log10(conc)]
 
 #As a final step to prepare the dataset tcplfit2 processing, a dummy aeid is required if using mc3_mthds from tcpl
@@ -247,17 +249,20 @@ dat[,aeid := dummy_aeid]
 setkey(dat,aeid)
 ```
 
-Once the data is initialized to a point where the required fields are available, the methods included in the `tcpl` package can be identifued and applied without the need for a database connection. You can see the list of available methods for Level 3 in the table below:
+Once the data is initialized to a point where the required fields are available, the methods included in the `tcpl` package can be identified and applied without the need for a database connection. You can see the list of available methods for Level 3 in the table below:
 
 ```{r example4_mthdlist, fig.height = 6, fig.width = 7, warning = FALSE, echo = FALSE}
 mthd_funcs <- tcpl:::mc3_mthds()
 DT::datatable(tcpl::tcplMthdList(3),rownames= FALSE, options = list(scrollX = T))
 ```
 
+### Normalization
+
 Here three normalization methods are selected and applied to the data.  Note because of the way `tcpl` handles the application of functions, the dataframe must be called `dat`. In the future, `tcpl` will export these functions so that they can be applied to any dataset without the need for a specific name or dummy aeid.
 
 ```{r example4_mc3methods, fig.height = 6, fig.width = 7, results = 'hide'}
 # apply level 3 methods
+## These methods directly apply the normalization methods from tcpl without the need for a DB connection
 lapply(mthd_funcs[["bval.apid.nwlls.med"]](dummy_aeid), eval)
 lapply(mthd_funcs[["pval.apid.medncbyconc.min"]](dummy_aeid),eval)
 lapply(mthd_funcs[["resp.pc"]](dummy_aeid),eval)
@@ -274,6 +279,7 @@ There are much fewer level 4 methods, but generally it is a requirement to assig
 
 ```{r example4_mc4methods, fig.height = 6, fig.width = 7, results = 'hide'}
 # apply level 4 methods
+## These methods directly apply the noise calculation and fitting methods from tcpl without the need for a DB connection
 lapply(mthd_funcs_l4[["bmad.aeid.lowconc.twells"]](),eval)
 lapply(mthd_funcs_l4[["onesd.aeid.lowconc.twells"]](),eval)
 lapply(mthd_funcs_l4[["bidirectional.false"]](),eval)
