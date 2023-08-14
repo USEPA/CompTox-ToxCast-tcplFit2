@@ -225,7 +225,7 @@ dat[ , cndx := indexfunc(conc), by = list(rpid)]
 
 ### Adjustments
 
-Levels 2 and 3 are used for data adjustments and normalization. 
+Levels 2 and 3 are used for data adjustments and normalization. Generally if the response values (rval) need to be logged or transformed in some way from their original values this is where that adjustment would occur.  However, in this case, the corrected value (cval) is identical to the original response values (rval). 
 
 ```{r example4_mc2, fig.height = 6, fig.width = 7}
 # If no adjustments are required for the data, the corrected value (cval) should be set as original rval
