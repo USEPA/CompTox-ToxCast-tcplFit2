@@ -1,8 +1,13 @@
 ---
-title: "tcplfit2-vignette"
-output: rmarkdown::html_vignette
+title: "tcplfit2 Vignette"
+author: "Center for Computational Toxicology and Exposure"
+output:
+   prettydoc::html_pretty:
+    theme: architect
+    toc: yes
+    toc_depth: 4
 vignette: >
-  %\VignetteIndexEntry{tcplfit2-vignette}
+  %\VignetteIndexEntry{tcplfit2_vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,8 +18,9 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+---
 
-```{r setup}
+```{r setup, warning = FALSE, echo = FALSE}
 library(tcplfit2)
 ```
 # Getting started with tcplfit2
@@ -22,15 +28,14 @@ The package tcplfit2 contains the core concentration-response functionality of t
 (The ToxCast Pipeline) built to process all of the ToxCast high-throughput screen (HTS) data at
 the US EPA. Much of the rest of the code in tcpl is used to do data processing, normalization,
 and database storage. We wanted to reuse the core concentration-response code for other projects,
-and add extensions to it, which was the origin of the current package *tcplfit2*. The main set of extensions 
+and add extensions to it, which was the origin of the current package `tcplfit2`. The main set of extensions 
 was to include all of the concentration-response models that are contained in the program BMDExpress. 
 These include exponential and power functions in addition to the original Hill, gain-loss and constant models.
 Additionally, we wanted to include BMD (Benchmark Dose Modeling) outputs, which is simply defining a 
 Benchmark Response (BMR) level and setting the BMD to the concentration where the curve crosses the BMR level. 
-One final addition was to let the hitcall value be a continuous number ranging from 0 to 1. This vignette describes 
-the basic functionality of this package with two simple examples.
+One final addition was to let the hitcall value be a continuous number ranging from 0 to 1. This vignette describes some functionality of the `tcplfit2` package with a few simple examples.
 
-## Example 1 - Running a single concentration-response calculation
+## Example 1: Running a single concentration-response calculation
 All calculations use the function `concRespCore` which has several key inputs. The first set are 
 put into a named list called 'row':
 
@@ -62,7 +67,7 @@ The output of this run will be a data frame with one row, summarizing the result
 ## Example 2: Running a series of concentration-response models for a single assay
 The input data for this example is taken from one of the Tox21 HTS assays, for estrogen receptor (ER) 
 agonist activity. The data is from the mc3 table in the database `invitrodb`, which is the back end for
-*tcpl*. This example will run 6 chemicals out of the 100 that are included in the data set, and will create plots 
+`tcpl`. This example will run 6 chemicals out of the 100 that are included in the data set, and will create plots 
 for these. The plotting routine `concRespPlot` is somewhat generic, and we anticipate that users will make
 their own version of this. To run this example, use the following code ...
 
@@ -117,8 +122,8 @@ their own version of this. To run this example, use the following code ...
 One would typically save the result rows in a data frame end export these for further analysis. You could remove the plotting function from the current loop and have a loop that read from the overall results data frame and only plot selected results (e.g. those with significant responses).
 
 ## Example 3: Plotting concentration-response modeling on transcriptional signatures
-The input data for this example contains 6 signatures for one chemical in a transcriptomics data set.  This data set is a sample from the signature scoring method that provides the cutoff, one standard deviation, and the concentration-response data. The example illustrates two kinds of plots available in *tcplfit2*. In the call to `concRespCore()`, the argument `do.plot` is set to `TRUE`, which provides a simple plot showing results of all the different curve fitting methods. Next, utilizing the function `concRespPlot()` provides a more informative plot for the winning model.
-```{r example3, fig.height = 6, fig.width = 7}
+The input data for this example contains 6 signatures for one chemical in a transcriptomics data set.  This data set is a sample from the signature scoring method that provides the cutoff, one standard deviation, and the concentration-response data. The example illustrates two kinds of plots available in `tcplfit2`. In the call to `concRespCore()`, the argument `do.plot` is set to `TRUE`, which provides a simple plot showing results of all the different curve fitting methods. Next, utilizing the function `concRespPlot()` provides a more informative plot for the winning model.
+```{r example3, fig.height = 6, fig.width = 7, warning = FALSE}
   # call additional R packages
   library(stringr)  # string management package
 
@@ -161,3 +166,165 @@ The input data for this example contains 6 signatures for one chemical in a tran
   }
 ```
 
+## Example 4: Running tcpl-like multi-concentration response data without a database connection
+The ToxCast pipeline `tcpl` is an R package that manages, curve-fits, plots, and stores ToxCast data to populate its linked MySQL database, InvitroDB. The original `tcplFit()` function within `tcpl` performed basic concentration response curve fitting. Processing with tcpl_v3 and beyond depends on `tcplfit2` to allow a wider variety of concentration-response models when using `invitrodb` in the 4.0 schema and beyond. Within this update, `tcplLite` became deprecated within `tcpl` because `tcplFit2` can be used to curve-fit data and make hitcalls independent of invitrodb, as the example below illustrates.  For additional information, please consult vignettes for `library(tcpl)` at https://CRAN.R-project.org/package=tcpl. 
+
+The input for this example comes from the ACEA_AR assay. Data from the assay component ACEA_AR_agonist_80hr was analyzed in the positive analysis fitting direction relative to DMSO as the neutral control and baseline of activity. Using a electrical impedance as a cell growth reporter, increased activity can be used to infer increased signaling at the pathway-level for the androgen receptor (as encoded by the AR gene). Given heterogeneous assay data, source data often must go through pre-processing steps to transform into a uniform data format, often like this level 0. The below table is identical to the multi-concentration level 0 data (mc0) table that would be seen in `invitrodb` and recognized by `tcpl`. Columns include:
+
+* m0id = Level 0 id
+* spid = Sample id
+* acid = Unique assay component id; unique numeric id for each assay component
+* apid = Assay plate id
+* coli = Column index (location on assay plate)
+* rowi = Row index (location on assay plate)
+* wllt = well type
+* wllq = well quality
+* conc = concentration
+* rval = raw value
+* srcf = Source file name
+* clowder_uid = clowder unique id for source files
+* git_hash = hash key for pre-processing scripts
+
+```{r example4_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE, echo = FALSE}
+load(file = "../data/mc0.rda")
+library(data.table)
+dat <- mc0
+DT::datatable(head(dat[wllt=='t',]),rownames= FALSE, options = list(scrollX = T))
+```
+To run standalone `tcplfit2` fitting without the need for a MySQL database connection like `invitrodb`, the user will replicate stepping through the multiple levels of processing. A detailed explanation of processing levels can be found within `tcpl`'s Data Processing vignette.
+
+Level 1 importantly establishes the concentration index. The concentration index is simply the distinct concentrations ranked from lowest to highest, and this index can be used to calculate the baseline median absolute deviation for an assay.
+
+```{r example4_cndx, fig.height = 6, fig.width = 7}
+library(tcpl)
+## Order by the following columns
+setkeyv(dat, c('acid', 'srcf', 'apid', 'coli', 'rowi', 'spid', 'conc'))
+
+## Define replicate id (rpid) column for test compound wells
+nconc <- dat[wllt == "t" , ## denotes test well as the well type (wllt)
+             list(n = lu(conc)), #total number of unique concentrations
+             by = list(acid, apid, spid)][ , list(nconc = min(n)), by = acid]
+dat[wllt == "t" & acid %in% nconc[nconc > 1, acid],
+    rpid := paste(acid, spid, wllt, srcf, apid, "rep1", conc, sep = "_")]
+dat[wllt == "t" & acid %in% nconc[nconc == 1, acid],
+    rpid := paste(acid, spid, wllt, srcf, "rep1", conc, sep = "_")]
+
+## Define rpid column for non-test compound wells
+dat[wllt != "t",
+    rpid := paste(acid, spid, wllt, srcf, apid, "rep1", conc, sep = "_")]
+
+## set repid based on rowid
+dat[, dat_rpid := rowid(rpid)]
+dat[, rpid := sub("_rep[0-9]+.*", "",rpid, useBytes = TRUE)]
+dat[, rpid := paste0(rpid,"_rep",dat_rpid)]
+
+# Define concentration index
+indexfunc <- function(x) as.integer(rank(unique(x))[match(x, unique(x))])
+dat[ , cndx := indexfunc(conc), by = list(rpid)]
+```
+
+### Adjustments
+
+Levels 2 and 3 are used for data adjustments and normalization. Generally if the response values (rval) need to be logged or transformed in some way from their original values this is where that adjustment would occur.  However, in this case, the corrected value (cval) is identical to the original response values (rval). 
+
+```{r example4_mc2, fig.height = 6, fig.width = 7}
+# If no adjustments are required for the data, the corrected value (cval) should be set as original rval
+dat[,cval := rval]
+
+## Poor well quality (wllq) wells should be removed
+dat <- dat[!wllq == 0,]
+
+## Fitting generally cannot occur if response values are NA therefore values need to be removed
+dat <- dat[!is.na(cval),]
+
+## A column for log10 concentration is added as some of the mc3 methods require logc. Given logging concentration, conc=0 are not allowed therefore a dummy non-zero value should be used
+dat[conc == 0 , conc := 0.0001]
+dat[ , logc := log10(conc)]
+
+#As a final step to prepare the dataset tcplfit2 processing, a dummy aeid is required if using mc3_mthds from tcpl
+dummy_aeid <- 99999
+dat[,aeid := dummy_aeid]
+
+## Set aeid as a key
+setkey(dat,aeid)
+```
+
+Once the data is initialized to a point where the required fields are available, the methods included in the `tcpl` package can be identified and applied without the need for a database connection. You can see the list of available methods for Level 3 in the table below:
+
+```{r example4_mthdlist, fig.height = 6, fig.width = 7, warning = FALSE, echo = FALSE}
+mthd_funcs <- tcpl:::mc3_mthds()
+DT::datatable(tcpl::tcplMthdList(3),rownames= FALSE, options = list(scrollX = T))
+```
+
+### Normalization
+
+Here three normalization methods are selected and applied to the data.  Note because of the way `tcpl` handles the application of functions, the dataframe must be called `dat`. In the future, `tcpl` will export these functions so that they can be applied to any dataset without the need for a specific name or dummy aeid.
+
+```{r example4_mc3methods, fig.height = 6, fig.width = 7, results = 'hide'}
+# apply level 3 methods
+## These methods directly apply the normalization methods from tcpl without the need for a DB connection
+lapply(mthd_funcs[["bval.apid.nwlls.med"]](dummy_aeid), eval)
+lapply(mthd_funcs[["pval.apid.medncbyconc.min"]](dummy_aeid),eval)
+lapply(mthd_funcs[["resp.pc"]](dummy_aeid),eval)
+```
+
+Level 4 determines the baseline variability, or noise, that will later be used for cutoff calculation. Using the established concentration index, the level 4 methods can be loaded in a similar way to level 3.
+
+```{r example4_mthdlist_l4, fig.height = 6, fig.width = 7}
+mthd_funcs_l4 <- tcpl:::mc4_mthds()
+DT::datatable(tcpl::tcplMthdList(4), rownames= FALSE, options = list(scrollX = T))
+```
+
+There are much fewer level 4 methods, but generally it is a requirement to assign a method that calculates the bmad and assign a method that calculates the standard deviation of the noise for `tcplfit2` fitting.
+
+```{r example4_mc4methods, fig.height = 6, fig.width = 7, results = 'hide'}
+# apply level 4 methods
+## These methods directly apply the noise calculation and fitting methods from tcpl without the need for a DB connection
+lapply(mthd_funcs_l4[["bmad.aeid.lowconc.twells"]](),eval)
+lapply(mthd_funcs_l4[["onesd.aeid.lowconc.twells"]](),eval)
+lapply(mthd_funcs_l4[["bidirectional.false"]](),eval)
+```
+
+After methods up to level 4 have been applied, the model fitting can begin. In `tcpl`, this would be considered level 4, and is where `tcplfit2` is used to fit all of the models as a dependency for `tcpl`.
+
+```{r example4_fitting, fig.height = 6, fig.width = 7}
+#do tcplfit2 fitting
+myfun <- function(y) {
+  res <- tcplfit2::tcplfit2_core(y$conc,
+                          y$resp,
+                          cutoff = unique(y$bmad),
+                          bidirectional = TRUE,
+                          verbose = FALSE,
+                          force.fit = TRUE,
+                          fitmodels = c("cnst", "hill", "gnls", "poly1",
+                                        "poly2", "pow", "exp2", "exp3",
+                                        "exp4", "exp5")
+                          )
+  list(list(res)) #use list twice because data.table uses list(.) to look for values to assign to columns
+}
+
+# only want to run tcplfit2 for test wells in this case
+dat[wllt == 't',params:= myfun(.SD), by = .(spid)]
+```
+
+After all of the models have been fit, hitcalling can occur. The output of level 4 can be fed directly into the `tcplhit2_core` function. The results are then pivoted and shown in the resulting datatable.
+
+```{r example4_hitcalling, fig.height = 6, fig.width = 7}
+myfun2 <- function(y) {
+  res <- tcplfit2::tcplhit2_core(params = y$params[[1]],
+                                 conc = y$conc,
+                                 resp = y$resp,
+                                 cutoff = 3*unique(y$bmad),
+                                 onesd = unique(y$osd)
+                                 )
+  list(list(res))
+}
+
+# continute with hitcalling
+res <- dat[wllt == 't', myfun2(.SD), by = .(spid)]
+
+#pivot wider
+res_wide <- rbindlist(Map(cbind, spid = res$spid, res$V1))
+
+DT::datatable(res_wide,options = list(scrollX = T))
+```
