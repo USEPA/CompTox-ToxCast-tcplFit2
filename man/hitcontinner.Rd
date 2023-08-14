@@ -21,7 +21,7 @@ hitcontinner(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll)
 
 \item{fit_method}{Name of winning fit method (should never be constant).}
 
-\item{caikwt}{Aikaike weight of constant model relative to winning model.}
+\item{caikwt}{Akaike weight of constant model relative to winning model.}
 
 \item{mll}{Maximum log-likelihood of winning model.}
 }

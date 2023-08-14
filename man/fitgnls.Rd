@@ -29,7 +29,7 @@ will be positive only.}
 log10 units).}
 }
 \value{
-Named list containing: success, aic (Aikaike Information Criteria),
+Named list containing: success, aic (Akaike Information Criteria),
   cov (success of covariance calculation), rme (root mean square error),
   modl (vector of model values at given concentrations),
   parameters values, parameter sd (standard deviation) estimates, pars
