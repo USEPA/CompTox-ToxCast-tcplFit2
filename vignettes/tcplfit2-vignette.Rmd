@@ -285,7 +285,7 @@ lapply(mthd_funcs_l4[["onesd.aeid.lowconc.twells"]](),eval)
 lapply(mthd_funcs_l4[["bidirectional.false"]](),eval)
 ```
 
-After methods up to level 4 have been applied, the model fitting can begin. In `tcpl`, this would be considered level 4, and is where `tcplfit2` is used to fit all of the models as a dependency of `tcpl`.
+After methods up to level 4 have been applied, the model fitting can begin. In `tcpl`, this would be considered level 4, and is where `tcplfit2` is used to fit all of the models as a dependency for `tcpl`.
 
 ```{r example4_fitting, fig.height = 6, fig.width = 7}
 #do tcplfit2 fitting
