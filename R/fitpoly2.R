@@ -1,6 +1,7 @@
 #' Polynomial 2 (Quadratic) Model Fit
 #'
-#' Function that fits to f(x) = a*(x/b + x^2/b^2) and returns generic model outputs.
+#' Function that fits to \eqn{f(x) = a*(\frac{x}{b} + \frac{x^2}{b^2})} and
+#' returns generic model outputs.
 #'
 #' Zero background and monotonically increasing absolute response are assumed.
 #' Parameters are "a" (y scale), "b" (x scale), and error term "er".

@@ -26,7 +26,8 @@ Named list containing: success, aic (Akaike Information Criteria),
   (vector of parameter names), sds (vector of parameter sd names).
 }
 \description{
-Function that fits to f(x) = a*(x/b + x^2/b^2) and returns generic model outputs.
+Function that fits to \eqn{f(x) = a*(\frac{x}{b} + \frac{x^2}{b^2})} and
+returns generic model outputs.
 }
 \details{
 Zero background and monotonically increasing absolute response are assumed.

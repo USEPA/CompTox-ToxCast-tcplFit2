@@ -26,12 +26,12 @@ Named list containing: success, aic (Akaike Information Criteria),
   (vector of parameter names), sds (vector of parameter sd names).
 }
 \description{
-Function that fits to f(x) = tp/[(1 + (ga/x)^p )] and returns generic model
+Function that fits to \eqn{f(x) = \frac{tp}{[(1 + (ga/x)^p )]}} and returns generic model
 outputs.
 }
 \details{
 Concentrations are converted internally to log10 units and optimized with
-f(x) = tp/(1 + 10^(p*(ga-x)) ), then ga and ga_sd are converted back to
+\eqn{f(x) = \frac{tp}{(1 + 10^{(p*(ga-x))} )}}, then ga and ga_sd are converted back to
 regular units before returning.
 Zero background and increasing initial absolute response are assumed.
 Parameters are "tp" (top), "ga" (gain AC50), "p" (gain power), and error
