@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{loghill}
 \alias{loghill}
-\title{Log Hill Model - \eqn{f(x) = \frac{tp}{(1 + 10^{(p*(ga-x))} )}}}
+\title{Log Hill Model}
 \usage{
 loghill(ps, x)
 }
@@ -15,7 +15,7 @@ loghill(ps, x)
 Vector of model responses
 }
 \description{
-Log Hill Model - \eqn{f(x) = \frac{tp}{(1 + 10^{(p*(ga-x))} )}}
+\eqn{f(x) = \frac{tp}{(1 + 10^{(p*(ga-x))} )}}
 }
 \examples{
 loghill(c(1,2,3),1)

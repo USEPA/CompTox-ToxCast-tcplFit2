@@ -15,7 +15,7 @@ cnst(ps, x)
 Vector of model responses
 }
 \description{
-Constant Model - returns zero
+\eqn{f(x) = 0}
 }
 \examples{
 cnst(1,1)

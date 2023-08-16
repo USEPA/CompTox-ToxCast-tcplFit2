@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{hillfn}
 \alias{hillfn}
-\title{Hill Model - \eqn{f(x) = \frac{tp}{[(1 + (ga/x)^p )]}}}
+\title{Hill Model}
 \usage{
 hillfn(ps, x)
 }
@@ -15,7 +15,7 @@ hillfn(ps, x)
 Vector of model responses
 }
 \description{
-Hill Model - \eqn{f(x) = \frac{tp}{[(1 + (ga/x)^p )]}}
+\eqn{f(x) = \frac{tp}{[(1 + (ga/x)^p )]}}
 }
 \examples{
 hillfn(c(1,2,3),1)

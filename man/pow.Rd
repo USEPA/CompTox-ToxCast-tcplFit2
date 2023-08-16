@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{pow}
 \alias{pow}
-\title{Power Model - \eqn{f(x) = a*x^p}}
+\title{Power Model}
 \usage{
 pow(ps, x)
 }
@@ -15,7 +15,7 @@ pow(ps, x)
 Vector of model responses
 }
 \description{
-Power Model - \eqn{f(x) = a*x^p}
+\eqn{f(x) = a*x^p}
 }
 \examples{
 pow(c(1,2),1)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{exp4}
 \alias{exp4}
-\title{Exponential 4 Model- \eqn{f(x) = tp*(1-2^{(-x/ga)})}}
+\title{Exponential 4 Model}
 \usage{
 exp4(ps, x)
 }
@@ -15,7 +15,7 @@ exp4(ps, x)
 Vector of model responses
 }
 \description{
-Exponential 4 Model- \eqn{f(x) = tp*(1-2^{(-x/ga)})}
+\eqn{f(x) = tp*(1-2^{(-x/ga)})}
 }
 \examples{
 exp4(c(1,2),1)
