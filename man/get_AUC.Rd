@@ -7,15 +7,13 @@
 get_AUC(fit_method, lower, upper, ps)
 }
 \arguments{
-\item{fit_method}{name of the winning model}
+\item{fit_method}{name of the model}
 
 \item{lower}{lower bound for x}
 
 \item{upper}{upper bound for x}
 
 \item{ps}{model parameter vector}
-
-\item{...}{placeholder, should be fine without it}
 }
 \value{
 AUC value
@@ -24,16 +22,21 @@ AUC value
 Function that calculates AUC for dose-response curves
 }
 \details{
-Assume for now we want to calculate AUC for the winning model.
-The first half of tcplhit2_core selects a winning model and extract the model
-name, model parameters from model fitting result (result from
-tcplfit2_core) and populate them into the environment. We will have
-fit_method - name of the winning model (string) and modpars - a list of
-model parameters.
+This function takes in a type of model and a set of model parameters,
+and return the Area under the curve (AUC) between the lower and upper
+concentration bounds. AUC can be used to compute an efficacy/ potency
+metric for "active" does-response curves. The model parameters should be
+entered as a list or a vector. For models operate in log scale (hill and
+gain-loss), the lower and upper concentration bounds, "ga" (gain AC50)
+and "la" (loss AC50) will be converted to log-scale if applicable.
+This version hasn't taken consideration into how to appropriately work with
+decreasing curves. One of the future works to do.
 }
 \examples{
 conc <- c(.03,.1,.3,1,3,10,30,100)
-modpars <- c(1, 2, er = -3.295307) #a, b, er
+fit_method <- "gnls"
+modpars <- list(tp = 1.023, ga = 2.453, p = 1.592,
+                la = 4288.993, q = 5.770, er = -3.295)
 get_AUC("exp2", min(conc), max(conc), ps = modpars)
 
 }
