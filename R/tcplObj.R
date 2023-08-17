@@ -47,7 +47,7 @@ tcplObj = function(p, conc, resp, fname, errfun = "dt4", err = NULL) {
 
 }
 
-#' Constant Model - returns zero
+#' Constant Model
 #'
 #' \eqn{f(x) = 0}
 #'

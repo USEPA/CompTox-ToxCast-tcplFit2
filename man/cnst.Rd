@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{cnst}
 \alias{cnst}
-\title{Constant Model - returns zero}
+\title{Constant Model}
 \usage{
 cnst(ps, x)
 }
