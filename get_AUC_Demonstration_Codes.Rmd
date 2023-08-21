@@ -9,47 +9,8 @@ date: "2023-08-18"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tcplfit2)
+source("R/get_AUC.R")
 ```
-
-
-```{r, include=FALSE}
-get_AUC <- function(fit_method, lower, upper, ps) {
-
-  # special cases - models in log scale, hill and gnls
-  if (fit_method %in% c("hill", "gnls")) {
-
-    # convert concentration to log scale
-    lower <- log10(lower)
-    upper <- log10(upper)
-
-    if (fit_method == "hill") {
-
-      # convert parameter to log scale
-      # paste log to the fname
-      ps["ga"] <- log10(ps[["ga"]])
-      fit_method <- paste0("log", fit_method)
-
-    } else if (fit_method == "gnls") {
-
-      # convert parameter to log scale
-      # paste log to the fname
-      ps["ga"] <- log10(ps[["ga"]])
-      ps["la"] <- log10(ps[["la"]])
-      fit_method <- paste0("log", fit_method)
-    }
-  }
-
-  # calculate and return AUC
-  return(integrate(get(fit_method),
-                      lower,
-                      upper,
-                      ps = unlist(ps))$value)
-
-}
-
-
-```
-
 
 
 # Demonstration
@@ -143,9 +104,10 @@ get_AUC(fit_method, min(conc), max(conc), modpars) # returns -12.92
 pred_resp <- pred_resp[order(conc)]
 plot(conc[order(conc)], pred_resp)
 lines(conc[order(conc)], pred_resp)
+polygon(c(conc[order(conc)], max(conc)), c(pred_resp, max(pred_resp)), col="yellow")
 ```
 
-Things to consider: The absolute value 12.92 seems to be a legit estimate for the area above the curve (technically can't call it AUC anymore), but it's returned as a negative number. Need more consideration of how to work with sign. 
+Things to consider: The x-axis in plot above is in regular unit so it looks different from the figure above which uses log-conc for x-axis. The absolute value 12.92 seems to be a legit estimate for the area above the curve (technically can't call it AUC anymore), but it's returned as a negative number. Need more consideration of how to work with sign. 
 
 Then use another example to check what happen if a curve have area below and above x-axis.
 
