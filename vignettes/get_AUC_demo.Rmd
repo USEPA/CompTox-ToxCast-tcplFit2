@@ -1,21 +1,27 @@
 ---
 title: "get_AUC Demonstration and Test Codes"
-output:
-  pdf_document: default
-  html_document: default
-date: "2023-08-18"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{get_AUC_Demonstration_and_Test_Codes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(tcplfit2)
-source("R/get_AUC.R")
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
+```{r setup, warning=FALSE, echo=FALSE}
+library(tcplfit2)
+source("../R/get_AUC.R")
+```
 
 # Demonstration
 
-```{r}
+```{r example 1, fig.height = 6, fig.width = 6}
 # This is taken from the example under tcplfit2_core
 conc <- c(.03, .1, .3, 1, 3, 10, 30, 100)
 resp <- c(0, .1, 0, .2, .6, .9, 1.1, 1)
@@ -26,7 +32,7 @@ output <- tcplfit2_core(conc, resp, .8, verbose = TRUE, do.plot = TRUE)
 
 Let say we want to get AUC for the winning model, in this case, hill. We can do that with get_AUC() with inputs: the name of the model, lower and upper bounds (of the area), and estimated model parameters. In the following codes I will use the function and then plot to check if the result make sense.
 
-```{r}
+```{r example 1 cont., fig.height = 6, fig.width = 6}
 fit_method <- "hill"
 # extract the parameters 
 modpars <- output[[fit_method]][output[[fit_method]]$pars]
@@ -46,7 +52,7 @@ polygon(c(log10(conc), max(log10(conc))), c(pred_resp, min(pred_resp)), col="yel
 
 We can do the same for other models too (excluding constant model).
 
-```{r}
+```{r example 1 other models}
 fitmodels = c("poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5")
 
 for (model in fitmodels){
@@ -73,7 +79,7 @@ for (model in fitmodels){
 
 Taking example 3 from the vignette which gives data for negative curves and curves that have area both above and below 0.
 
-```{r}
+```{r example 2, fig.height = 6, fig.width = 6}
 # Taking the code from example 3 in the vignette 
 library(stringr)  # string management package
 data("signatures")
@@ -90,7 +96,7 @@ output_negative <- tcplfit2_core(conc, resp, cutoff, do.plot = TRUE)
 
 Take one of the model to check - exp3
 
-```{r}
+```{r example 2 cont., fig.height = 6, fig.width = 6}
 fit_method <- "exp3"
 
 # extract corresponding model parameters and predicted response
@@ -107,11 +113,12 @@ lines(conc[order(conc)], pred_resp)
 polygon(c(conc[order(conc)], max(conc)), c(pred_resp, max(pred_resp)), col="yellow")
 ```
 
+
 Things to consider: The x-axis in plot above is in regular unit so it looks different from the figure above which uses log-conc for x-axis. The absolute value 12.92 seems to be a legit estimate for the area above the curve (technically can't call it AUC anymore), but it's returned as a negative number. Need more consideration of how to work with sign. 
 
 Then use another example to check what happen if a curve have area below and above x-axis.
 
-```{r}
+```{r example 3, fig.height = 6, fig.width = 6}
 conc=as.numeric(str_split(signatures[2,"conc"],"\\|")[[1]])
 resp=as.numeric(str_split(signatures[2,"resp"],"\\|")[[1]])
 cutoff=signatures[2,"cutoff"]
@@ -124,7 +131,7 @@ output_biphasic <- tcplfit2_core(conc, resp, cutoff, do.plot = TRUE)
 
 Compare the result of my function to the result from Katie's code
 
-```{r}
+```{r compare results-gnls}
 conc <- c(.03, .1, .3, 1, 3, 10, 30, 100)
 
 # Katie's code 
@@ -161,3 +168,5 @@ ps <- list(tp = 1.023238, ga = 2.453007, p = 1.592714, la = 4288.993065,
            q = 5.770323, er = -3.295309 )
 get_AUC("gnls", min(conc), max(conc), ps)
 ```
+
+
