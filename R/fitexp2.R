@@ -1,6 +1,6 @@
 #' Exponential 2 Model Fit
 #'
-#' Function that fits to f(x) = a*(e^(x/b)- 1) and returns generic model outputs.
+#' Function that fits to \eqn{f(x) = a*(e^{(x/b)}- 1)} and returns generic model outputs.
 #'
 #' Zero background and increasing absolute response are assumed. Parameters are
 #' "a" (y scale), "b" (x scale), and error term "er".

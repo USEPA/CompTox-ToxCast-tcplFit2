@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{loggnls}
 \alias{loggnls}
-\title{Log Gain-Loss Model - ps[1] * (1/(1 + 10^((ps[2] - x)*ps[3]))) * (1/(1 + 10^((x - ps[4])*ps[5])))}
+\title{Log Gain-Loss Model}
 \usage{
 loggnls(ps, x)
 }
@@ -15,7 +15,7 @@ loggnls(ps, x)
 Vector of model responses
 }
 \description{
-Log Gain-Loss Model - ps[1] * (1/(1 + 10^((ps[2] - x)*ps[3]))) * (1/(1 + 10^((x - ps[4])*ps[5])))
+\eqn{f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))} )]}}
 }
 \examples{
 loggnls(c(1,2,1,2,2),1)

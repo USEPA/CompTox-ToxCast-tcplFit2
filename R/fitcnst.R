@@ -1,6 +1,7 @@
 #' Constant Model Fit
 #'
-#' Function that fits a constant line and returns generic model outputs.
+#' Function that fits a constant line \eqn{f(x) = 0} and returns generic
+#' model outputs.
 #'
 #' success = 1 for a successful fit, 0 if optimization failed, and NA if
 #' nofit = TRUE. aic, rme, and er are set to NA in case of nofit or failure. pars

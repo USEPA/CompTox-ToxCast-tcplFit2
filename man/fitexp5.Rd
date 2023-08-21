@@ -35,7 +35,7 @@ Named list containing: success, aic (Akaike Information Criteria),
   (vector of parameter names), sds (vector of parameter sd names).
 }
 \description{
-Function that fits to f(x) = tp*(1-2^(-(x/ga)^p)) and returns generic model
+Function that fits to \eqn{f(x) = tp*(1-2^{(-(x/ga)^p)})} and returns generic model
 outputs.
 }
 \details{

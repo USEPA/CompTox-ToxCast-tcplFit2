@@ -20,7 +20,8 @@ List of five elements: success, aic (Akaike Information Criteria),
   rme (root mean square error), er (error parameter), pars (parameter names).
 }
 \description{
-Function that fits a constant line and returns generic model outputs.
+Function that fits a constant line \eqn{f(x) = 0} and returns generic
+model outputs.
 }
 \details{
 success = 1 for a successful fit, 0 if optimization failed, and NA if

@@ -26,7 +26,7 @@ Named list containing: success, aic (Akaike Information Criteria),
   (vector of parameter names), sds (vector of parameter sd names).
 }
 \description{
-Function that fits to f(x) = a*x and returns generic model outputs.
+Function that fits to \eqn{f(x) = a*x} and returns generic model outputs.
 }
 \details{
 Zero background and increasing absolute response are assumed. Parameters are

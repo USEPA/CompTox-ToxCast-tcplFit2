@@ -1,6 +1,6 @@
 #' Polynomial 1 (Linear) Model Fit
 #'
-#' Function that fits to f(x) = a*x and returns generic model outputs.
+#' Function that fits to \eqn{f(x) = a*x} and returns generic model outputs.
 #'
 #' Zero background and increasing absolute response are assumed. Parameters are
 #' "a" (y scale) and error term "er".
