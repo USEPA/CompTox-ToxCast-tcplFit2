@@ -116,16 +116,28 @@ polygon(c(conc[order(conc)], max(conc)), c(pred_resp, max(pred_resp)), col="yell
 
 Things to consider: The x-axis in plot above is in regular unit so it looks different from the figure above which uses log-conc for x-axis. The absolute value 12.92 seems to be a legit estimate for the area above the curve (technically can't call it AUC anymore), but it's returned as a negative number. Need more consideration of how to work with sign. 
 
-Then use another example to check what happen if a curve have area below and above x-axis.
+Then use another example to check what happen if a curve have areas both below and above x-axis.
 
 ```{r example 3, fig.height = 6, fig.width = 6}
-conc=as.numeric(str_split(signatures[2,"conc"],"\\|")[[1]])
-resp=as.numeric(str_split(signatures[2,"resp"],"\\|")[[1]])
-cutoff=signatures[2,"cutoff"]
+# simulate a poly2 curve
+ps <- unlist(list(a = 1, b = -2))
+conc_sim <- c(0, 0.03, 0.10, 0.30, 1.00, 2.00, 2.50, 3.00, 3.20)
+resp_sim <- poly2(ps, conc_sim)
 
-# plot all models, this is an example of negative curves 
-output_biphasic <- tcplfit2_core(conc, resp, cutoff, do.plot = TRUE)
+# plot the curve 
+plot(conc_sim, resp_sim)
+lines(conc_sim, resp_sim)
+abline(h = 0)
+polygon(conc_sim[1:6], resp_sim[1:6], col="yellow")
+polygon(c(conc_sim[6:9], 3.20), c(resp_sim[6:9], 0), col="blue")
 ```
+
+```{r, example 3 cont.}
+get_AUC("poly2", min(conc_sim), max(conc_sim), ps)
+```
+
+If we integrate over a curve that has areas below and above 0, the function will return area above the curve minus area blow the curve (blue-yellow). In this example, area above the curve for the simulated curve is slightly larger than the area below the curve so it returns a positive value. The function seems to function normally but this might not be how the biologist/toxicologist want to interpret and use it. Further consideration needed. 
+
 
 # Compare results
 
