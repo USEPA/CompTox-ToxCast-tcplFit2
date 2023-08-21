@@ -7,12 +7,12 @@
 loghill(ps, x)
 }
 \arguments{
-\item{ps}{Vector of parameters: tp,ga,p,er}
+\item{ps}{Vector of parameters: tp,ga,p,er (ga is in log10-scale)}
 
 \item{x}{Vector of concentrations (log10 units)}
 }
 \value{
-Vector of model responses
+Vector of model responses.
 }
 \description{
 Log Hill Model - ps[1]/(1 + 10^(ps[3]*(ps[2]-x)))

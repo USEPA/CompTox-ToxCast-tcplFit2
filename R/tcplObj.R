@@ -142,7 +142,7 @@ gnls = function(ps, x){
 
 #' Log Gain-Loss Model - ps[1] * (1/(1 + 10^((ps[2] - x)*ps[3]))) * (1/(1 + 10^((x - ps[4])*ps[5])))
 #'
-#' @param ps Vector of parameters: tp,ga,p,la,q,er
+#' @param ps Vector of parameters: tp,ga,p,la,q,er (ga and la are in log10-scale)
 #' @param x Vector of concentrations (log10 units)
 #'
 #' @return Vector of model responses
@@ -176,10 +176,10 @@ hillfn = function(ps,x){
 
 #' Log Hill Model - ps[1]/(1 + 10^(ps[3]*(ps[2]-x)))
 #'
-#' @param ps Vector of parameters: tp,ga,p,er
+#' @param ps Vector of parameters: tp,ga,p,er (ga is in log10-scale)
 #' @param x Vector of concentrations (log10 units)
 #'
-#' @return Vector of model responses
+#' @return Vector of model responses.
 #' @export
 #' @examples
 #' loghill(c(1,2,3),1)
