@@ -156,7 +156,7 @@ gnls = function(ps, x){
 #'
 #' \eqn{f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))} )]}}
 #'
-#' @param ps Vector of parameters: tp,ga,p,la,q,er
+#' @param ps Vector of parameters: tp,ga,p,la,q,er (ga and la are in log10-scale)
 #' @param x Vector of concentrations (log10 units)
 #'
 #' @return Vector of model responses
@@ -194,10 +194,10 @@ hillfn = function(ps,x){
 #'
 #' \eqn{f(x) = \frac{tp}{(1 + 10^{(p*(ga-x))} )}}
 #'
-#' @param ps Vector of parameters: tp,ga,p,er
+#' @param ps Vector of parameters: tp,ga,p,er (ga is in log10-scale)
 #' @param x Vector of concentrations (log10 units)
 #'
-#' @return Vector of model responses
+#' @return Vector of model responses.
 #' @export
 #' @examples
 #' loghill(c(1,2,3),1)

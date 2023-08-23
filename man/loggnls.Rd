@@ -7,7 +7,7 @@
 loggnls(ps, x)
 }
 \arguments{
-\item{ps}{Vector of parameters: tp,ga,p,la,q,er}
+\item{ps}{Vector of parameters: tp,ga,p,la,q,er (ga and la are in log10-scale)}
 
 \item{x}{Vector of concentrations (log10 units)}
 }
