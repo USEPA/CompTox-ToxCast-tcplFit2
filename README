@@ -10,9 +10,9 @@ R packages suggested: knitr, rmarkdown, stringi
 
 Installation
 
-You may install this package from git or CRAN. Git has access to a more recent development version of this package that includes features that are not officially included in the version on CRAN.
+You may install this package from GitHub or CRAN. GitHub has access to a more recent development version of this package that might includes features that are not officially included in the version on CRAN.
 
-1. Install from git (need “devtool” package)
+1. Install from GitHub (need “devtool” package)
 devtools::install_git("USEPA/CompTox-ToxCast-tcplFit2")
 
 2. Install from CRAN, version 0.1.5 released 2023-04-06
