@@ -73,6 +73,7 @@ their own version of this. To run this example, use the following code ...
 
 ```{r example2, fig.height = 8, fig.width = 7}
   # read in the data
+  # Loading in the level 3 example data set from invitrodb
   data("mc3")
 
   # set up a 3 x 2 grid for the plots
@@ -185,6 +186,7 @@ The input for this example comes from the ACEA_AR assay. Data from the assay com
 * git_hash = hash key for pre-processing scripts
 
 ```{r example4_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE}
+# Loading in the level 0 example data set from invitrodb
 data("mc0")
 library(data.table)
 library(DT)
@@ -285,7 +287,10 @@ lapply(mthd_funcs_l4[["onesd.aeid.lowconc.twells"]](),eval)
 lapply(mthd_funcs_l4[["bidirectional.false"]](),eval)
 ```
 
-After methods up to level 4 have been applied, the model fitting can begin. In `tcpl`, this would be considered level 4, and is where `tcplfit2` is used to fit all of the models as a dependency for `tcpl`. Warning: This step can take 7-10 minutes to run. 
+
+### Dose-Response Curve Fitting
+
+After methods up to level 4 have been applied, the model fitting can begin. In `tcpl`, this would be considered level 4, and is where `tcplfit2` is used to fit all of the models as a dependency for `tcpl`.
 
 ```{r example4_fitting, fig.height = 6, fig.width = 7}
 #do tcplfit2 fitting
@@ -302,10 +307,24 @@ myfun <- function(y) {
                           )
   list(list(res)) #use list twice because data.table uses list(.) to look for values to assign to columns
 }
+```
 
+**Warning: The fitting step for the full data set, `dat`, can take 7-10 minutes to run.** Hence we will provide a subset of data for curve fitting and hitcalling. The subset data only contains records of six samples.
+
+```{r example4_fitting_full, eval=FALSE}
 # only want to run tcplfit2 for test wells in this case
+# this chunk doesn't run, fit the curves on the subset below
 dat[wllt == 't',params:= myfun(.SD), by = .(spid)]
 ```
+
+```{r example4_fitting_subset}
+# create a subset that contains 6 samples and run curve fitting
+subdat <- dat[spid %in% unique(spid)[10:15],]
+subdat[wllt == 't',params:= myfun(.SD), by = .(spid)]
+```
+
+
+### Continuous Hitcalling
 
 After all of the models have been fit, hitcalling can occur. The output of level 4 can be fed directly into the `tcplhit2_core` function. The results are then pivoted and shown in the resulting datatable.
 
@@ -321,10 +340,14 @@ myfun2 <- function(y) {
 }
 
 # continute with hitcalling
-res <- dat[wllt == 't', myfun2(.SD), by = .(spid)]
+res <- subdat[wllt == 't', myfun2(.SD), by = .(spid)]
 
 #pivot wider
 res_wide <- rbindlist(Map(cbind, spid = res$spid, res$V1))
 
 DT::datatable(res_wide,options = list(scrollX = T))
 ```
+
+*The same hitcalling can be done with the full data set, `dat`, as well.*
+
+
