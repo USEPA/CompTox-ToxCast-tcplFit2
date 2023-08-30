@@ -45,7 +45,7 @@ put into a named list called 'row':
 * `bmed` - this is the median of the baseline, and will usually be set to zero. If not, the entire response series will be shifted by this amount.
 * `onesd`- This is one standard deviation of the nose around the baseline. The BMR value = `onesd`*`bmr_scale`. The default `bmr_scale` is 1.349.
 
-The list `row` can also have other optional elements which will be included in the output. These can be,
+The function `concRespCore` can also have other optional elements which will be included in the output. These can be,
 for instance, the name of the chemical (or other identifiers) or the name of the assay being modeled. Two other 
 parameters might be used. The first is a Boolean `conthits`. If TRUE (the default, and recommended usage), the hitcall
 returned will be a continuous value between 0 and 1. The other is `do.plot`. If this is set to TRUE (default is FALSE),
@@ -71,10 +71,10 @@ agonist activity. The data is from the mc3 table in the database `invitrodb`, wh
 for these. The plotting routine `concRespPlot` is somewhat generic, and we anticipate that users will make
 their own version of this. To run this example, use the following code ...
 
-```{r example2, fig.height = 8, fig.width = 7, eval = FALSE}
+```{r example2, fig.height = 8, fig.width = 7}
   # read in the data
-  file <- "data/mc3.RData"
-  load(file=file)
+  # Loading in the level 3 example data set from invitrodb
+  data("mc3")
 
   # set up a 3 x 2 grid for the plots
   oldpar <- par(no.readonly = TRUE)
@@ -185,9 +185,11 @@ The input for this example comes from the ACEA_AR assay. Data from the assay com
 * clowder_uid = clowder unique id for source files
 * git_hash = hash key for pre-processing scripts
 
-```{r example4_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE, echo = FALSE}
-load(file = "../data/mc0.rda")
+```{r example4_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE}
+# Loading in the level 0 example data set from invitrodb
+data("mc0")
 library(data.table)
+library(DT)
 dat <- mc0
 DT::datatable(head(dat[wllt=='t',]),rownames= FALSE, options = list(scrollX = T))
 ```
@@ -251,7 +253,7 @@ setkey(dat,aeid)
 
 Once the data is initialized to a point where the required fields are available, the methods included in the `tcpl` package can be identified and applied without the need for a database connection. You can see the list of available methods for Level 3 in the table below:
 
-```{r example4_mthdlist, fig.height = 6, fig.width = 7, warning = FALSE, echo = FALSE}
+```{r example4_mthdlist, fig.height = 6, fig.width = 7, warning = FALSE}
 mthd_funcs <- tcpl:::mc3_mthds()
 DT::datatable(tcpl::tcplMthdList(3),rownames= FALSE, options = list(scrollX = T))
 ```
@@ -285,6 +287,9 @@ lapply(mthd_funcs_l4[["onesd.aeid.lowconc.twells"]](),eval)
 lapply(mthd_funcs_l4[["bidirectional.false"]](),eval)
 ```
 
+
+### Dose-Response Curve Fitting
+
 After methods up to level 4 have been applied, the model fitting can begin. In `tcpl`, this would be considered level 4, and is where `tcplfit2` is used to fit all of the models as a dependency for `tcpl`.
 
 ```{r example4_fitting, fig.height = 6, fig.width = 7}
@@ -302,10 +307,24 @@ myfun <- function(y) {
                           )
   list(list(res)) #use list twice because data.table uses list(.) to look for values to assign to columns
 }
+```
 
+The following code performs dose-response modeling for all spids in the dataset. **Warning: The fitting step for the full data set, `dat`, can take 7-10 minutes to run.** Hence the code chunk following provides a subset example of data for curve fitting and hitcalling. The subset data only contains records of six samples.
+
+```{r example4_fitting_full, eval=FALSE}
 # only want to run tcplfit2 for test wells in this case
+# this chunk doesn't run, fit the curves on the subset below
 dat[wllt == 't',params:= myfun(.SD), by = .(spid)]
 ```
+
+```{r example4_fitting_subset}
+# create a subset that contains 6 samples and run curve fitting
+subdat <- dat[spid %in% unique(spid)[10:15],]
+subdat[wllt == 't',params:= myfun(.SD), by = .(spid)]
+```
+
+
+### Continuous Hitcalling
 
 After all of the models have been fit, hitcalling can occur. The output of level 4 can be fed directly into the `tcplhit2_core` function. The results are then pivoted and shown in the resulting datatable.
 
@@ -321,10 +340,14 @@ myfun2 <- function(y) {
 }
 
 # continute with hitcalling
-res <- dat[wllt == 't', myfun2(.SD), by = .(spid)]
+res <- subdat[wllt == 't', myfun2(.SD), by = .(spid)]
 
 #pivot wider
 res_wide <- rbindlist(Map(cbind, spid = res$spid, res$V1))
 
 DT::datatable(res_wide,options = list(scrollX = T))
 ```
+
+*The same hitcalling can be done with the full data set, `dat`, as well.*
+
+
