@@ -309,7 +309,7 @@ myfun <- function(y) {
 }
 ```
 
-**Warning: The fitting step for the full data set, `dat`, can take 7-10 minutes to run.** Hence we will provide a subset of data for curve fitting and hitcalling. The subset data only contains records of six samples.
+The following code performs dose-response modeling for all spids in the dataset. **Warning: The fitting step for the full data set, `dat`, can take 7-10 minutes to run.** Hence the code chunk following provides a subset example of data for curve fitting and hitcalling. The subset data only contains records of six samples.
 
 ```{r example4_fitting_full, eval=FALSE}
 # only want to run tcplfit2 for test wells in this case
