@@ -50,11 +50,12 @@
 
 #' Sample multi-concentration data set from invitrodb
 #'
-#' A data set containing 100 chemicals worth of data for the ACEA_AR assay,
+#' A data set containing 1831 chemicals worth of data for the ACEA_AR assay,
 #' Data from the assay component ACEA_AR_agonist_80hr was analyzed in the
 #' positive analysis fitting direction relative to DMSO as the neutral
 #' control and baseline of activity.
-#' The data can be accessed further through (add source line here).
+#' The data can be accessed further through invitrodb and tcpl see
+#' https://www.epa.gov/chemical-research/exploring-toxcast-data#Download.
 #'
 #' This data is extracted from the released version of the ToxCast database,
 #' invitrodb, at level 0 (mc0) and contains the concentration-response information.
@@ -76,5 +77,5 @@
 #'   \item git_hash - hash key for pre-processing scripts
 #' }
 #'
-#' @source \doi{}
+#' @source \doi{https://doi.org/10.23645/epacomptox.6062623.v10}
 "mc0"

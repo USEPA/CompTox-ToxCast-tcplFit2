@@ -8,17 +8,18 @@
 An object of class \code{data.table} (inherits from \code{data.frame}) with 53608 rows and 13 columns.
 }
 \source{
-\doi{}
+\doi{https://doi.org/10.23645/epacomptox.6062623.v10}
 }
 \usage{
 mc0
 }
 \description{
-A data set containing 100 chemicals worth of data for the ACEA_AR assay,
+A data set containing 1831 chemicals worth of data for the ACEA_AR assay,
 Data from the assay component ACEA_AR_agonist_80hr was analyzed in the
 positive analysis fitting direction relative to DMSO as the neutral
 control and baseline of activity.
-The data can be accessed further through (add source line here).
+The data can be accessed further through invitrodb and tcpl see
+https://www.epa.gov/chemical-research/exploring-toxcast-data#Download.
 }
 \details{
 This data is extracted from the released version of the ToxCast database,
