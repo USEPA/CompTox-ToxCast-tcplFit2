@@ -18,17 +18,17 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
----
+
 
 ```{r setup, warning = FALSE, echo = FALSE}
 library(tcplfit2)
 ```
 # Getting started with tcplfit2
-The package tcplfit2 contains the core concentration-response functionality of the package tcpl (The ToxCast Pipeline) built to process all of the ToxCast high-throughput screen (HTS) data at the US EPA. Much of the rest of the code in tcpl is used to do data processing, normalization, and database storage. We wanted to reuse the core concentration-response code for other projects, and add extensions to it, which was the origin of the current package `tcplfit2`. The main set of extensions was to include all of the concentration-response models that are contained in the program [BMDExpress](https://assessments.epa.gov/bmds/document/&deid=353980). 
+The package tcplfit2 contains the core concentration-response functionality of the package tcpl (The ToxCast Pipeline) built to process all of the ToxCast high-throughput screen (HTS) data at the US EPA. Much of the rest of the code in tcpl is used to do data processing, normalization, and database storage. We wanted to reuse the core concentration-response code for other projects, and add extensions to it, which was the origin of the current package `tcplfit2`. The main set of extensions was to include all of the concentration-response models that are contained in the program [BMDExpress](https://www.sciome.com/bmdexpress/). 
 These include exponential, polynomial, and power functions in addition to the original Hill, gain-loss and constant models.
 Additionally, we wanted to include BMD (Benchmark Dose Modeling) outputs, which is simply defining a 
 Benchmark Response (BMR) level and setting the BMD to the concentration where the curve crosses the BMR level. 
-One final addition was to let the hitcall value be a continuous number ranging from 0 to 1. The hitcall number is a product of three probabilities. This vignette describes some functionality of the `tcplfit2` package with a few simple examples.
+One final addition was to let the hitcall value be a continuous number ranging from 0 to 1. Continuous hitc in `tcplfit2` are defined as the product of three proportional weights: 1) the AIC of the winning model is better than the constant model (i.e. winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff, and 3) the top from the winning model exceeds the cutoff. This vignette describes some functionality of the `tcplfit2` package with a few simple examples.
 
 ## Example 1: Running a single concentration-response calculation
 All calculations use the function `concRespCore` which has several key inputs. The first set are 
@@ -45,7 +45,7 @@ for instance, the name of the chemical (or other identifiers) or the name of the
 parameters might be used. The first is a Boolean `conthits`. If TRUE (the default, and recommended usage), the hitcall
 returned will be a continuous value between 0 and 1. The other is `do.plot`. If this is set to TRUE (default is FALSE),
 a plot of the curve will be generated. The user can also select only a subset of the models to be run. The example below has all of the possible ones
-included. the model `cnst` always needs to be included. For some applications, we exclude the `gnls` model.
+included. If the `fitmodels` parameter is specific, it must always include `cnst` as the constant model is one basis for comparison during hitcalling.  However, some models may be excluded, for example in some applications we exclude the `gnls` model.
 
 To run a simple example, use the following code ...
 ```{r example1, fig.height = 7, fig.width = 7}
@@ -70,7 +70,7 @@ DT::datatable(res,rownames = FALSE,options = list(scrollX = T))
 ## Example 2: Running a series of concentration-response models for a single assay
 The input data for this example is taken from one of the Tox21 HTS assays, for estrogen receptor (ER) 
 agonist activity. The data is from the mc3 table in the database `invitrodb`, which is the back end for
-`tcpl`. The input data is Level 3 data, which mean they have already been through some prepossessing steps. The concentration data have been normalized and response data have been transformed. This example will run 6 chemicals out of the 100 that are included in the data set, and will create plots 
+`tcpl`. The input data is have already been through some prepossessing steps, the concentration data have been normalized and response data have been transformed. This example will run 6 chemicals out of the 100 that are included in the data set, and will create plots 
 for these. The plotting routine `concRespPlot` is somewhat generic, and we anticipate that users will make
 their own version of this. To run this example, use the following code ...
 
@@ -123,6 +123,10 @@ their own version of this. To run this example, use the following code ...
 ```
 
 One would typically save the result rows in a data frame end export these for further analysis. You could remove the plotting function from the current loop and have a loop that read from the overall results data frame and only plot selected results (e.g. those with significant responses).
+
+```{r example2 result, warning=FALSE, echo=FALSE}
+DT::datatable(res,rownames = FALSE,options = list(scrollX = T))
+```
 
 
 ## Example 3: Plotting concentration-response modeling on transcriptional signatures
@@ -355,3 +359,13 @@ DT::datatable(res_wide,options = list(scrollX = T))
 
 This output table is the same format as the `res` table in example 3. Users can use the plot code in the chunk that demonstrates the use of `concRespPlot` in example 3 to visualize fits from this output table. 
 
+```{r example4_plot, fig.height = 8, fig.width = 7}
+  # set up a 3 x 2 grid for the plots
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))            
+  par(mfrow=c(3,2),mar=c(4,4,2,2))
+  # plot results using `concRespPlot`(2nd plotting option)
+  for(i in 1:nrow(res)){
+    concRespPlot(res_wide[i,],ymin=-50,ymax=50)
+  }
+```
