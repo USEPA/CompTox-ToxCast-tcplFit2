@@ -24,16 +24,11 @@ knitr::opts_chunk$set(
 library(tcplfit2)
 ```
 # Getting started with tcplfit2
-The package tcplfit2 contains the core concentration-response functionality of the package tcpl
-(The ToxCast Pipeline) built to process all of the ToxCast high-throughput screen (HTS) data at
-the US EPA. Much of the rest of the code in tcpl is used to do data processing, normalization,
-and database storage. We wanted to reuse the core concentration-response code for other projects,
-and add extensions to it, which was the origin of the current package `tcplfit2`. The main set of extensions 
-was to include all of the concentration-response models that are contained in the program BMDExpress. 
-These include exponential and power functions in addition to the original Hill, gain-loss and constant models.
+The package tcplfit2 contains the core concentration-response functionality of the package tcpl (The ToxCast Pipeline) built to process all of the ToxCast high-throughput screen (HTS) data at the US EPA. Much of the rest of the code in tcpl is used to do data processing, normalization, and database storage. We wanted to reuse the core concentration-response code for other projects, and add extensions to it, which was the origin of the current package `tcplfit2`. The main set of extensions was to include all of the concentration-response models that are contained in the program [BMDExpress](https://assessments.epa.gov/bmds/document/&deid=353980). 
+These include exponential, polynomial, and power functions in addition to the original Hill, gain-loss and constant models.
 Additionally, we wanted to include BMD (Benchmark Dose Modeling) outputs, which is simply defining a 
 Benchmark Response (BMR) level and setting the BMD to the concentration where the curve crosses the BMR level. 
-One final addition was to let the hitcall value be a continuous number ranging from 0 to 1. This vignette describes some functionality of the `tcplfit2` package with a few simple examples.
+One final addition was to let the hitcall value be a continuous number ranging from 0 to 1. The hitcall number is a product of three probabilities. This vignette describes some functionality of the `tcplfit2` package with a few simple examples.
 
 ## Example 1: Running a single concentration-response calculation
 All calculations use the function `concRespCore` which has several key inputs. The first set are 
@@ -42,8 +37,8 @@ put into a named list called 'row':
 * `conc` - a vector of concentrations (not log concentrations)
 * `resp` - a vector of responses, of the same length as `conc`. Note that replicates are allowed, i.e. there can be multiple pairs of conc and resp with the same concentration value.
 * `cutoff`- this is the value that the response must exceed before a a curve can be called a hit. For ToxCast, this is usually some multiple (typically 3) of the median absolute deviation (BMAD) around baseline for the lowest two concentration. The user is free to make other choices
-* `bmed` - this is the median of the baseline, and will usually be set to zero. If not, the entire response series will be shifted by this amount.
-* `onesd`- This is one standard deviation of the nose around the baseline. The BMR value = `onesd`*`bmr_scale`. The default `bmr_scale` is 1.349.
+* `bmed` - this is the median of the baseline. The entire response series will be shifted by this amount. Set to zero if the data is zero-centered.  
+* `onesd`- This is one standard deviation of the noise around the baseline. The BMR value = `onesd`*`bmr_scale`. The default `bmr_scale` is 1.349.
 
 The function `concRespCore` can also have other optional elements which will be included in the output. These can be,
 for instance, the name of the chemical (or other identifiers) or the name of the assay being modeled. Two other 
@@ -64,10 +59,18 @@ To run a simple example, use the following code ...
 
 The output of this run will be a data frame with one row, summarizing the results for the winning model.
 
+```{r example1 result, warning=FALSE, echo=FALSE}
+library(DT)
+DT::datatable(res,rownames = FALSE,options = list(scrollX = T))
+```
+
+
+
+
 ## Example 2: Running a series of concentration-response models for a single assay
 The input data for this example is taken from one of the Tox21 HTS assays, for estrogen receptor (ER) 
 agonist activity. The data is from the mc3 table in the database `invitrodb`, which is the back end for
-`tcpl`. This example will run 6 chemicals out of the 100 that are included in the data set, and will create plots 
+`tcpl`. The input data is Level 3 data, which mean they have already been through some prepossessing steps. The concentration data have been normalized and response data have been transformed. This example will run 6 chemicals out of the 100 that are included in the data set, and will create plots 
 for these. The plotting routine `concRespPlot` is somewhat generic, and we anticipate that users will make
 their own version of this. To run this example, use the following code ...
 
@@ -121,8 +124,9 @@ their own version of this. To run this example, use the following code ...
 
 One would typically save the result rows in a data frame end export these for further analysis. You could remove the plotting function from the current loop and have a loop that read from the overall results data frame and only plot selected results (e.g. those with significant responses).
 
+
 ## Example 3: Plotting concentration-response modeling on transcriptional signatures
-The input data for this example contains 6 signatures for one chemical in a transcriptomics data set.  This data set is a sample from the signature scoring method that provides the cutoff, one standard deviation, and the concentration-response data. The example illustrates two kinds of plots available in `tcplfit2`. In the call to `concRespCore()`, the argument `do.plot` is set to `TRUE`, which provides a simple plot showing results of all the different curve fitting methods. Next, utilizing the function `concRespPlot()` provides a more informative plot for the winning model.
+The input data for this example contains 6 signatures for one chemical in a transcriptomics data set. Each signature is a different assay endpoint of the given chemical and is stored as one row in the data. This data set is a sample from the signature scoring method that provides the cutoff, one standard deviation, and the concentration-response data. The example illustrates two kinds of plots available in `tcplfit2`. In the call to `concRespCore()`, the argument `do.plot` is set to `TRUE`, which provides a simple plot showing results of all the different curve fitting methods. Next, utilizing the function `concRespPlot()` provides a more informative plot for the winning model.
 ```{r example3, fig.height = 6, fig.width = 7, warning = FALSE}
   # call additional R packages
   library(stringr)  # string management package
@@ -189,7 +193,6 @@ The input for this example comes from the ACEA_AR assay. Data from the assay com
 # Loading in the level 0 example data set from invitrodb
 data("mc0")
 library(data.table)
-library(DT)
 dat <- mc0
 DT::datatable(head(dat[wllt=='t',]),rownames= FALSE, options = list(scrollX = T))
 ```
@@ -227,7 +230,7 @@ dat[ , cndx := indexfunc(conc), by = list(rpid)]
 
 ### Adjustments
 
-Levels 2 and 3 are used for data adjustments and normalization. Generally if the response values (rval) need to be logged or transformed in some way from their original values this is where that adjustment would occur.  However, in this case, the corrected value (cval) is identical to the original response values (rval). 
+Levels 2 and 3 are used for data adjustments and normalization. Generally if the response values (rval) need to be logged or transformed in some way from their original values this is where that adjustment would occur. Response values that have been transformed are referred as the corrected value and is represented by `cval`. However, in this case, the corrected value (cval) is identical to the original response values (rval). 
 
 ```{r example4_mc2, fig.height = 6, fig.width = 7}
 # If no adjustments are required for the data, the corrected value (cval) should be set as original rval
@@ -350,4 +353,5 @@ DT::datatable(res_wide,options = list(scrollX = T))
 
 *The same hitcalling can be done with the full data set, `dat`, as well.*
 
+This output table is the same format as the `res` table in example 3. Users can use the plot code in the chunk that demonstrates the use of `concRespPlot` in example 3 to visualize fits from this output table. 
 
