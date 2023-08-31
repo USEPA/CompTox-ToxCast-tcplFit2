@@ -348,9 +348,9 @@ res_wide <- rbindlist(Map(cbind, spid = res$spid, res$V1))
 DT::datatable(res_wide,options = list(scrollX = T))
 ```
 
-*The same hitcalling can be done with the full data set, `dat`.*
+*Hitcalling can also be done with the full data set, `dat`.*
 
-The output table resulting from the code in the last code chunk is the same format as the `res` table in example 3. Thus, users can use the `concRespPlot` function, as done previously in example 3, to plot the results. The next code chunk demonstrates how to visualize the example 4 fit results.
+The output table resulting from the previous code chunk is the same format as the `res` table in example 3. Thus, one can use the `concRespPlot` function, as done previously in example 3, to plot the results. The next code chunk demonstrates how to visualize the example 4 fit results.
 
 ```{r example4_plot, fig.height = 8, fig.width = 7}
   # set up a 3 x 2 grid for the plots
