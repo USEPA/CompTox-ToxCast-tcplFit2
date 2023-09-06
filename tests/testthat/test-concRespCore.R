@@ -7,8 +7,10 @@ test_that("concRespCore works", {
              onesd=signatures[1,"onesd"],
              name=signatures[1,"name"],
              assay=signatures[1,"signature"])
-  out = concRespCore(row,conthits=F)
+  out = concRespCore(row)
 
   expect_equal(out$fit_method, "exp4")
-  expect_equal(out$hitcall, 1L)
+  expect_equal(out$hitcall, 0.99, tolerance = 1e-2)
+  expect_equal(out$tp, 0.749, tolerance = 1e-2)
+  expect_equal(out$ga, 9.59, tolerance = 1e-2)
 })
