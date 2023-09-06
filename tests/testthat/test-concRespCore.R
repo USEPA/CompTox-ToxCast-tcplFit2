@@ -13,4 +13,5 @@ test_that("concRespCore works", {
   expect_equal(out$hitcall, 0.99, tolerance = 1e-2)
   expect_equal(out$tp, 0.749, tolerance = 1e-2)
   expect_equal(out$ga, 9.59, tolerance = 1e-2)
+
 })
