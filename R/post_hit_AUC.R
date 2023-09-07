@@ -43,7 +43,7 @@ post_hit_AUC <- function(output) {
   # get concentrations
   conc <- as.numeric(str_split(output[1,"conc"],"\\|")[[1]])
   # get fitted values of the winning model
-  modpars <- as.numeric(output[1, param])
+  modpars <- unlist(output[1, param])
   modpars <- modpars[!is.na(modpars)]
   # get the winning model name
   fit_method <- output[["fit_method"]]
