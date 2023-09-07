@@ -47,3 +47,35 @@
 #'
 #' @source \doi{https://doi.org/10.1093/toxsci/kfab009}
 "signatures"
+
+#' Sample multi-concentration data set from invitrodb
+#'
+#' A data set containing 1831 chemicals worth of data for the ACEA_AR assay,
+#' Data from the assay component ACEA_AR_agonist_80hr was analyzed in the
+#' positive analysis fitting direction relative to DMSO as the neutral
+#' control and baseline of activity.
+#' The data can be accessed further through invitrodb and tcpl see
+#' https://www.epa.gov/chemical-research/exploring-toxcast-data#Download.
+#'
+#' This data is extracted from the released version of the ToxCast database,
+#' invitrodb, at level 0 (mc0) and contains the concentration-response information.
+#'
+#' A data frame with 53608 rows and 13 variables:
+#'   \itemize{
+#'   \item m0id - Level 0 id
+#'   \item spid - Sample id
+#'   \item acid - Unique assay component id; unique numeric id for each assay component
+#'   \item apid - Assay plate id
+#'   \item rowi - Row index (location on assay plate)
+#'   \item coli - Column index (location on assay plate)
+#'   \item wllt - Well type
+#'   \item wllq - well quality
+#'   \item conc - concentration
+#'   \item rval - raw value
+#'   \item srcf - Source file name
+#'   \item clowder_uid - clowder unique id for source files
+#'   \item git_hash - hash key for pre-processing scripts
+#' }
+#'
+#' @source \doi{https://doi.org/10.23645/epacomptox.6062623.v10}
+"mc0"
