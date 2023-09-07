@@ -1,6 +1,6 @@
 Introduction
 
-tcplFit2 package provides functions for basic concentration-response curve fitting used in the ‘tcpl’ package. It is a substitute for the original tcplFit() function (and sub-functions) and allows a wider variety of concentration-response models. This package includes models in the ‘BMDExpress’ package and the output includes a calculation of the bmd (Benchmark Dose or concentration) value.
+tcplfit2 package provides functions for basic concentration-response curve fitting used in the ‘tcpl’ package. It is a substitute for the original tcplFit() function (and sub-functions) in previous versions of tcpl and allows a wider variety of concentration-response models. This package includes models from the ‘BMDExpress’ software and the output includes a calculation of the bmd (Benchmark Dose or Concentration) value.
 
 Requirements:
 
@@ -12,8 +12,8 @@ Installation
 
 You may install this package from GitHub or CRAN. GitHub has access to a more recent development version of this package that might includes features that are not officially included in the version on CRAN.
 
-1. Install from GitHub (need “devtool” package)
-devtools::install_git("USEPA/CompTox-ToxCast-tcplFit2")
+1. Install from GitHub (need “devtools” package)
+devtools::install_git("https://github.com/USEPA/CompTox-ToxCast-tcplFit2.git")
 
 2. Install from CRAN, version 0.1.5 released 2023-04-06
 install.packages("tcplfit2")
