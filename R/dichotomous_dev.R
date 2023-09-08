@@ -24,8 +24,9 @@
 multistage <- function(beta, x){
   # beta is a vector of dose coefficients
 
-  n <- seq(1:length(x))
-  r <- lapply(x, function(i) sum(beta*(i^j)))
+  k <- seq(1, length(beta))
+
+  r <- lapply(x, function(i) sum(beta*(i^k)))
   return ( 1 - exp(-unlist(r))  )
 
 }
@@ -39,7 +40,7 @@ multistage <- function(beta, x){
 #'
 weibull <- function(ps, x){
   # a = ps[1], b = ps[2]
-  return( (1 - exp(-ps[2]*(x^ps[1])))   )
+  return( 1 - exp(-ps[2]*(x^ps[1]))  )
 }
 
 
@@ -51,9 +52,9 @@ weibull <- function(ps, x){
 #' @return Function value
 #' @export
 #'
-gammainner <- function(ps, x){
+gammainner <- function(a, t){
   # a = ps[1], b = ps[2]
-  x^(a-1)*exp(-x)
+  t^(a-1)*exp(-t)
   }
 
 #' Gamma Model
@@ -65,13 +66,13 @@ gammainner <- function(ps, x){
 #'
 gamma_d <- function(ps, x){
   # a = ps[1], b = ps[2]
-  r <- lapply(x, function(i) integrate(gammainner,
-                                       lower=0,
-                                       upper=ps[2]*i,
-                                       a = ps[1])$value
-              )
-
-  return( unlist(r) / gamma(ps[1]) )
+  #r <- lapply(x, function(i) integrate(gammainner,
+  #                                     lower=0,
+  #                                     upper=ps[2]*i,
+  #                                     a = ps[1])$value
+  #            )
+  r <- pgamma(x, ps[1], ps[2])
+  return( r )
 }
 
 
@@ -92,14 +93,14 @@ logistic <- function(ps, x){
 #' Log-Logistic Model
 #'
 #' @param ps Vector of parameters: a, b
-#' @param x Vector of concentrations (regular units, convert to log10-scale in function)
+#' @param x Vector of concentrations (regular units, convert to natrual-log scale in function)
 #'
 #' @return Vector of model responses
 #' @export
 #'
 llogistic <- function(ps, x){
   # a = ps[1], b = ps[2]
-  return( 1 / (1+exp(-ps[1]-ps[2]*log10(x)))  )
+  return( 1 / (1+exp(-ps[1]-ps[2]*log(x)))  )
 
 }
 
@@ -121,22 +122,22 @@ probitinner <- function(t) {(1/sqrt(2*pi))*exp(-(t^2)/2)}
 #' @return Vector of model responses
 #' @export
 #'
-probit <- function(a, b, x) {
+probit <- function(ps, x) {
   # a = ps[1], b = ps[2]
   x <- ps[1] + ps[2]*x
-  r <- lapply(x, function(i) integrate(probitinner,
-                                       lower=-Inf,
-                                       upper=i)$value
-  )
-
-  return(unlist(r))
+  #r <- lapply(x, function(i) integrate(probitinner,
+  #                                     lower=-Inf,
+  #                                     upper=i)$value
+  #)
+  r <- pnorm(x)
+  return(r)
 }
 
 
 #' Log-Probit Model
 #'
 #' @param ps Vector of parameters: a, b
-#' @param x Vector of concentrations (regular units, convert to log10-scale in function)
+#' @param x Vector of concentrations (regular units, convert to natural-log scale in function)
 #'
 #' @return Vector of model responses
 #' @export
@@ -144,20 +145,20 @@ probit <- function(a, b, x) {
 
 lprobit <- function(ps, x) {
   # a = ps[1], b = ps[2]
-  x <- ps[1] + ps[2]*log10(x)
-  r <- lapply(x, function(i) integrate(probitinner,
-                                       lower=-Inf,
-                                       upper=i)$value
-  )
-
-  return(unlist(r))
+  x <- ps[1] + ps[2]*log(x)
+  #r <- lapply(x, function(i) integrate(probitinner,
+  #                                     lower=-Inf,
+  #                                     upper=i)$value
+  #)
+  r <- pnorm(x)
+  return(r)
 }
 
 
 #' Dichotomous Hill Model
 #'
 #' @param ps Vector of parameters: a, b, v
-#' @param x Vector of concentrations (regular units, convert to log10-scale in function)
+#' @param x Vector of concentrations (regular units, convert to natural-log scale in function)
 #'
 #' @return Vector of model responses
 #' @export
@@ -165,7 +166,7 @@ lprobit <- function(ps, x) {
 d_hill <- function(ps, x) {
   # a = ps[1], b = ps[2], v = ps[3]
 
-  ps[3] / (1 + exp(-ps[1]-ps[2]*log10(x)))
+  ps[3] / (1 + exp(-ps[1]-ps[2]*log(x)))
 
 }
 
