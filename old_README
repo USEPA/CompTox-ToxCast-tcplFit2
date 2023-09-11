@@ -1,0 +1,52 @@
+To create package documentation
+
+1. On Linux (sc) cd to the project directory
+2. run roxygen2::roxygenize(). This will create the Rd files in the man directory of the main package directory
+3. on Linux, cd to the diretory above the package directory
+4. run R CMD Rd2pdf <packagename>
+
+
+adding to the remote bitbucket ...
+
+git config --global user.name "Richard Judson"
+git config --global user.email "judson.richard@epa.gov"
+
+cd existing-project
+git init
+git add --all
+git commit -m "Initial Commit"
+git remote add origin ssh://git@ncct-bitbucket.epa.gov:7999/tcplfit2/tcplfit2.git
+git push -u origin master
+
+To pull from the git repository ...
+git pull origin master
+
+Pointing to pdflatex ...
+
+Sys.setenv(PATH=paste(Sys.getenv("PATH"),"C:/Program Files/MiKTeX 2.9/miktex/bin/x64/",sep=";"))
+
+Running documentation - this builds the file tcplFit2_manual.pdf
+roxygen2::roxygenise()
+
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:/Program Files/MiKTeX 2.9/miktex/bin/x64", sep=.Platform$path.sep))
+Sys.setenv(R_PAPERSIZE="letter")
+system("R CMD Rd2pdf . --title=tcplfit2 tcplfit2 --output=./tcplfit2_manual.pdf --force --no-clean --internals")
+
+Getting ready to submit to cran
+Note that libraries need to be in C:/program files/R and not in the local version
+rm(list=ls())
+devtools::install()
+devtools::check()
+
+Creating a vignette ...
+usethis::use_vignette("tcplfit2-vignette")
+Open the Rmd file and run knitr
+
+Creating a word version of the vignette
+library(rmarkdown)
+file <- "vignettes/tcplfit2-vignette.Rmd"
+render(file,output_format="word_document")
+
+To install this package from git ...
+devtools::install_git("http://ncct-bitbucket.epa.gov/scm/tcplFit2/tcplFit2")
+

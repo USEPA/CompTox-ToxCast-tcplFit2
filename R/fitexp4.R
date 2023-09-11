@@ -1,6 +1,6 @@
 #' Exponential 4 Model Fit
 #'
-#' Function that fits to f(x) = tp*(1-2^(-x/ga)) and returns generic model
+#' Function that fits to \eqn{f(x) = tp*(1-2^{(-x/ga)})} and returns generic model
 #' outputs.
 #'
 #' Zero background and increasing absolute response are assumed. Parameters are

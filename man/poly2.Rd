@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{poly2}
 \alias{poly2}
-\title{Polynomial 2 Model - ps[1]*(x0 + x0*x0)}
+\title{Polynomial 2 Model}
 \usage{
 poly2(ps, x)
 }
@@ -15,7 +15,7 @@ poly2(ps, x)
 Vector of model responses
 }
 \description{
-Polynomial 2 Model - ps[1]*(x0 + x0*x0)
+\eqn{f(x) = a*(\frac{x}{b} + \frac{x^2}{b^2})}
 }
 \examples{
 poly2(c(1,2),1)

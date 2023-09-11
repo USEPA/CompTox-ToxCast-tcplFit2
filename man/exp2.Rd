@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{exp2}
 \alias{exp2}
-\title{Exponential 2 Model - ps[1]*(exp(x/ps[2]) - 1)}
+\title{Exponential 2 Model}
 \usage{
 exp2(ps, x)
 }
@@ -15,7 +15,7 @@ exp2(ps, x)
 Vector of model responses
 }
 \description{
-Exponential 2 Model - ps[1]*(exp(x/ps[2]) - 1)
+\eqn{f(x) = a*(e^{(x/b)}- 1)}
 }
 \examples{
 exp2(c(1,2),1)

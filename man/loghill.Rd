@@ -2,20 +2,20 @@
 % Please edit documentation in R/tcplObj.R
 \name{loghill}
 \alias{loghill}
-\title{Log Hill Model - ps[1]/(1 + 10^(ps[3]*(ps[2]-x)))}
+\title{Log Hill Model}
 \usage{
 loghill(ps, x)
 }
 \arguments{
-\item{ps}{Vector of parameters: tp,ga,p,er}
+\item{ps}{Vector of parameters: tp,ga,p,er (ga is in log10-scale)}
 
 \item{x}{Vector of concentrations (log10 units)}
 }
 \value{
-Vector of model responses
+Vector of model responses.
 }
 \description{
-Log Hill Model - ps[1]/(1 + 10^(ps[3]*(ps[2]-x)))
+\eqn{f(x) = \frac{tp}{(1 + 10^{(p*(ga-x))} )}}
 }
 \examples{
 loghill(c(1,2,3),1)
