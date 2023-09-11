@@ -1,8 +1,13 @@
 ---
-title: "get_AUC Demonstration and Test Codes"
-output: rmarkdown::html_vignette
+title: "Calculating Area Under the Concentration-Response Curve with tcplfit2"
+author: "Center for Computational Toxicology and Exposure"
+output:
+   prettydoc::html_pretty:
+    theme: architect
+    toc: yes
+    toc_depth: 4
 vignette: >
-  %\VignetteIndexEntry{get_AUC_Demonstration_and_Test_Codes}
+  %\VignetteIndexEntry{Calculating_AUC_with_tcplfit2}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,10 +21,10 @@ knitr::opts_chunk$set(
 
 ```{r setup, warning=FALSE, echo=FALSE}
 library(tcplfit2)
-source("../R/get_AUC.R")
 ```
-
 # Demonstration
+
+This demonstration will provide examples for how to use `get_AUC` function in `tcplfit2` to calculate area under the curves (AUC) for dose-response curves fitted. The following chunk of code fits all available models in `tcplfit2` with some example data. `verbose = TRUE` will return the output with Akaike information criterions (AICs) of each model and the final winning model, and `do.plot = TRUE` returns a figure with all the curves.
 
 ```{r example 1, fig.height = 6, fig.width = 6}
 # This is taken from the example under tcplfit2_core
@@ -30,7 +35,7 @@ resp <- c(0, .1, 0, .2, .6, .9, 1.1, 1)
 output <- tcplfit2_core(conc, resp, .8, verbose = TRUE, do.plot = TRUE)
 ```
 
-Let say we want to get AUC for the winning model, in this case, hill. We can do that with get_AUC() with inputs: the name of the model, lower and upper bounds (of the area), and estimated model parameters. In the following codes I will use the function and then plot to check if the result make sense.
+Let say we want to get AUC for the winning model, in this case, hill. We can do that with `get_AUC` with inputs: the name of the model, lower and upper concentration bounds (usually are the lowest and the highest concentration in the data), and estimated model parameters. The following codes show how to extract those information from the output from above and put them into `get_AUC` function. After that calculated AUC, plot the curve and shape the area to see if the returned value makes sense. The returned value represents the area of the shaped region. 
 
 ```{r example 1 cont., fig.height = 6, fig.width = 6}
 fit_method <- "hill"
@@ -106,6 +111,7 @@ pred_resp <- output_negative[[fit_method]][["modl"]]
 
 
 get_AUC(fit_method, min(conc), max(conc), modpars) # returns -12.92
+abs(get_AUC(fit_method, min(conc), max(conc), modpars))
 
 # plot this curve
 pred_resp <- pred_resp[order(conc)]
@@ -114,9 +120,12 @@ lines(conc[order(conc)], pred_resp)
 polygon(c(conc[order(conc)], max(conc)), c(pred_resp, max(pred_resp)), col="yellow")
 ```
 
-Things to consider: The x-axis in plot above is in regular unit so it looks different from the figure above which uses log-conc for x-axis. The absolute value 12.92 seems to be a legit estimate for the area above the curve (technically can't call it AUC anymore), but it's returned as a negative number. Need more consideration of how to work with sign.
+Things to consider: The x-axis in plot above is in regular unit so it looks different from the figure above which uses log-conc for x-axis. 
 
-Then use another example to check what happen if a curve have areas both below and above x-axis. Here I simulated a polynomial 2 curve but please note that the parameterization of poly2 in tcplfit2 is a little different from normal poly2
+The function will return a negative value when integrating over a negative curve, but We may want to consider all "areas" positive. Thus, for curve decreases from 0, use the absolute value 12.92 instead.
+
+# Biphasic curve situation
+Use another example to check what happen if a curve have areas both below and above x-axis. Here I simulated a polynomial 2 curve but please note that the parameterization of poly2 in `tcplfit2` is a little different from normal polynomial 2.
 
 In the package the function is written as $a*(\frac{x}{b} + \frac{x^2}{b^2})$ thus $a$ in normal poly2 is represented as $\frac{a}{b^2}$ and $b$ in normal poly2 is represented as $\frac{a}{b}$. 
 
@@ -140,46 +149,12 @@ polygon(c(conc_sim[6:9], 3.20), c(resp_sim[6:9], 0), col="blue")
 get_AUC("poly2", min(conc_sim), max(conc_sim), ps)
 ```
 
-If we integrate over a curve that has areas below and above 0, the function will return area above the curve minus area blow the curve (blue-yellow). In this example, area above the curve for the simulated curve is slightly larger than the area below the curve so it returns a positive value. The function seems to function normally but this might not be how the biologist/toxicologist want to interpret and use it. Further consideration needed.
+If we integrate over a curve that has areas below and above 0, the function will return area above the curve minus area blow the curve (blue-yellow). In this example, area above the curve for the simulated curve is slightly larger than the area below the curve so it returns a positive value. The function seems to function normally but this might not be how the biologist/toxicologist want to interpret and use it. 
 
-# Compare results
+AUC is used as an indicator of overall effect size, so for curves that pass the x-axis, we should add the absolute value of the area sections, that is, blue area plus yellow area. The following code shows how to get the total area wanted in this case. 
 
-Compare the result of my function to the result from Katie's code
-
-```{r compare results-gnls}
-conc <- c(.03, .1, .3, 1, 3, 10, 30, 100)
-
-# Katie's code 
-gnls_curve <- function(top, ga, gw, la, lw, lconc){
-    gain <- 1/(1+10^((ga - lconc)*gw))
-    loss <- 1/(1+10^((lconc - la)*lw))
-    return(top*gain*loss)
-}
-
-mapply(function(lower,
-upper,
-top,
-ga,
-gw,
-la,
-lw) integrate(gnls_curve,
-lower,
-upper,
-top=top,
-ga=ga,
-gw=gw,
-la=la,
-lw=lw)$value,
-lower = min(log10(conc)),
-upper = max(log10(conc)),
-top = 1.023238,
-ga = log10(2.453007),
-gw = 1.592714,
-la = log10(4288.993065),
-lw = 5.770323)
-
-# my function 
-ps <- list(tp = 1.023238, ga = 2.453007, p = 1.592714, la = 4288.993065,
-           q = 5.770323, er = -3.295309 )
-get_AUC("gnls", min(conc), max(conc), ps)
+```{r, example 3 cont.2}
+abs(get_AUC("poly2", min(conc_sim), 2, ps)) + get_AUC("poly2", 2, max(conc_sim), ps)
 ```
+
+
