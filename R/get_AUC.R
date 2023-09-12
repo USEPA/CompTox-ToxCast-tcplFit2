@@ -15,6 +15,8 @@
 #' @param lower Lower concentration bound, usually is the lowest concentration in the data
 #' @param upper Upper concentration bound, usually the highest concentration in the data
 #' @param ps Vector (or list) of model parameters for the specified model in fit_method
+#' @param return.abs Logical argument, defaults to FALSE.
+#' If set to TRUE, the function will convert the negative AUC value to positive and return.
 #'
 #' @return AUC value
 #'
@@ -28,7 +30,7 @@
 #'                 la = 4288.993, q = 5.770, er = -3.295)
 #' get_AUC("exp2", min(conc), max(conc), ps = modpars)
 #'
-get_AUC <- function(fit_method, lower, upper, ps) {
+get_AUC <- function(fit_method, lower, upper, ps, return.abs = FALSE) {
 
   # special cases - models in log scale, hill and gnls
   if (fit_method %in% c("hill", "gnls")) {
@@ -60,7 +62,12 @@ get_AUC <- function(fit_method, lower, upper, ps) {
                    upper,
                    ps = unlist(ps))
 
-  return(out$value)
+
+  if (return.abs) {
+    return(abs(out$value))
+  } else {
+    return(out$value)
+  }
 
 }
 
