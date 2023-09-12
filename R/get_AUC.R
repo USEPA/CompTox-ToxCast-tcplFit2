@@ -1,22 +1,20 @@
-#' Calculate AUC
+#' Calculate Area Under the Curve (AUC)
 #'
-#' Function that calculates AUC for dose-response curves
+#' Function that calculates area under the curve (AUC) for dose-response curves
 #'
-#' This function takes in a type of model and a set of model parameters,
-#' and return the Area under the curve (AUC) between the lower and upper
+#' This function takes in the model name and the respective set of model parameters,
+#' and returns the area under the curve (AUC) between the specified lower and upper
 #' concentration bounds. AUC can be used to compute an efficacy/ potency
 #' metric for "active" does-response curves. The model parameters should be
-#' entered as a list or a vector. For models operate in log scale (hill and
+#' entered as a list or a vector. For models operate in log10-scale (hill and
 #' gain-loss), the lower and upper concentration bounds, "ga" (gain AC50)
-#' and "la" (loss AC50) will be converted to log-scale if applicable.
-#' This version hasn't taken consideration into how to appropriately work with
-#' decreasing curves. One of the future works to do.
+#' and "la" (loss AC50) will be converted to log10-scale if applicable.
 #'
 #'
-#' @param fit_method name of the model
-#' @param lower lower bound for x
-#' @param upper upper bound for x
-#' @param ps model parameter vector
+#' @param fit_method Name of the model to calculate area under the curve (AUC) for
+#' @param lower Lower concentration bound, usually is the lowest concentration in the data
+#' @param upper Upper concentration bound, usually the highest concentration in the data
+#' @param ps Vector (or list) of model parameters for the specified model in fit_method
 #'
 #' @return AUC value
 #'
@@ -57,10 +55,12 @@ get_AUC <- function(fit_method, lower, upper, ps) {
   }
 
   # calculate and return AUC
-  return(integrate(get(fit_method),
-                      lower,
-                      upper,
-                      ps = unlist(ps))$value)
+  out <- integrate(get(fit_method),
+                   lower,
+                   upper,
+                   ps = unlist(ps))
+
+  return(out$value)
 
 }
 

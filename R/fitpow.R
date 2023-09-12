@@ -1,6 +1,6 @@
 #' Power Model Fit
 #'
-#' Function that fits tof(x) = a*x^p and returns generic model outputs.
+#' Function that fits to \eqn{f(x) = a*x^p} and returns generic model outputs.
 #'
 #' Zero background and monotonically increasing absolute response are assumed.
 #' Parameters are "a" (y scale), "p" (power), and error term "er".

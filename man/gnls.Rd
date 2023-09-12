@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{gnls}
 \alias{gnls}
-\title{Gain-Loss Model - ps[1] * (1/(1 + (ps[2]/x)^ps[3])) * (1/(1 + (x/ps[4])^ps[5]))}
+\title{Gain-Loss Model}
 \usage{
 gnls(ps, x)
 }
@@ -15,7 +15,7 @@ gnls(ps, x)
 Vector of model responses
 }
 \description{
-Gain-Loss Model - ps[1] * (1/(1 + (ps[2]/x)^ps[3])) * (1/(1 + (x/ps[4])^ps[5]))
+\eqn{f(x) = \frac{tp}{[(1 + (ga/x)^p )(1 + (x/la)^q )]}}
 }
 \examples{
 gnls(c(1,2,1,2,2),1)

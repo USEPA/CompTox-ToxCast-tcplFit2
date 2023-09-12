@@ -2,12 +2,12 @@
 % Please edit documentation in R/tcplObj.R
 \name{loggnls}
 \alias{loggnls}
-\title{Log Gain-Loss Model - ps[1] * (1/(1 + 10^((ps[2] - x)*ps[3]))) * (1/(1 + 10^((x - ps[4])*ps[5])))}
+\title{Log Gain-Loss Model}
 \usage{
 loggnls(ps, x)
 }
 \arguments{
-\item{ps}{Vector of parameters: tp,ga,p,la,q,er}
+\item{ps}{Vector of parameters: tp,ga,p,la,q,er (ga and la are in log10-scale)}
 
 \item{x}{Vector of concentrations (log10 units)}
 }
@@ -15,7 +15,7 @@ loggnls(ps, x)
 Vector of model responses
 }
 \description{
-Log Gain-Loss Model - ps[1] * (1/(1 + 10^((ps[2] - x)*ps[3]))) * (1/(1 + 10^((x - ps[4])*ps[5])))
+\eqn{f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))} )]}}
 }
 \examples{
 loggnls(c(1,2,1,2,2),1)

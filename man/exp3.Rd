@@ -2,7 +2,7 @@
 % Please edit documentation in R/tcplObj.R
 \name{exp3}
 \alias{exp3}
-\title{Exponential 3 Model - ps[1]*(exp((x/ps[2])^ps[3]) - 1)}
+\title{Exponential 3 Model}
 \usage{
 exp3(ps, x)
 }
@@ -15,7 +15,7 @@ exp3(ps, x)
 Vector of model responses
 }
 \description{
-Exponential 3 Model - ps[1]*(exp((x/ps[2])^ps[3]) - 1)
+\eqn{f(x) = a*(e^{(x/b)^p} - 1)}
 }
 \examples{
 exp3(c(1,2,2),1)

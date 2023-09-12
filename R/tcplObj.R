@@ -47,7 +47,9 @@ tcplObj = function(p, conc, resp, fname, errfun = "dt4", err = NULL) {
 
 }
 
-#' Constant Model - returns zero
+#' Constant Model
+#'
+#' \eqn{f(x) = 0}
 #'
 #' @param ps Vector of parameters (ignored)
 #' @param x Vector of concentrations (regular units)
@@ -62,7 +64,9 @@ cnst = function(ps,x){
   return(rep(0,length(x)))
 }
 
-#' Exponential 2 Model - ps[1]*(exp(x/ps[2]) - 1)
+#' Exponential 2 Model
+#'
+#' \eqn{f(x) = a*(e^{(x/b)}- 1)}
 #'
 #' @param ps Vector of parameters: a,b,er
 #' @param x Vector of concentrations (regular units)
@@ -77,7 +81,9 @@ exp2 = function(ps,x){
   return(ps[1]*(exp(x/ps[2]) - 1)  )
 }
 
-#' Exponential 3 Model - ps[1]*(exp((x/ps[2])^ps[3]) - 1)
+#' Exponential 3 Model
+#'
+#' \eqn{f(x) = a*(e^{(x/b)^p} - 1)}
 #'
 #' @param ps Vector of parameters: a,b,p,er
 #' @param x Vector of concentrations (regular units)
@@ -92,7 +98,9 @@ exp3 = function(ps,x){
   return(ps[1]*(exp((x/ps[2])^ps[3]) - 1)  )
 }
 
-#' Exponential 4 Model- ps[1]*(1-2^(-x/ps[2]))
+#' Exponential 4 Model
+#'
+#' \eqn{f(x) = tp*(1-2^{(-x/ga)})}
 #'
 #' @param ps Vector of parameters: tp,ga,er
 #' @param x Vector of concentrations (regular units)
@@ -107,7 +115,9 @@ exp4 = function(ps,x){
   return(ps[1]*(1-2^(-x/ps[2]))  )
 }
 
-#' Exponential 5 Model - ps[1]*(1-2^(-(x/ps[2])^ps[3]))
+#' Exponential 5 Model
+#'
+#' \eqn{f(x) = tp*(1-2^{(-(x/ga)^p)})}
 #'
 #' @param ps Vector of parameters: tp,ga,p,er
 #' @param x Vector of concentrations (regular units)
@@ -122,7 +132,9 @@ exp5 = function(ps,x){
   return(ps[1]*(1-2^(-(x/ps[2])^ps[3]))  )
 }
 
-#' Gain-Loss Model - ps[1] * (1/(1 + (ps[2]/x)^ps[3])) * (1/(1 + (x/ps[4])^ps[5]))
+#' Gain-Loss Model
+#'
+#' \eqn{f(x) = \frac{tp}{[(1 + (ga/x)^p )(1 + (x/la)^q )]}}
 #'
 #' @param ps Vector of parameters: tp,ga,p,la,q,er
 #' @param x Vector of concentrations (regular units)
@@ -140,9 +152,11 @@ gnls = function(ps, x){
   return(ps[1]*gn*ls )
 }
 
-#' Log Gain-Loss Model - ps[1] * (1/(1 + 10^((ps[2] - x)*ps[3]))) * (1/(1 + 10^((x - ps[4])*ps[5])))
+#' Log Gain-Loss Model
 #'
-#' @param ps Vector of parameters: tp,ga,p,la,q,er
+#' \eqn{f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))} )]}}
+#'
+#' @param ps Vector of parameters: tp,ga,p,la,q,er (ga and la are in log10-scale)
 #' @param x Vector of concentrations (log10 units)
 #'
 #' @return Vector of model responses
@@ -158,7 +172,9 @@ loggnls = function(ps, x){
   return(ps[1]*gn*ls )
 }
 
-#' Hill Model - ps[1]/(1 +  (ps[2]/x)^ps[3])
+#' Hill Model
+#'
+#' \eqn{f(x) = \frac{tp}{[(1 + (ga/x)^p )]}}
 #'
 #' @param ps Vector of parameters: tp,ga,p,er
 #' @param x Vector of concentrations (regular units)
@@ -174,12 +190,14 @@ hillfn = function(ps,x){
   return(ps[1]/(1 +  (ps[2]/x)^ps[3]) )
 }
 
-#' Log Hill Model - ps[1]/(1 + 10^(ps[3]*(ps[2]-x)))
+#' Log Hill Model
 #'
-#' @param ps Vector of parameters: tp,ga,p,er
+#' \eqn{f(x) = \frac{tp}{(1 + 10^{(p*(ga-x))} )}}
+#'
+#' @param ps Vector of parameters: tp,ga,p,er (ga is in log10-scale)
 #' @param x Vector of concentrations (log10 units)
 #'
-#' @return Vector of model responses
+#' @return Vector of model responses.
 #' @export
 #' @examples
 #' loghill(c(1,2,3),1)
@@ -190,7 +208,9 @@ loghill = function(ps,x){
   return(ps[1]/(1 + 10^(ps[3]*(ps[2]-x)) ) )
 }
 
-#' Polynomial 1 Model - ps[1]*x
+#' Polynomial 1 Model
+#'
+#' \eqn{f(x) = a*x}
 #'
 #' @param ps Vector of parameters: a,er
 #' @param x Vector of concentrations (regular units)
@@ -205,7 +225,9 @@ poly1 = function(ps,x){
   return(ps[1]*x)
 }
 
-#' Polynomial 2 Model - ps[1]*(x0 + x0*x0)
+#' Polynomial 2 Model
+#'
+#' \eqn{f(x) = a*(\frac{x}{b} + \frac{x^2}{b^2})}
 #'
 #' @param ps Vector of parameters: a,b,er
 #' @param x Vector of concentrations (regular units)
@@ -221,7 +243,9 @@ poly2 = function(ps,x){
   return(ps[1]*(x0 + x0*x0))
 }
 
-#' Power Model - ps[1]*x^ps[2]
+#' Power Model
+#'
+#' \eqn{f(x) = a*x^p}
 #'
 #' @param ps Vector of parameters: a,p,er
 #' @param x Vector of concentrations (regular units)
