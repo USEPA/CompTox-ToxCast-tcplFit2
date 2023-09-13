@@ -66,7 +66,7 @@
 #'   }
 #' @export
 #'
-tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL) {
+tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL, errfun = "dt4") {
   # initialize parameters to NA
   a <- b <- tp <- p <- q <- ga <- la <- er <- top <- ac50 <- ac50_loss <- ac5 <- ac10 <- ac20 <- acc <- ac1sd <- bmd <- NA_real_
   bmdl <- bmdu <- caikwt <- mll <- NA_real_
@@ -131,7 +131,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     mll <- length(modpars) - aics[[fit_method]] / 2
     hitcall <- hitcontinner(conc, resp, top, cutoff, er,
       ps = unlist(modpars), fit_method,
-      caikwt = caikwt, mll = mll
+      caikwt = caikwt, mll = mll, errfun = errfun
     )
   } else {
     hitcall <- hitloginner(conc, resp, top, cutoff, ac50)
