@@ -10,6 +10,9 @@
 #' @param conc Vector of concentration values NOT in log units.
 #' @param resp Vector of corresponding responses.
 #' @param nofit If nofit = TRUE, returns formatted output filled with missing values.
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #' @param ... Space for parameters so fitcnst can be called similar to other fitting functions (currently unused)
 #'
 #' @return List of five elements: success, aic (Akaike Information Criteria),
@@ -21,7 +24,7 @@
 #' @examples
 #' fitcnst(c(.1,1,10,100), c(1,2,0,-1))
 #' fitcnst(c(.1,1,10,100), c(1,2,0,-1), nofit = TRUE)
-fitcnst = function(conc, resp, nofit = FALSE, ...){
+fitcnst = function(conc, resp, nofit = FALSE, errfun = "dt4", ...){
 
   pars <- "er"
   myparams = c("success", "aic", "rme","er")
@@ -45,7 +48,8 @@ fitcnst = function(conc, resp, nofit = FALSE, ...){
                                reltol = 1e-4,
                                maxit = 500),
                 conc = conc,
-                resp = resp)
+                resp = resp,
+                errfun = errfun)
   if (!is(fit, "try-error")) {
     success <- 1L
     er <- fit$par
