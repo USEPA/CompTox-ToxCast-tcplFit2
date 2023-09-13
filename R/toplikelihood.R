@@ -31,7 +31,7 @@
 #' toplikelihood(fname, cutoff = .8, conc, resp, ps, top, mll)
 #' toplikelihood(fname, cutoff = 1, conc, resp, ps, top, mll)
 #' toplikelihood(fname, cutoff = 1.2, conc, resp, ps, top, mll)
-toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll){
+toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"){
 
   #reparameterize so that top is exactly at cutoff
   if(fname == "exp2"){
@@ -56,7 +56,7 @@ toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll){
   }
   #get loglikelihood of top exactly at cutoff, use likelihood profile test
   # to calculate probability of being above cutoff
-  loglik = tcplObj(p = ps, conc = conc, resp = resp, fname = fname)
+  loglik = tcplObj(p = ps, conc = conc, resp = resp, fname = fname, errfun = errfun)
   if(abs(top) >= cutoff) out = (1 + pchisq(2*(mll - loglik), 1))/2
   if(abs(top) < cutoff) out = (1 - pchisq(2*(mll - loglik), 1))/2
 

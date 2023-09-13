@@ -34,7 +34,7 @@
 #' hitcontinner(conc,resp,top,cutoff = 0.8, er,ps,fit_method, caikwt, mll)
 #' hitcontinner(conc,resp,top,cutoff = 1, er,ps,fit_method, caikwt, mll)
 #' hitcontinner(conc,resp,top,cutoff = 1.2, er,ps,fit_method, caikwt, mll)
-hitcontinner = function(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll){
+hitcontinner = function(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll, errfun = "dt4"){
 
   #Each P represents the odds of the curve being a hit according to different criteria; multiply all Ps to get hit odds overall
   if(fit_method == "none") return(0)
@@ -45,16 +45,22 @@ hitcontinner = function(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll
 
   P2 = 1
   med_resp <- aggregate(resp ~ conc, data = data.frame(conc,resp), FUN = median)
-  for(y in med_resp$resp){
-    #multiply odds of each point falling below cutoff to get odds of all falling below
-    P2 = P2*pt((y-sign(top)*cutoff)/exp(er),4, lower.tail = top < 0) #use lower tail for positive top and upper tail for neg top
+  if (errfun == "dt4") {
+    for(y in med_resp$resp){
+      #multiply odds of each point falling below cutoff to get odds of all falling below
+      P2 = P2*pt((y-sign(top)*cutoff)/exp(er),4, lower.tail = top < 0) #use lower tail for positive top and upper tail for neg top
+    }
+  } else if (errfun == "dnorm"){
+    for(y in med_resp$resp){
+      P2 = P2*pnorm((y-sign(top)*cutoff)/exp(er), lower.tail = top < 0)
+    }
   }
   P2 = 1- P2 #odds of at least one point above cutoff
 
   # P3 = pnorm((top-cutoff)/topsd) #odds of top above cutoff
   #assume ps may have nas in them
   ps = ps[!is.na(ps)]
-  P3 = toplikelihood(fname, cutoff, conc, resp, ps, top, mll) #odds of top above cutoff
+  P3 = toplikelihood(fname, cutoff, conc, resp, ps, top, mll, errfun = errfun) #odds of top above cutoff
 
   #multiply three probabilities
   return(P1*P2*P3)
