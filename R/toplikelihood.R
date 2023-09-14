@@ -15,6 +15,9 @@
 #' @param ps Vector of parameters, must be in order: a, tp, b, ga, p, la, q, er
 #' @param top Model top.
 #' @param mll Winning model maximum log-likelihood.
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #'
 #' @importFrom stats pchisq
 #'

@@ -26,6 +26,9 @@
 #'   than 1/10th of the lowest concentration tested.
 #' @param bmd_up_bnd Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
 #'   than 10 times the highest concentration tested.
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:

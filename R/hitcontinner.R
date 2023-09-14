@@ -15,6 +15,9 @@
 #' @param fit_method Name of winning fit method (should never be constant).
 #' @param caikwt Akaike weight of constant model relative to winning model.
 #' @param mll Maximum log-likelihood of winning model.
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #'
 #' @importFrom stats pt
 #' @importFrom stats aggregate
