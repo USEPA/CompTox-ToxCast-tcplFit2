@@ -1,0 +1,353 @@
+---
+title: "Available Curves in tcplfit2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Available Curves in tcplfit2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tcplfit2)
+library(ggplot2)
+
+data("mc3")
+ex_conc <- seq(10^(min(mc3[,"logc"])),10^(max(mc3[,"logc"])),length.out = 100)
+```
+
+This documentation shows curve shapes supported in tcplfit2. 
+Continous model
+
+# exp2
+```{r}
+fits_exp2 <- data.frame(
+  # base line 
+  y1 = exp2(ps = c(a = 0.45,b = 12,er = 0.1), x = ex_conc),
+  
+  # change a
+  y2 = exp2(ps = c(a = 1.5,b = 12,er = 0.1), x = ex_conc),
+  y3 = exp2(ps = c(a = 0.1,b = 12,er = 0.1), x = ex_conc),
+  
+  # change b
+  y4 = exp2(ps = c(a = 0.45,b = 13.5,er = 0.1), x = ex_conc),
+  y5 = exp2(ps = c(a = 0.45,b = 9,er = 0.1), x = ex_conc)
+  
+)
+
+exp2_plot1 <- ggplot(fits_exp2, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "a=0.45")) +
+     geom_line(aes(y = y2, color = "a=0.6")) +
+   geom_line(aes(y = y3, color = "a=0.1")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='a values',
+                     breaks=c('a=0.45', 'a=0.6', 'a=0.1'),
+                     values=c('a=0.45'='black', 'a=0.6'='red', 'a=0.1'='green'))
+
+exp2_plot2 <- ggplot(fits_exp2, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "b=12")) +
+     geom_line(aes(y = y4, color = "b=13.5")) +
+   geom_line(aes(y = y5, color = "b=9")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='b values',
+                     breaks=c('b=12', 'b=13.5', 'b=9'),
+                     values=c('b=12'='black', 'b=13.5'='red', 'b=9'='green'))
+
+
+exp2_plot1
+exp2_plot2
+
+```
+
+
+```{r}
+fits_exp3 <- data.frame(
+  # base line 
+  y1 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.87,er = 0.1), x = ex_conc),
+  
+  # change a
+  y2 = exp3(ps = c(a = 0.8,b = 12.5,p = 0.87,er = 0.1), x = ex_conc),
+  y3 = exp3(ps = c(a = 2.5,b = 12.5,p = 0.87,er = 0.1), x = ex_conc),
+  
+  # change b
+  y4 = exp3(ps = c(a = 1.67,b = 11,p = 0.87,er = 0.1), x = ex_conc),
+  y5 = exp3(ps = c(a = 1.67,b = 14,p = 0.87,er = 0.1), x = ex_conc),
+  
+  # change p
+  y6 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.9,er = 0.1), x = ex_conc),
+  y7 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.7,er = 0.1), x = ex_conc)
+  
+)
+
+exp3_plot1 <- ggplot(fits_exp3, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "a=1.67")) +
+     geom_line(aes(y = y2, color = "a=0.8")) +
+   geom_line(aes(y = y3, color = "a=2.5")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='a values',
+                     breaks=c('a=1.67', 'a=0.8', 'b=9'),
+                     values=c('a=1.67'='black', 'a=0.8' = 'red', 'a=2.5'='green'))
+
+exp3_plot2 <- ggplot(fits_exp3, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "b=12.5")) +
+     geom_line(aes(y = y4, color = "b=11")) +
+   geom_line(aes(y = y5, color = "b=14")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='b values',
+                     breaks=c('b=12.5', 'b=11', 'b=14'),
+                     values=c('b=12.5'='black', 'b=11'='red', 'b=14'='green'))
+
+exp3_plot3 <- ggplot(fits_exp3, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "p=0.87")) +
+     geom_line(aes(y = y6, color = "p=0.9")) +
+   geom_line(aes(y = y7, color = "p=0.7")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='p values',
+                     breaks=c('p=0.87', 'p=0.9', 'p=0.7'),
+                     values=c('p=0.87'='black', 'p=0.9'='red', 'p=0.7'='green'))
+
+exp3_plot1
+exp3_plot2
+exp3_plot3
+```
+
+
+```{r}
+fits_exp4 <- data.frame(
+  # base line 
+  y1 = exp4(ps = c(tp = 895,ga = 15,er = 0.1),x = ex_conc),
+  
+  # change tp
+  y2 = exp4(ps = c(tp = 950,ga = 15,er = 0.1),x = ex_conc),
+  y3 = exp4(ps = c(tp = 700,ga = 15,er = 0.1),x = ex_conc),
+  
+  # change ga
+  y4 = exp4(ps = c(tp = 895,ga = 18,er = 0.1),x = ex_conc),
+  y5 = exp4(ps = c(tp = 895,ga = 10,er = 0.1),x = ex_conc)
+  
+)
+
+exp4_plot1 <- ggplot(fits_exp4, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "tp=895")) +
+     geom_line(aes(y = y2, color = "tp=950")) +
+   geom_line(aes(y = y3, color = "tp=700")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='tp values',
+                     breaks=c('tp=895', 'tp=950', 'tp=700'),
+                     values=c('tp=895'='black', 'tp=950'='red', 'tp=700'='green'))
+
+exp4_plot2 <- ggplot(fits_exp4, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "ga=15")) +
+     geom_line(aes(y = y4, color = "ga=18")) +
+   geom_line(aes(y = y5, color = "ga=10")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='ga values',
+                     breaks=c('ga=15', 'ga=18', 'ga=10'),
+                     values=c('ga=15'='black', 'ga=18'='red', 'ga=10'='green'))
+
+
+exp4_plot1
+exp4_plot2
+```
+
+
+```{r}
+fits_exp5 <- data.frame(
+  # base line 
+  y1 = exp5(ps = c(tp = 793,ga = 6.25,p = 1.25,er = 0.1), x = ex_conc),
+  
+  # change tp
+  y2 = exp5(ps = c(tp = 900,ga = 6.25,p = 1.25,er = 0.1), x = ex_conc),
+  y3 = exp5(ps = c(tp = 500,ga = 6.25,p = 1.25,er = 0.1), x = ex_conc),
+  
+  # change ga
+  y4 = exp5(ps = c(tp = 793,ga = 8.2,p = 1.25,er = 0.1), x = ex_conc),
+  y5 = exp5(ps = c(tp = 793,ga = 6,p = 1.25,er = 0.1), x = ex_conc),
+  
+  # change p
+  y6 = exp5(ps = c(tp = 793,ga = 6.25,p = 0.97,er = 0.1), x = ex_conc),
+  y7 = exp5(ps = c(tp = 793,ga = 6.25,p = 1.5,er = 0.1), x = ex_conc)
+  
+)
+
+exp5_plot1 <- ggplot(fits_exp5, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "tp=793")) +
+     geom_line(aes(y = y2, color = "tp=900")) +
+   geom_line(aes(y = y3, color = "tp=500")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='tp values',
+                     breaks=c('tp=793', 'tp=900', 'tp=500'),
+                     values=c('tp=793'='black', 'tp=900' = 'red', 'tp=500'='green'))
+
+exp5_plot2 <- ggplot(fits_exp5, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "ga=6.25")) +
+     geom_line(aes(y = y4, color = "ga=8.2")) +
+   geom_line(aes(y = y5, color = "ga=6")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='ga values',
+                     breaks=c('ga=6.25', 'ga=8.2', 'ga=6'),
+                     values=c('ga=6.25'='black', 'ga=8.2'='red', 'ga=6'='green'))
+
+exp5_plot3 <- ggplot(fits_exp5, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "p=1.25")) +
+     geom_line(aes(y = y6, color = "p=0.99")) +
+   geom_line(aes(y = y7, color = "p=1.5")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='p values',
+                     breaks=c('p=1.25', 'p=0.97', 'p=1.5'),
+                     values=c('p=1.25'='black', 'p=0.97'='red', 'p=1.5'='green'))
+
+exp5_plot1
+exp5_plot2
+exp5_plot3
+```
+
+```{r}
+fits_poly <- data.frame(
+  # base line 
+  y1 = poly1(ps = c(a = 3.5,er = 0.1),x = ex_conc),
+  y1.2 = poly2(ps = c(a = 0.13,b = 2,er = 0.1),x = ex_conc),
+  
+  # change a for poly1
+  y2 = poly1(ps = c(a = 5,er = 0.1),x = ex_conc),
+  y3 = poly1(ps = c(a = 2.6,er = 0.1),x = ex_conc),
+
+  # change a for poly2
+  y4 = poly2(ps = c(a = 1, b = 2,er = 0.1),x = ex_conc),
+  y5 = poly2(ps = c(a = 0.1, b = 2,er = 0.1),x = ex_conc),
+  
+  # change b for poly2
+  y6 = poly2(ps = c(a = 0.13,b = 4,er = 0.1),x = ex_conc),
+  y7 = poly2(ps = c(a = 0.13,b = 0.5,er = 0.1),x = ex_conc)
+  
+)
+
+poly1_plot <- ggplot(fits_poly, aes(ex_conc)) +  
+     geom_line(aes(y = y1, color = "a=3.5")) +
+     geom_line(aes(y = y2, color = "a=5")) +
+     geom_line(aes(y = y3, color = "a=2.6")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='a values',
+                     breaks=c('a=3.5', 'a=5', 'a=2.6'),
+                     values=c('a=3.5'='black', 'a=5' = 'red', 'a=2.6'='green'))
+
+poly2_plot1 <- ggplot(fits_poly, aes(ex_conc)) +  
+    geom_line(aes(y = y1.2, color = "a=0.13")) +
+     geom_line(aes(y = y4, color = "a=1")) +
+   geom_line(aes(y = y5, color = "a=0.1")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='a values',
+                     breaks=c('a=0.13', 'a=1', 'a=0.1'),
+                     values=c('a=0.13'='black', 'a=1'='red', 'a=0.1'='green'))
+
+poly2_plot2 <- ggplot(fits_poly, aes(ex_conc)) +  
+    geom_line(aes(y = y1.2, color = "b=2")) +
+     geom_line(aes(y = y6, color = "b=4")) +
+   geom_line(aes(y = y7, color = "b=0.5")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='b values',
+                     breaks=c('b=2', 'b=4', 'b=0.5'),
+                     values=c('b=2'='black', 'b=4'='red', 'b=0.5'='green'))
+
+poly1_plot
+poly2_plot1
+poly2_plot2
+```
+
+
+```{r}
+fits_pow <- data.frame(
+  # base line 
+  y1 = pow(ps = c(a = 1.23,p = 1.45,er = 0.1),x = ex_conc),
+  
+  # change a
+  y2 = pow(ps = c(a = 3.2,p = 1.45,er = 0.1),x = ex_conc),
+  y3 = pow(ps = c(a = 0.8,p = 1.45,er = 0.1),x = ex_conc),
+  
+  # change p
+  y4 = pow(ps = c(a = 1.23,p = 1.5,er = 0.1),x = ex_conc),
+  y5 = pow(ps = c(a = 1.23,p = 1.2,er = 0.1),x = ex_conc)
+  
+)
+
+pow_plot1 <- ggplot(fits_pow, aes(ex_conc)) +  
+     geom_line(aes(y = y1, color = "a=1.23")) +
+     geom_line(aes(y = y2, color = "a=3.2")) +
+     geom_line(aes(y = y3, color = "a=0.8")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='a values',
+                     breaks=c('a=1.23', 'a=3.2', 'a=0.8'),
+                     values=c('a=1.23'='black', 'a=3.2'='red', 'a=0.8'='green'))
+
+pow_plot2 <- ggplot(fits_pow, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "p=1.45")) +
+     geom_line(aes(y = y4, color = "p=1.5")) +
+   geom_line(aes(y = y5, color = "p=1.2")) +
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='p values',
+                     breaks=c('p=1.45', 'p=1.5', 'p=1.2'),
+                     values=c('p=1.45'='black', 'p=1.5'='red', 'p=1.2'='green'))
+
+
+pow_plot1
+pow_plot2
+```
+
+```{r}
+fits_hill <- data.frame(
+  # base line 
+  y1 = hillfn(ps = c(tp = 750,ga = 5,p = 1.76,er = 0.1), x = ex_conc),
+  
+  # change tp
+  y2 = hillfn(ps = c(tp = 850,ga = 5,p = 1.76,er = 0.1), x = ex_conc),
+
+  # change ga
+  y3 = hillfn(ps = c(tp = 750,ga = 7,p = 1.76,er = 0.1), x = ex_conc),
+  y4 = hillfn(ps = c(tp = 750,ga = 4,p = 1.76,er = 0.1), x = ex_conc),
+  
+  # change p
+  y5 = hillfn(ps = c(tp = 750,ga = 5,p = 2,er = 0.1), x = ex_conc),
+  y6 = hillfn(ps = c(tp = 750,ga = 5,p = 1.5,er = 0.1), x = ex_conc)
+  
+)
+
+pow_plot2 <- ggplot(fits_hill, aes(ex_conc)) +  
+    geom_line(aes(y = y1, color = "baseline")) +
+     geom_line(aes(y = y2, color = "tp=850")) +
+   geom_line(aes(y = y3, color = "ga=7")) +
+  geom_line(aes(y = y4, color = "ga=4")) +
+  geom_line(aes(y = y5, color = "p=2")) +
+  geom_line(aes(y = y6, color = "p=1.5"))
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='p values',
+                     values=c('baseline'='black', 'tp=850'='red', 'ga=7'='green',
+                              'ga=4' = 'blue', 'p=2'='pink', 'p=1.5'='yellow'))
+  
+pow_plot2
+```
+
+
+
+
