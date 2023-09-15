@@ -6,7 +6,7 @@
 #' hit-calling.
 #'
 #'
-#' @param output output from concRespCore or tcplhit2_core
+#' @param hit_results output from tcplhit2_core
 #'
 #' @return AUC value of the winning model
 #'
@@ -29,24 +29,18 @@
 #' post_hit_AUC(output)
 #'
 #'
-post_hit_AUC <- function(output) {
-
-  # in case user select return.detail = TRUE in concRespCore,
-  # the output will be a list of 2
-  if (is.null(nrow(output))) {
-    output <- output[[1]]
-  }
+post_hit_AUC <- function(hit_results) {
 
   # parameter list
   param <- c("a","tp","b","ga","p", "la", "q", "er")
 
   # get concentrations
-  conc <- as.numeric(str_split(output[1,"conc"],"\\|")[[1]])
+  conc <- as.numeric(str_split(hit_results[1,"conc"],"\\|")[[1]])
   # get fitted values of the winning model
-  modpars <- unlist(output[1, param])
+  modpars <- unlist(hit_results[1, param])
   modpars <- modpars[!is.na(modpars)]
   # get the winning model name
-  fit_method <- output[["fit_method"]]
+  fit_method <- hit_results[["fit_method"]]
 
   # return AUC
   return(get_AUC(fit_method, min(conc), max(conc), ps = modpars))
