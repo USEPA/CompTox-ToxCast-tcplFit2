@@ -22,11 +22,21 @@ data("mc3")
 ex_conc <- seq(10^(min(mc3[,"logc"])),10^(max(mc3[,"logc"])),length.out = 100)
 ```
 
-This documentation shows curve shapes supported in tcplfit2. 
-Continous model
+This vignette contains model details for all models available in `tcplfit2` package with parameter  explanations and plots.  
 
-# exp2
-```{r}
+# Continuous Response Model
+
+## Exponential 2
+Model: $f(x) = a*(e^{\frac{x}{b}}-1) $
+
+Parameters: 
+1. a 
+    + y-scale. If |a| > 1 and increases, the curve is stretched vertically. If 0 <|a| < 1 and decreases, the curve is shrunk vertically. Great summary from here. 
+2. b
+•	mathematical meaning: x-scale. If b >1 and increase, the curve is shrunk horizontally. If 0 < b < 1 and decrease, the curve is stretched horizontally. If b < 0, the curve is decreasing toward a horizontal asymptote x= -a.
+
+
+```{r, exp2}
 fits_exp2 <- data.frame(
   # base line 
   y1 = exp2(ps = c(a = 0.45,b = 12,er = 0.1), x = ex_conc),
@@ -67,6 +77,11 @@ exp2_plot2
 
 ```
 
+## Exponential 3
+Exp3 - a*(exp((x/b)^p - 1)
+it's a and b are similar with those in Exponential 2, but it has one additional parameter p
+1.	p 
+•	mathematical meaning: power. A measure of how steep the curve is. 
 
 ```{r}
 fits_exp3 <- data.frame(
@@ -122,6 +137,14 @@ exp3_plot2
 exp3_plot3
 ```
 
+## Exponential 4
+$y = \text{tp}*(1-2^{(\frac{-x}{\text{ga}})})$
+
+1.	tp
+•	Top. The horizontal asymptote the curve is approaching (also can be negative); the maximum or minimum of the predicted responses. 
+2.	ga 
+• AC50. Concentration at 50% of maximal activity, acts as slope for x, control how fast the curve is approaching the top. If ga increases, the curve is shrunk horizontally; if ga decrease, the curve is stretched horizontally. 
+
 
 ```{r}
 fits_exp4 <- data.frame(
@@ -162,6 +185,14 @@ exp4_plot2 <- ggplot(fits_exp4, aes(ex_conc)) +
 exp4_plot1
 exp4_plot2
 ```
+
+
+## exp5
+Exp5 - tp*(1-2^(-(x/ga)^p))
+tp and ga are similar to those in exp4, this has one additional 
+1.	p 
+•	mathematical meaning: power. A measure of how steep the curve is. 
+ 
 
 
 ```{r}
@@ -218,6 +249,23 @@ exp5_plot2
 exp5_plot3
 ```
 
+
+## polynomial 1 & 2
+
+Polynomial 1 is linear line $y = ax$ where a is the slope of the line. 
+
+polynimiao 2 in this package has slightly different parameterzation 
+
+The normal polynimial 2 is $y = ax^2+bx+c$
+
+The package is $a(\frac{x}{b} + \frac{x^2}{b^2})$. 
+
+The vertex of a curve is determined by (-b/2, -a/4).
+1.	a 
+•	mathematical meaning: y scale. The sign of this parameter determines if the vertex will land below or below x-axis. If |a| >0 and increases, the curve is stretched vertically. If 0 <|a| < 1 and decreases, the curve is shrunk vertically.
+2.	b 
+•	mathematical meaning: x scale. The sign of this parameter determines if vertex will land on II/III or I/IV quadrants. B is restricted to be non-negative, so a's sign controls the directionality of the curve. If b increase, the curve is shrunk horizontally, and if b decrease, the curve is stretched horizontally. 
+
 ```{r}
 fits_poly <- data.frame(
   # base line 
@@ -273,6 +321,15 @@ poly2_plot1
 poly2_plot2
 ```
 
+## power 
+
+$y=a*x^b$
+1.	a
+•	mathematical meaning: Scaling factor, moving the values of x^b up or down as it increases or decrease. Also control directionality. Also called slope in BMDS user guide.
+
+2.	p
+•	power. Rate of growth. Restricted to be larger than 0 or 1. 
+
 
 ```{r}
 fits_pow <- data.frame(
@@ -314,6 +371,24 @@ pow_plot1
 pow_plot2
 ```
 
+
+## Hill
+
+Hill model is the only one has biological rational behind the parameter, included common interpretation of hill parameters here. 
+
+1.	tp 
+•	mathematical meaning: top, the horizontal asymptote the curve is approaching 
+•	Biological meaning (if applicable): the highest or lowest response achieved at saturation
+ 
+2.	ga 
+•	mathematical meaning: AC50. Concentration at 50% of maximal activity
+•	Biological meaning (if applicable): provides useful information about the "apparent affinity" of the protein under study (enzyme, transporter, etc.) for the substrate.
+ 
+3.	P
+•	mathematical meaning: Hill coefficient, acts as power, a measure of how steep the response curve is
+•	Biological meaning (if applicable): a measure of the cooperativity of substrate binding to the enzyme, transporter, etc.
+
+
 ```{r}
 fits_hill <- data.frame(
   # base line 
@@ -332,7 +407,7 @@ fits_hill <- data.frame(
   
 )
 
-pow_plot2 <- ggplot(fits_hill, aes(ex_conc)) +  
+hill_plot <- ggplot(fits_hill, aes(log10(ex_conc))) +  
     geom_line(aes(y = y1, color = "baseline")) +
      geom_line(aes(y = y2, color = "tp=850")) +
    geom_line(aes(y = y3, color = "ga=7")) +
@@ -345,9 +420,53 @@ pow_plot2 <- ggplot(fits_hill, aes(ex_conc)) +
                      values=c('baseline'='black', 'tp=850'='red', 'ga=7'='green',
                               'ga=4' = 'blue', 'p=2'='pink', 'p=1.5'='yellow'))
   
-pow_plot2
+hill_plot
 ```
 
+
+## Gain-Loss
+
+Gain-Loss is the product of two hill functions, one simulates the response going up, one simulates the responses going down. A curve can gain first and then loss or the opposite. 
+1.	tp: maximum or minimum of the predicted response
+2.	ga - gain AC50, the smaller the faster the curve approach to top (if increase first); 
+3.	p - growth power, rate of gain
+4.	la - loss AC50, the larger it gets the slower the curve starts to decrease (if it increase first)
+5.	q - loss power, rate of loss 
+
+
+```{r}
+fits_gnls <- data.frame(
+  # base line 
+  y1 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 50,q = 1.34, er = 0.1), x = ex_conc),
+  
+  # change tp
+  y2 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 50,q = 1.34, er = 0.1), x = ex_conc),
+
+  # change ga
+  y3 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 50,q = 1.34, er = 0.1), x = ex_conc),
+  y4 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 50,q = 1.34, er = 0.1), x = ex_conc),
+  
+  # change p
+  y5 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 50,q = 1.34, er = 0.1), x = ex_conc),
+  y6 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 50,q = 1.34, er = 0.1), x = ex_conc)
+  
+)
+
+gnls_plot <- ggplot(fits_gnls, aes(log10(ex_conc))) +  
+    geom_line(aes(y = y1, color = "baseline")) +
+     geom_line(aes(y = y2, color = "tp=850")) +
+   geom_line(aes(y = y3, color = "ga=7")) +
+  geom_line(aes(y = y4, color = "ga=4")) +
+  geom_line(aes(y = y5, color = "p=2")) +
+  geom_line(aes(y = y6, color = "p=1.5"))
+  labs(x = "x", y = "y") +
+  theme(legend.position = c(0.1,0.8)) +
+  scale_color_manual(name='p values',
+                     values=c('baseline'='black', 'tp=850'='red', 'ga=7'='green',
+                              'ga=4' = 'blue', 'p=2'='pink', 'p=1.5'='yellow'))
+  
+gnls_plot
+```
 
 
 
