@@ -15,17 +15,10 @@
 #'
 #' @examples
 #'
-#' conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)
-#' resp <- list(0, .2, .1, .4, .7, .9, .6, 1.2)
-#' row <- list(conc = conc,
-#'             resp = resp,
-#'             bmed = 0,
-#'             cutoff = 1,
-#'             onesd = .5,
-#'             name = "some chemical",
-#'             assay = "some assay")
-#' output <- concRespCore(row)
-#'
+#' conc <- c(.03, .1, .3, 1, 3, 10, 30, 100)
+#' resp <- c(0, .2, .1, .4, .7, .9, .6, 1.2)
+#' params <- tcplfit2_core(conc, resp, .8)
+#' output <- tcplhit2_core(params, conc, resp, 0.8, 0.5)
 #' post_hit_AUC(output)
 #'
 #'
