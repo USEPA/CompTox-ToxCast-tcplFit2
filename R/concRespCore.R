@@ -87,7 +87,7 @@ concRespCore <- function(row,
   )
 
   # calculate the hitcall
-  summary <- tcplhit2_core(params, conc, resp, cutoff, onesd, bmr_scale, bmed, conthits, aicc, identifiers,bmd_low_bnd, bmd_up_bnd, errfun)
+  summary <- tcplhit2_core(params, conc, resp, cutoff, onesd, bmr_scale, bmed, conthits, aicc, identifiers,bmd_low_bnd, bmd_up_bnd)
   if (return.details) {
     return(list(summary = summary, all.models = params))
   } else {
