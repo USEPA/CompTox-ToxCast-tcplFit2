@@ -16,6 +16,9 @@
 #'   will be positive only.
 #' @param verbose If TRUE, gives optimization and hessian inversion details.
 #' @param nofit If nofit = TRUE, returns formatted output filled with missing values.
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #'
 #' @importFrom methods is
 #' @importFrom numDeriv hessian
@@ -30,7 +33,7 @@
 #'
 #' @examples
 #' fitexp4(c(.03,.1,.3,1,3,10,30,100), c(0,0,.1, .2, .5, 1, 1.5, 2))
-fitexp4 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE){
+fitexp4 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, errfun = "dt4"){
 
   fenv <- environment()
   #initialize myparams
@@ -99,7 +102,8 @@ fitexp4 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
                                          maxit = 6000),
                           conc = conc,
                           resp = resp,
-                          fname = "exp4"),
+                          fname = "exp4",
+                          errfun = errfun),
               silent = !verbose)
 
   ## Generate some summary statistics
@@ -121,7 +125,8 @@ fitexp4 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
                                    fit$par,
                                    conc = conc,
                                    resp = resp,
-                                   fname = "exp4")),
+                                   fname = "exp4",
+                                   errfun = errfun)),
                     silent = !verbose)
 
     if (!is(fit$cov, "try-error")) { # Could invert gnls Hessian

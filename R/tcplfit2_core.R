@@ -16,6 +16,9 @@
 #' @param do.plot If do.plot = TRUE, will generate a plot comparing model curves.
 #' @param fitmodels Vector of model names to try fitting. Missing models still
 #'   return a skeleton output filled with NAs.
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #' @param ... Other fitting parameters (deprecated).
 #'
 #' @import RColorBrewer
@@ -53,7 +56,7 @@
 #' )
 tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional = TRUE, verbose = FALSE, do.plot = FALSE,
                           fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"),
-                          ...) {
+                          errfun = "dt4", ...) {
   logc <- log10(conc)
   rmds <- tapply(resp, logc, median)
   fitmodels <- unique(c("cnst", fitmodels)) # cnst models must be present for conthits but not chosen
@@ -77,7 +80,7 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
     # use do.call to call fit function; cnst has different inputs than others.
     assign(model, do.call(fname, list(
         conc = conc, resp = resp, bidirectional = bidirectional, verbose = verbose,
-        nofit = !to.fit
+        nofit = !to.fit, errfun = errfun
       )))
       if (to.fit) {
         if (model %in% c("poly1", "poly2", "pow", "exp2", "exp3")) {
