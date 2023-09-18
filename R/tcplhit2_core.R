@@ -26,9 +26,6 @@
 #'   than 1/10th of the lowest concentration tested.
 #' @param bmd_up_bnd Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
 #'   than 10 times the highest concentration tested.
-#' @param errfun Which error distribution to assume for each point, defaults to
-#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
-#'   supported distribution is "dnorm", the normal distribution.
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:
@@ -69,10 +66,14 @@
 #'   }
 #' @export
 #'
-tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL, errfun = "dt4") {
+tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL) {
   # initialize parameters to NA
   a <- b <- tp <- p <- q <- ga <- la <- er <- top <- ac50 <- ac50_loss <- ac5 <- ac10 <- ac20 <- acc <- ac1sd <- bmd <- NA_real_
   bmdl <- bmdu <- caikwt <- mll <- NA_real_
+
+  # get error distribution
+  errfun = params[["errfun"]]
+
   # get aics and degrees of freedom
   aics <- sapply(params$modelnames, function(x) {
     params[[x]][["aic"]]
@@ -205,7 +206,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
   name.list <- c(
     "n_gt_cutoff", "cutoff", "fit_method",
     "top_over_cutoff", "rmse", "a", "b", "tp", "p", "q", "ga", "la", "er", "bmr", "bmdl", "bmdu", "caikwt",
-    "mll", "hitcall", "ac50", "ac50_loss", "top", "ac5", "ac10", "ac20", "acc", "ac1sd", "bmd", "conc", "resp"
+    "mll", "hitcall", "ac50", "ac50_loss", "top", "ac5", "ac10", "ac20", "acc", "ac1sd", "bmd", "conc", "resp", "errfun"
   )
   row <- as.data.frame(c(identifiers, mget(name.list)), stringsAsFactors = FALSE)
   return(row)
