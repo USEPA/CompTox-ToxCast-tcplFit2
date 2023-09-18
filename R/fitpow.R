@@ -16,6 +16,9 @@
 #' @param verbose If TRUE, gives optimization and hessian inversion details.
 #' @param nofit If nofit = TRUE, returns formatted output filled with missing values.
 #' @param nmin Minimum allowed value of p.
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #'
 #' @importFrom methods is
 #' @importFrom numDeriv hessian
@@ -30,7 +33,8 @@
 #'
 #' @examples
 #' fitpow(c(.03,.1,.3,1,3,10,30,100), c(0,.01,.1, .1, .2, .5, 2, 8))
-fitpow = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, nmin = .3){
+fitpow = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, nmin = .3,
+                  errfun = "dt4"){
 
   fenv <- environment()
   #initialize myparams
@@ -99,7 +103,8 @@ fitpow = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FAL
                                          maxit = 6000),
                           conc = conc,
                           resp = resp,
-                          fname = "pow"),
+                          fname = "pow",
+                          errfun = errfun),
               silent = !verbose)
 
 
@@ -123,7 +128,8 @@ fitpow = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FAL
                                    fit$par,
                                    conc = conc,
                                    resp = resp,
-                                   fname = "pow")),
+                                   fname = "pow",
+                                   errfun = errfun)),
                     silent = !verbose)
 
     if (!is(fit$cov, "try-error")) { # Could invert gnls Hessian
