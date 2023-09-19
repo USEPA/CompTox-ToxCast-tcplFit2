@@ -22,11 +22,34 @@ knitr::opts_chunk$set(
 ```{r setup, warning=FALSE, echo=FALSE}
 library(tcplfit2)
 ```
-# Demonstration
 
-This demonstration will provide examples for how to use `get_AUC` function in `tcplfit2` to calculate area under the curves (AUC) for dose-response curves fitted. The following chunk of code fits all available models in `tcplfit2` with some example data. `verbose = TRUE` will return the output with Akaike information criterions (AICs) of each model and the final winning model, and `do.plot = TRUE` returns a figure with all the curves.
+# Introduction
 
-```{r example 1, fig.height = 6, fig.width = 6}
+This vignette will walk you through how to generate area under the curve (AUC) for Concentration-Response curves with `tcplfit2`. AUC can be think of a measure of overall efficacy/potency and users may want to have it as part of the analysis. The following sections will show examples of how to obtain AUC in various applications and the rationale behind the function.
+
+
+# Main Feature 
+
+Now one can obtain the area under the curve (AUC) value for the winning model alongside with hit-calling results. Use `auc = TRUE` in `concRespCore` function to include AUC in the output. This argument defaults to `TRUE`, one might exclude it from the output by setting it to `FALSE`. 
+
+```{r example 1}
+conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)
+resp <- list(0, .2, .1, .4, .7, .9, .6, 1.2)
+row <- list(conc = conc,
+            resp = resp,
+            bmed = 0,
+            cutoff = 1,
+            onesd = .5)
+concRespCore(row, conthits = TRUE, AUC = TRUE)
+```
+
+The following sections demonstrate how one can obtain AUC when they do curve fitting and hit-calling separately with `tcplfit2_core` and `tcplhit2_core` instead of in one-setting, and how AUC function behave with different types of curves. 
+
+# Applications
+## Positive Curves
+This section provides an example of how to use `get_AUC` function in `tcplfit2` to calculate area under the curves (AUC) for dose-response curves fitted. The following chunk of code fits all available models in `tcplfit2` with some example data. `verbose = TRUE` will return the output with Akaike information criterions (AICs) of each model and the final winning model, and `do.plot = TRUE` returns a figure with all the curves.
+
+```{r example 2, fig.height = 6, fig.width = 6}
 # This is taken from the example under tcplfit2_core
 conc <- c(.03, .1, .3, 1, 3, 10, 30, 100)
 resp <- c(0, .1, 0, .2, .6, .9, 1.1, 1)
@@ -37,7 +60,7 @@ output <- tcplfit2_core(conc, resp, .8, verbose = TRUE, do.plot = TRUE)
 
 Let say we want to get AUC for the winning model, in this case, hill. We can do that with `get_AUC` with inputs: the name of the model, lower and upper concentration bounds (usually are the lowest and the highest concentration in the data), and estimated model parameters. The following codes show how to extract those information from the output from above and put them into `get_AUC` function. After that calculated AUC, plot the curve and shape the area to see if the returned value makes sense. The returned value represents the area of the shaped region. 
 
-```{r example 1 cont., fig.height = 6, fig.width = 6}
+```{r example 2 cont., fig.height = 6, fig.width = 6}
 fit_method <- "hill"
 # extract the parameters 
 modpars <- output[[fit_method]][output[[fit_method]]$pars]
@@ -57,10 +80,10 @@ polygon(c(log10(conc), max(log10(conc))), c(pred_resp, min(pred_resp)), col="yel
 
 We can do the same for other models too (excluding constant model).
 
-```{r example 1 other models}
+```{r example 2 other models}
 # hill and gnls will return a much smaller number because they are in log10-scale 
 fitmodels = c("gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5")
-
+mylist <- list()
 for (model in fitmodels){
 
   fit_method <- model
@@ -72,20 +95,19 @@ for (model in fitmodels){
   pred_resp <- output[[fit_method]][["modl"]]
   
   # get AUC
-  print(get_AUC(fit_method, min(conc), max(conc), modpars))
+  mylist[[fit_method]] <- get_AUC(fit_method, min(conc), max(conc), modpars)
   
-  #plot(conc, pred_resp)
-  #lines(conc, pred_resp)
-  #polygon(c(conc, max(conc)),c(pred_resp, min(pred_resp)), col="yellow")
 
 }
+# print AUC's for other models 
+data.frame(mylist)
 ```
 
-# Examine how this function behave with negative curves
+## Negative curves
 
-Taking example 3 from the vignette which gives data for negative curves and curves that have area both above and below 0.
+In the example above all the curves are positive increasing curves. This session will examine how this function behave with negative curves. Taking example 3 from the vignette which gives data for negative curves and curves that have area both above and below 0.
 
-```{r example 2, fig.height = 6, fig.width = 6}
+```{r example 3, fig.height = 6, fig.width = 6}
 # Taking the code from example 3 in the vignette 
 library(stringr)  # string management package
 data("signatures")
@@ -102,7 +124,7 @@ output_negative <- tcplfit2_core(conc, resp, cutoff, do.plot = TRUE)
 
 Take one of the model to check - exp3
 
-```{r example 2 cont., fig.height = 6, fig.width = 6}
+```{r example 3 cont., fig.height = 6, fig.width = 6}
 fit_method <- "exp3"
 
 # extract corresponding model parameters and predicted response
@@ -111,7 +133,7 @@ pred_resp <- output_negative[[fit_method]][["modl"]]
 
 
 get_AUC(fit_method, min(conc), max(conc), modpars) # returns -12.92
-abs(get_AUC(fit_method, min(conc), max(conc), modpars))
+get_AUC(fit_method, min(conc), max(conc), modpars, return.abs = TRUE)
 
 # plot this curve
 pred_resp <- pred_resp[order(conc)]
@@ -120,18 +142,21 @@ lines(conc[order(conc)], pred_resp)
 polygon(c(conc[order(conc)], max(conc)), c(pred_resp, max(pred_resp)), col="yellow")
 ```
 
-Things to consider: The x-axis in plot above is in regular unit so it looks different from the figure above which uses log-conc for x-axis. 
+Please note that the x-axis in plot above is in regular unit so it looks different from the figure above which uses log-conc for x-axis. 
 
-The function will return a negative value when integrating over a negative curve, but We may want to consider all "areas" positive. Thus, for curve decreases from 0, use the absolute value 12.92 instead.
+For decreasing curves, the function will return a negative value when integrating over a negative curve. However, some users may want to consider all "areas" positive. In this case they can use `return.abs = TRUE` argument to convert negative AUC to positive when return. 
 
-# Biphasic curve situation
-Use another example to check what happen if a curve have areas both below and above x-axis. Here I simulated a polynomial 2 curve but please note that the parameterization of poly2 in `tcplfit2` is a little different from normal polynomial 2.
+## Bi-phasic Curves
+
+For now, none of the models in this package would be able to fit a bi-phasic curve. This session shows what the function will do if the user input a bi-phasic curve.  
+
+The following chunk simulates a polynomial 2 curve that cross x-axis. Please note that the parameterization of poly2 in `tcplfit2` is a little different from normal polynomial 2.
 
 In the package the function is written as $a*(\frac{x}{b} + \frac{x^2}{b^2})$ thus $a$ in normal poly2 is represented as $\frac{a}{b^2}$ and $b$ in normal poly2 is represented as $\frac{a}{b}$. 
 
 Simulated with a = 1 and b = -2, when plug in function becomes $\frac{1}{4} x^2 - \frac{1}{2}x$
 
-```{r example 3, fig.height = 6, fig.width = 6}
+```{r example 4, fig.height = 6, fig.width = 6}
 # simulate a poly2 curve
 ps <- unlist(list(a = 1, b = -2))
 conc_sim <- c(0, 0.03, 0.10, 0.30, 1.00, 2.00, 2.50, 3.00, 3.20)
@@ -145,16 +170,19 @@ polygon(conc_sim[1:6], resp_sim[1:6], col="yellow")
 polygon(c(conc_sim[6:9], 3.20), c(resp_sim[6:9], 0), col="blue")
 ```
 
-```{r, example 3 cont.}
+```{r, example 4 cont.}
 get_AUC("poly2", min(conc_sim), max(conc_sim), ps)
 ```
 
-If we integrate over a curve that has areas below and above 0, the function will return area above the curve minus area blow the curve (blue-yellow). In this example, area above the curve for the simulated curve is slightly larger than the area below the curve so it returns a positive value. The function seems to function normally but this might not be how the biologist/toxicologist want to interpret and use it. 
+If we integrate over a curve that has areas below and above 0, the function will return area above the curve minus area blow the curve (blue-yellow). In this example, area above the curve for the simulated curve is slightly larger than the area below the curve so it returns a positive value.  
 
-AUC is used as an indicator of overall effect size, so for curves that pass the x-axis, we should add the absolute value of the area sections, that is, blue area plus yellow area. The following code shows how to get the total area wanted in this case. 
+AUC is used as an indicator of overall effect size, so for curves that pass the x-axis, it makes more sense to report the total area of the sections above and below x-axis, that is, blue area plus yellow area. The following code shows how to get the total area in this example. One would need to identify where the curve crosses x-axis first.  
 
-```{r, example 3 cont.2}
-abs(get_AUC("poly2", min(conc_sim), 2, ps)) + get_AUC("poly2", 2, max(conc_sim), ps)
+```{r, example 4 cont.2}
+# calculate area of each section separately and then sum them together 
+x_intercept <- 2
+abs(get_AUC("poly2", min(conc_sim), x_intercept, ps)) + get_AUC("poly2", x_intercept, max(conc_sim), ps)
 ```
+
 
 
