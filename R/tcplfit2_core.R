@@ -26,8 +26,9 @@
 #' @importFrom stats median
 #'
 #' @return List of N(models) elements, one for each of the models run (up to 10),
-#' followed by a last element "modelnames", which is a  vector of model names so
-#' other functions can easily cycle through the output. For a full list, see the
+#' followed by a element "modelnames", which is a vector of model names so
+#' other functions can easily cycle through the output, and then the last element
+#' "errfun", which indicates what distribution was used for error. For a full list, see the
 #' documentation for the individual fitting method functions. For each model there
 #' is a sublist with elements including:
 #'   \itemize{
@@ -146,7 +147,8 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
   # put all the model outputs into one list and return
   out <- c(
     mget(modelnames),
-    list(modelnames = modelnames, ...)
+    list(modelnames = modelnames, ...),
+    errfun = errfun
   )
 
   return(out)
