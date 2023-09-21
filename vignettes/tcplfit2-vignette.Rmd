@@ -362,3 +362,106 @@ The output table resulting from the previous code chunk is the same format as th
     concRespPlot(res_wide[i,],ymin=-50,ymax=50)
   }
 ```
+
+## Example 5: How can you censor BMD
+When doing curve fitting, BMD is returned for curve with hit-call > 0. Users have the option to "censor" the BMD when it occurs above or below an experimental dose or other specified values. This section provides examples of how to do it in situations of when the BMD is lower or higher than the minimum or maximum concentration in the data with arguments `bmd_low_bnd` and `bmd_up_bnd`. 
+
+First, let's look at situation one: when BMD is below the lowest concentration tested. The following code chunk loads data of a sample from `mc3` and removes data in some of the low dose groups so it simulates a curve that takes a huge lift in the first couple dose groups. In this situation, the BMD is more likely to be a lower dose that are not in the data. 
+
+```{r example 5 lower}
+# load example data
+spid <- unique(mc3$spid)[94]
+temp <- mc3[is.element(mc3$spid,spid),]
+
+# The data file has stored concentration in log10 form, so fix that
+conc <- 10**temp$logc
+resp <- temp$resp
+
+# modify the data for demonstration purposes 
+conc2 <- conc[conc>0.41]
+resp2 <- resp[which(conc>0.41)]
+
+# pull out all of the chemical identifiers and the name of the assay
+dtxsid <- temp[1,"dtxsid"]
+casrn <- temp[1,"casrn"]
+name <- temp[1,"name"]
+assay <- temp[1,"assay"]
+
+# create the row object
+row <- list(conc = conc2, resp = resp2, bmed = 0, cutoff = cutoff, onesd = onesd,assay=assay,dtxsid=dtxsid,casrn=casrn,name=name)
+
+# run the concentration-response modeling for a single sample
+res_low <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F)
+
+concRespPlot(res_low,ymin=-10,ymax=100)
+```
+```{r example 5 lower-res}
+# min conc.
+min(conc2)
+# function results
+res_low[1, c("bmd", "bmdl", "bmdu")]
+```
+
+The lowest concentration tested is 0.6 but the estimated BMD from the function is 0.302, it is lower than the minimum concentration tested. This could happen due to experimental design or it implies the analysis is unreliable.
+
+Users can allow BMD to be lower than the minimum experimental dose range while restrict it to be no lower than a percentage of the lowest concentration by using the argument `bmd_low_bnd`. This is a multiplier that times with the lowest dose in the data to generate a allowable lower boundary for BMD. If set the argument to 0.8, we don't want the BMD to be lower than 80% of the lowest concentration tested (0.8*0.6 = 0.48). If the BMD is not lower than this allowable lower boundary, than it will be returned as-is. However, in this example 0.302 is still lower than 0.48, so BMD will be forced to be the lowest allowable value and the original BMD boundaries in the output from `concRespCore` are also being shifted.
+
+```{r example 5 lower-demo}
+# using the argument to set a lower bound for BMD
+res_low2 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_low_bnd = 0.8)
+# print out the new results
+res_low2[1, c("bmd", "bmdl", "bmdu")]
+```
+
+**upper bound** discrepancies between the documentation and actual behavior? 
+
+`bmd_up_bnd` is also a multiplier that times with the maximum concentration in the data to generate another allowable boundary. 
+
+```{r example 5 upper}
+# load example data
+spid <- unique(mc3$spid)[26]
+temp <- mc3[is.element(mc3$spid,spid),]
+
+# The data file has stored concentration in log10 form, so fix that
+conc <- 10**temp$logc
+resp <- temp$resp
+
+# pull out all of the chemical identifiers and the name of the assay
+dtxsid <- temp[1,"dtxsid"]
+casrn <- temp[1,"casrn"]
+name <- temp[1,"name"]
+assay <- temp[1,"assay"]
+
+# create the row object
+row <- list(conc = conc, resp = resp, bmed = 0, cutoff = cutoff, onesd = onesd,assay=assay,dtxsid=dtxsid,casrn=casrn,name=name)
+
+# run the concentration-response modeling for a single sample
+res_up <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F)
+
+concRespPlot(res_up,ymin=-10,ymax=100)
+```
+
+```{r example 5 upper-res}
+# max conc.
+max(conc)
+# function results
+res_up[1, c("bmd", "bmdl", "bmdu")]
+```
+
+The BMD 300 is higher than the maximum concentration tested, 80. 
+
+The documentation use 10 as example, but I think there are two seniros from here: 
+
+If we input a value that's larger than 1, that means we allow BMD to be larger than the maximum concentration tested, but no large than a multiple of the maximum concentration. If BMD is still larger than the multiple of maximum concentration, it's forced to be the maximum allowable value. 
+
+If we input a decimal, that means we want BMD to be no larger than a percentage of the maximum concentration in the data (if it's not 1, it prevents the maximum dose to be the BMD). 
+
+```{r example upper-2}
+res_up2 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 2)
+res_up2[1, c("bmd", "bmdl", "bmdu")]
+
+res_up3 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 0.5)
+res_up3[1, c("bmd", "bmdl", "bmdu")]
+```
+
+
