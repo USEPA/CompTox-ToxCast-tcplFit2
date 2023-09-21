@@ -399,7 +399,7 @@ concRespPlot(res_low,ymin=-10,ymax=100)
 # min conc.
 min(conc2)
 # function results
-res_low[1, c("bmd", "bmdl", "bmdu")]
+DT::datatable(res_low[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
 ```
 
 The lowest concentration tested is 0.6 but the estimated BMD from the function is 0.302, it is lower than the minimum concentration tested. This could happen due to experimental design or it implies the analysis is unreliable.
@@ -409,8 +409,9 @@ Users can allow BMD to be lower than the minimum experimental dose range while r
 ```{r example 5 lower-demo}
 # using the argument to set a lower bound for BMD
 res_low2 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_low_bnd = 0.8)
+
 # print out the new results
-res_low2[1, c("bmd", "bmdl", "bmdu")]
+DT::datatable(res_low2[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
 ```
 
 **upper bound** discrepancies between the documentation and actual behavior? 
@@ -445,7 +446,7 @@ concRespPlot(res_up,ymin=-10,ymax=100)
 # max conc.
 max(conc)
 # function results
-res_up[1, c("bmd", "bmdl", "bmdu")]
+DT::datatable(res_up[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
 ```
 
 The BMD 300 is higher than the maximum concentration tested, 80. 
@@ -457,11 +458,13 @@ If we input a value that's larger than 1, that means we allow BMD to be larger t
 If we input a decimal, that means we want BMD to be no larger than a percentage of the maximum concentration in the data (if it's not 1, it prevents the maximum dose to be the BMD). 
 
 ```{r example upper-2}
+# input a number larger than 1
 res_up2 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 2)
-res_up2[1, c("bmd", "bmdl", "bmdu")]
+DT::datatable(res_up2[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
 
+# input a decimal 
 res_up3 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 0.5)
-res_up3[1, c("bmd", "bmdl", "bmdu")]
+DT::datatable(res_up3[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
 ```
 
 
