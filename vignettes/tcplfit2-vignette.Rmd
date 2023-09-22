@@ -417,7 +417,7 @@ res_low2['Min. Conc.'] <- min(conc2)
 DT::datatable(round(res_low2[1, c('Min. Conc.',"bmd", "bmdl", "bmdu")],3),rownames = FALSE)
 ```
 
-```{r}
+```{r example 5 lower cont.}
 logc_plot <- seq(from=-3,to=2,by=0.05)
 conc_plot <- 10**logc_plot
 
@@ -436,9 +436,7 @@ points(conc2, resp2)
 lines(conc_plot, exp4(ps = c(res_low$tp, res_low$ga), conc_plot))
 ```
 
-
-
-
+**Figure x**: This plot shows how BMD and its boundaries changes after "censoring". The red line is the BMD after "censoring" and the red column is the updated boundaries. The BMD and both boundaries were shifted right and the boundaries are narrower.  
 
 `bmd_up_bnd` is also a multiplier that times with the maximum concentration in the data to generate another allowable boundary. 
 
@@ -466,7 +464,7 @@ res_up <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2
 concRespPlot(res_up,ymin=-10,ymax=100)
 ```
 
-```{r example 5 upper-res}
+```{r example 5 upper-res, echo=FALSE}
 # max conc.
 res_up['Max Conc.'] <- max(conc)
 # function results
@@ -486,8 +484,9 @@ If we input a decimal, that means we want BMD to be no larger than a percentage 
 res_up2 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 2)
 ```
 
-```{r}
-DT::datatable(res_up2[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
+```{r example 5 upper cont., echo=FALSE}
+res_up2['Max Conc.'] <- max(conc)
+DT::datatable(res_up2[1, c('Max Conc.',"bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
 ```
 
 # input a decimal 
@@ -495,8 +494,9 @@ DT::datatable(res_up2[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = li
 res_up3 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 0.5)
 ```
 
-```{r}
-DT::datatable(res_up3[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
+```{r echo=FALSE}
+res_up3['Max Conc.'] <- max(conc)
+DT::datatable(res_up3[1, c('Max Conc.', "bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
 ```
 
 
