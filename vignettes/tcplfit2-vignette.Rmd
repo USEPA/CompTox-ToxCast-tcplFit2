@@ -373,8 +373,8 @@ First, let's look at situation one: when BMD is below the lowest concentration t
 spid <- unique(mc3$spid)[94]
 temp <- mc3[is.element(mc3$spid,spid),]
 
-# The data file has stored concentration in log10 form, so fix that
-conc <- 10**temp$logc
+# The data file has stored concentration in log10 form, fix it 
+conc <- 10**temp$logc # back-transforming concentrations on log10 scale
 resp <- temp$resp
 
 # modify the data for demonstration purposes 
@@ -395,11 +395,11 @@ res_low <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly
 
 concRespPlot(res_low,ymin=-10,ymax=100)
 ```
-```{r example 5 lower-res}
-# min conc.
-min(conc2)
+
+```{r example 5 lower-res, echo=FALSE}
 # function results
-DT::datatable(res_low[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
+res_low['Min. Conc.'] <- min(conc2)
+DT::datatable(round(res_low[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")], 3),rownames = FALSE)
 ```
 
 The lowest concentration tested is 0.6 but the estimated BMD from the function is 0.302, it is lower than the minimum concentration tested. This could happen due to experimental design or it implies the analysis is unreliable.
@@ -409,12 +409,36 @@ Users can allow BMD to be lower than the minimum experimental dose range while r
 ```{r example 5 lower-demo}
 # using the argument to set a lower bound for BMD
 res_low2 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_low_bnd = 0.8)
-
-# print out the new results
-DT::datatable(res_low2[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
 ```
 
-**upper bound** discrepancies between the documentation and actual behavior? 
+```{r example 5 new lower-res, echo=FALSE}
+# print out the new results
+res_low2['Min. Conc.'] <- min(conc2)
+DT::datatable(round(res_low2[1, c('Min. Conc.',"bmd", "bmdl", "bmdu")],3),rownames = FALSE)
+```
+
+```{r}
+logc_plot <- seq(from=-3,to=2,by=0.05)
+conc_plot <- 10**logc_plot
+
+plot(c(1,1),type="n",xlab="conc (uM)",ylab="Response",xlim=c(0.001,100),ylim=c(0,100),
+       log="x",main=paste(name,"\n",assay),cex.main=0.9)
+
+lines(c(res_low$bmd,res_low$bmd),c(0,50),col="green",lwd=2)
+rect(xleft=res_low$bmdl,ybottom=0,xright=res_low$bmdu,ytop=50,col=rgb(0,1,0, alpha = .5), border = NA)
+
+lines(c(res_low2$bmd,res_low2$bmd),c(0,50),col="red",lwd=2)
+rect(xleft=res_low2$bmdl,ybottom=0,xright=res_low2$bmdu,ytop=50,col=rgb(1,0,0, alpha = .5), border = NA)
+
+points(res_low$bmd, 0, pch = "x", col = "blue")
+points(res_low2$bmd, 0, pch = "x", col = "red")
+points(conc2, resp2)
+lines(conc_plot, exp4(ps = c(res_low$tp, res_low$ga), conc_plot))
+```
+
+
+
+
 
 `bmd_up_bnd` is also a multiplier that times with the maximum concentration in the data to generate another allowable boundary. 
 
@@ -424,7 +448,7 @@ spid <- unique(mc3$spid)[26]
 temp <- mc3[is.element(mc3$spid,spid),]
 
 # The data file has stored concentration in log10 form, so fix that
-conc <- 10**temp$logc
+conc <- 10**temp$logc # back-transforming concentrations on log10 scale
 resp <- temp$resp
 
 # pull out all of the chemical identifiers and the name of the assay
@@ -444,14 +468,14 @@ concRespPlot(res_up,ymin=-10,ymax=100)
 
 ```{r example 5 upper-res}
 # max conc.
-max(conc)
+res_up['Max Conc.'] <- max(conc)
 # function results
-DT::datatable(res_up[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
+DT::datatable(round(res_up[1, c('Max Conc.', "bmd", "bmdl", "bmdu")],3),rownames = FALSE)
 ```
 
 The BMD 300 is higher than the maximum concentration tested, 80. 
 
-The documentation use 10 as example, but I think there are two seniros from here: 
+The documentation use 10 as example, but I think there are two  from here: 
 
 If we input a value that's larger than 1, that means we allow BMD to be larger than the maximum concentration tested, but no large than a multiple of the maximum concentration. If BMD is still larger than the multiple of maximum concentration, it's forced to be the maximum allowable value. 
 
@@ -460,10 +484,18 @@ If we input a decimal, that means we want BMD to be no larger than a percentage 
 ```{r example upper-2}
 # input a number larger than 1
 res_up2 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 2)
+```
+
+```{r}
 DT::datatable(res_up2[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
+```
 
 # input a decimal 
+```{r}
 res_up3 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 0.5)
+```
+
+```{r}
 DT::datatable(res_up3[1, c("bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
 ```
 
