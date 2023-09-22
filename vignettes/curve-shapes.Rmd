@@ -35,22 +35,21 @@ This vignette contains model details for all models available in `tcplfit2` pack
 
 ## Polynomial 1
 
-Polynomial 1 is a simple linear model $y = ax$ where `a` is the slope of the line (i.e. rate of change for the response across the dose range).
+Polynomial 1 is a simple linear model $y = ax$ where `a` is the slope of the line (i.e. rate of change for the response across the dose range). If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \ge 0$ (i.e. non-negative).
 
 ```{r poly 1, class.source="scroll-100", fig.width=8, fig.height=5}
 poly1_plot <- ggplot(mapping=aes(ex_conc)) +  
-     geom_line(aes(y = 10*ex_conc, color = "a=10")) +
-     geom_line(aes(y = 20*ex_conc, color = "a=20")) +
-     geom_line(aes(y = 0.05*ex_conc, color = "a=0.05")) +
-     geom_line(aes(y = -5*ex_conc, color = "a=-5")) +
+  geom_line(aes(y = 55*ex_conc, color = "a=55")) +
+  geom_line(aes(y = 10*ex_conc, color = "a=10")) +
+  geom_line(aes(y = 0.05*ex_conc, color = "a=0.05")) +
+  geom_line(aes(y = -5*ex_conc, color = "a=-5")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.1,0.8)) +
   scale_color_manual(name='a values',
-                     breaks=c('a=-5', 'a=0.05', 'a=10', 'a=20'),
-                     values=c('a=-5'='black', 'a=0.05' = 'red', 'a=10'='blue', 'a=20'='yellow'))
+                     breaks=c('a=-5', 'a=0.05', 'a=10', 'a=55'),
+                     values=c('a=-5'='black', 'a=0.05' = 'red', 'a=10'='blue', 'a=55'='yellow'))
 
 poly1_plot
-
 ```
 
 **Figure 1:** This plot hows how changes in slope `a` affect the lines.
@@ -71,45 +70,42 @@ Parameters:
 
 ```{r poly 2, class.source="scroll-100", fig.width=8, fig.height=5}
 fits_poly <- data.frame(
-  # base line 
-  y1 = poly1(ps = c(a = 3.5,er = 0.1),x = ex_conc),
-  y1.2 = poly2(ps = c(a = 0.13,b = 2,er = 0.1),x = ex_conc),
+  # change a 
+  y1 = poly2(ps = c(a = 40, b = 2),x = ex_conc),
+  y2 = poly2(ps = c(a = 6, b = 2),x = ex_conc),
+  y3 = poly2(ps = c(a = 0.1, b = 2),x = ex_conc),
+  y4 = poly2(ps = c(a = -2, b = 2),x = ex_conc),
+  y5 = poly2(ps = c(a = -20, b = 2),x = ex_conc),
   
-  # change a for poly1
-  y2 = poly1(ps = c(a = 5,er = 0.1),x = ex_conc),
-  y3 = poly1(ps = c(a = 2.6,er = 0.1),x = ex_conc),
-
-  # change a for poly2
-  y4 = poly2(ps = c(a = 1, b = 2,er = 0.1),x = ex_conc),
-  y5 = poly2(ps = c(a = 0.1, b = 2,er = 0.1),x = ex_conc),
-  
-  # change b for poly2
-  y6 = poly2(ps = c(a = 0.13,b = 4,er = 0.1),x = ex_conc),
-  y7 = poly2(ps = c(a = 0.13,b = 0.5,er = 0.1),x = ex_conc)
-  
+  # change b 
+  y6 = poly2(ps = c(a = 4,b = 1.8),x = ex_conc),
+  y7 = poly2(ps = c(a = 4,b = 7),x = ex_conc),
+  y8 = poly2(ps = c(a = 4,b = 16),x = ex_conc)
 )
 
 # shows how changes in parameter 'a' affect the shape of the curve 
-poly2_plot1 <- ggplot(fits_poly, aes(ex_conc)) +  
-    geom_line(aes(y = y1.2, color = "a=0.13")) +
-     geom_line(aes(y = y4, color = "a=1")) +
-   geom_line(aes(y = y5, color = "a=0.1")) +
+poly2_plot1 <- ggplot(fits_poly, aes(ex_conc)) +
+  geom_line(aes(y = y1, color = "a=40")) +
+  geom_line(aes(y = y2, color = "a=6")) +
+  geom_line(aes(y = y3, color = "a=0.1")) +
+  geom_line(aes(y = y4, color = "a=-2")) +
+  geom_line(aes(y = y5, color = "a=-20")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='a values',
-                     breaks=c('a=0.13', 'a=1', 'a=0.1'),
-                     values=c('a=0.13'='black', 'a=1'='red', 'a=0.1'='blue'))
+                     breaks=c('a=-20', 'a=-2', 'a=0.1', 'a=6', 'a=40'),
+                     values=c('a=-20'='black', 'a=-2'='red', 'a=0.1'='blue', 'a=6'='yellow', 'a=40'='grey'))
 
 # shows how changes in parameter 'b' affect the shape of the curve 
 poly2_plot2 <- ggplot(fits_poly, aes(ex_conc)) +  
-    geom_line(aes(y = y1.2, color = "b=2")) +
-     geom_line(aes(y = y6, color = "b=4")) +
-   geom_line(aes(y = y7, color = "b=0.5")) +
+  geom_line(aes(y = y6, color = "b=1.8")) +
+  geom_line(aes(y = y7, color = "b=7")) +
+  geom_line(aes(y = y8, color = "b=16")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='b values',
-                     breaks=c('b=2', 'b=4', 'b=0.5'),
-                     values=c('b=2'='black', 'b=4'='red', 'b=0.5'='blue'))
+                     breaks=c('b=1.8', 'b=7', 'b=16'),
+                     values=c('b=1.8'='black', 'b=7'='red', 'b=16'='blue'))
 
 grid.arrange(poly2_plot1, poly2_plot2, ncol = 2)
 ```
@@ -122,44 +118,42 @@ Model: $f(x) = a*x^b$
 Parameters: 
 
 * `a` : The scaling factor. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a <\infty $. Otherwise, $a \gt 0$.
-* `p` : Power, or the rate of growth. A measure of how steep the curve is. The larger `p` is the steeper the curve is. `p` is restricted such that $0.3 < p<20$. 
+* `p` : Power, or the rate of growth. A measure of how steep the curve is. The larger `p` is the steeper the curve is. `p` is restricted such that $0.3 \le p \le 20$. 
 
 ```{r pow, class.source="scroll-100", fig.width=8, fig.height=5}
 fits_pow <- data.frame(
-  # base line 
-  y1 = pow(ps = c(a = 1.23,p = 1.45,er = 0.1),x = ex_conc),
-  
   # change a
-  y2 = pow(ps = c(a = 3.2,p = 1.45,er = 0.1),x = ex_conc),
-  y3 = pow(ps = c(a = 0.8,p = 1.45,er = 0.1),x = ex_conc),
+  y1 = pow(ps = c(a = 0.48,p = 1.45),x = ex_conc),
+  y2 = pow(ps = c(a = 7.2,p = 1.45),x = ex_conc),
+  y3 = pow(ps = c(a = -3.2,p = 1.45),x = ex_conc),
   
   # change p
-  y4 = pow(ps = c(a = 1.23,p = 1.5,er = 0.1),x = ex_conc),
-  y5 = pow(ps = c(a = 1.23,p = 1.2,er = 0.1),x = ex_conc)
-  
+  y4 = pow(ps = c(a = 1.2,p = 0.3),x = ex_conc),
+  y5 = pow(ps = c(a = 1.2,p = 1.6),x = ex_conc),
+  y6 = pow(ps = c(a = 1.2,p = 2),x = ex_conc)
 )
 
 # shows how changes in parameter 'a' affect the shape of the curve
 pow_plot1 <- ggplot(fits_pow, aes(ex_conc)) +  
-     geom_line(aes(y = y1, color = "a=1.23")) +
-     geom_line(aes(y = y2, color = "a=3.2")) +
-     geom_line(aes(y = y3, color = "a=0.8")) +
+  geom_line(aes(y = y1, color = "a=0.48")) +
+  geom_line(aes(y = y2, color = "a=7.2")) +
+  geom_line(aes(y = y3, color = "a=-3.2")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='a values',
-                     breaks=c('a=1.23', 'a=3.2', 'a=0.8'),
-                     values=c('a=1.23'='black', 'a=3.2'='red', 'a=0.8'='blue'))
+                     breaks=c('a=-3.2', 'a=0.48', 'a=7.2'),
+                     values=c('a=-3.2'='black', 'a=0.48'='red', 'a=7.2'='blue'))
 
 # shows how changes in parameter 'p' affect the shape of the curve
 pow_plot2 <- ggplot(fits_pow, aes(ex_conc)) +  
-    geom_line(aes(y = y1, color = "p=1.45")) +
-     geom_line(aes(y = y4, color = "p=1.5")) +
-   geom_line(aes(y = y5, color = "p=1.2")) +
+  geom_line(aes(y = y4, color = "p=0.3")) +
+  geom_line(aes(y = y5, color = "p=1.6")) +
+  geom_line(aes(y = y6, color = "p=2")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='p values',
-                     breaks=c('p=1.45', 'p=1.5', 'p=1.2'),
-                     values=c('p=1.45'='black', 'p=1.5'='red', 'p=1.2'='blue'))
+                     breaks=c('p=0.3', 'p=1.6', 'p=2'),
+                     values=c('p=0.3'='black', 'p=1.6'='red', 'p=2'='blue'))
 
 
 
@@ -174,25 +168,23 @@ Model: $f(x) = \frac{tp}{(1 + (ga/x)^p )}$
 
 Parameters: 
 
-* `tp` : Top, the highest or lowest response achieved at saturation. It is the horizontal asymptote the curve is approaching. If bi-directional fitting is allowed, then $-\infty <tp<\infty$. Otherwise $0\le tp<\infty$.
-* `ga` : AC50. Concentration at 50% of maximal activity, it provides useful information about the "apparent affinity" of the protein under study (enzyme, transporter, etc.) for the substrate. The parameter constrain on `ga` is $-\infty <ga<\infty$ 
-* `p` : Hill coefficient, acts as power, a measure of how steep the response curve is. It's a measure of the cooperativity of substrate binding to the enzyme, transporter, etc. `p` is restricted such that $0.3< p <8$. 
+* `tp` : Top, the highest or lowest response achieved at saturation. It is the horizontal asymptote the curve is approaching. If bi-directional fitting is allowed, then $-\infty < tp <\infty$. Otherwise $0 \le tp < \infty$.
+* `ga` : AC50. Concentration at 50% of maximal activity, it provides useful information about the "apparent affinity" of the protein under study (enzyme, transporter, etc.) for the substrate. The parameter constrain on `ga` is $-\infty <ga < \infty$ 
+* `p` : Hill coefficient, acts as power, a measure of how steep the response curve is. It's a measure of the cooperativity of substrate binding to the enzyme, transporter, etc. `p` is restricted such that $0.3 \le p \le 8$. 
 
 ```{r hill, class.source="scroll-100", fig.height=5, fig.width=8}
 fits_hill <- data.frame(
-  # base line 
-  y1 = hillfn(ps = c(tp = 750,ga = 5,p = 1.76,er = 0.1), x = ex_conc),
-  
   # change tp
-  y2 = hillfn(ps = c(tp = 850,ga = 5,p = 1.76,er = 0.1), x = ex_conc),
+  y1 = hillfn(ps = c(tp = 750,ga = 5,p = 1.76), x = ex_conc),
+  y2 = hillfn(ps = c(tp = 850,ga = 5,p = 1.76), x = ex_conc),
 
   # change ga
-  y3 = hillfn(ps = c(tp = 750,ga = 7,p = 1.76,er = 0.1), x = ex_conc),
-  y4 = hillfn(ps = c(tp = 750,ga = 4,p = 1.76,er = 0.1), x = ex_conc),
+  y3 = hillfn(ps = c(tp = 750,ga = 7,p = 1.76), x = ex_conc),
+  y4 = hillfn(ps = c(tp = 750,ga = 4,p = 1.76), x = ex_conc),
   
   # change p
-  y5 = hillfn(ps = c(tp = 750,ga = 5,p = 2,er = 0.1), x = ex_conc),
-  y6 = hillfn(ps = c(tp = 750,ga = 5,p = 1.5,er = 0.1), x = ex_conc)
+  y5 = hillfn(ps = c(tp = 750,ga = 5,p = 2), x = ex_conc),
+  y6 = hillfn(ps = c(tp = 750,ga = 5,p = 1.5), x = ex_conc)
   
 )
 
@@ -232,45 +224,44 @@ Gain-Loss is the product of two hill functions, one simulates the response going
 
 The definitions of `tp`, `ga`, and `p` are the same as in [hill model](#hill), and `la` is the counterpart of `ga`, `q` is the counterpart of `p` in the decreasing half of the curve. 
 
-* `la` : Loss AC50. The larger it gets the slower the curve starts to decrease (if it increase first). The parameter constrains on `la` are $-\infty <la<\infty$ and $la-ga\ge 1.5$.
-* `q` : Loss power or the rate of loss. The larger it is the faster the curve decreases. `q` is restricted such that $0.3< p <8$. 
+* `la` : Loss AC50. The larger it gets the slower the curve starts to decrease (if it increase first). The parameter constrains on `la` are $-\infty <la < \infty$ and $la-ga\ge 1.5$.
+* `q` : Loss power or the rate of loss. The larger it is the faster the curve decreases. `q` is restricted such that $0.3 \le p \le 8$. 
 
 ```{r gnls, class.source="scroll-100", fig.width=8, fig.height=5}
 fits_gnls <- data.frame(
-  # base line 
-  y1 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 50,q = 1.34, er = 0.1), x = ex_conc),
-  
   # change la
-  y2 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 70,q = 1.34, er = 0.1), x = ex_conc),
-  y3 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 20,q = 1.34, er = 0.1), x = ex_conc),
-  
+  y1 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 17,q = 1.34), x = ex_conc),
+  y2 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 50,q = 1.34), x = ex_conc),
+  y3 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 100,q = 1.34), x = ex_conc),
+
   # change q
-  y4 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 50,q = 1, er = 0.1), x = ex_conc),
-  y5 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 50,q = 1.5, er = 0.1), x = ex_conc)
+  y4 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 20,q = 0.3), x = ex_conc),
+  y5 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 20,q = 1.2), x = ex_conc),
+  y6 = gnls(ps = c(tp = 750,ga = 15,p = 1.45,la = 20,q = 8), x = ex_conc)
   
 )
 
 # shows how changes in parameter 'la' affect the shape of the curve
 gnls_plot1 <- ggplot(fits_gnls, aes(log10(ex_conc))) +  
-  geom_line(aes(y = y1, color = "la=50")) +
-     geom_line(aes(y = y2, color = "la=70")) +
-   geom_line(aes(y = y3, color = "la=20")) +
+  geom_line(aes(y = y1, color = "la=17")) +
+  geom_line(aes(y = y2, color = "la=50")) +
+  geom_line(aes(y = y3, color = "la=100")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.1,0.8)) +
   scale_color_manual(name='la values',
-                     breaks=c('la=50', 'la=70', 'la=20'),
-                     values=c('la=50'='black', 'la=70'='red', 'la=20'='blue'))
+                     breaks=c('la=17', 'la=50', 'la=100'),
+                     values=c('la=17'='black', 'la=50'='red', 'la=100'='blue'))
 
 # shows how changes in parameter 'q' affect the shape of the curve
 gnls_plot2 <- ggplot(fits_gnls, aes(log10(ex_conc))) +  
-  geom_line(aes(y = y1, color = "q=1.34")) +
-     geom_line(aes(y = y4, color = "q=1")) +
-   geom_line(aes(y = y5, color = "q=1.5")) +
+  geom_line(aes(y = y4, color = "q=0.3")) +
+  geom_line(aes(y = y5, color = "q=1.2")) +
+  geom_line(aes(y = y6, color = "q=8")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.1,0.8)) +
   scale_color_manual(name='q values',
-                     breaks=c('q=1.34', 'q=1', 'q=1.5'),
-                     values=c('q=1.34'='black', 'q=1'='red', 'q=1.5'='blue'))
+                     breaks=c('q=0.3', 'q=1.2', 'q=8'),
+                     values=c('q=0.3'='black', 'q=1.2'='red', 'q=8'='blue'))
   
   
 grid.arrange(gnls_plot1, gnls_plot2, ncol = 2)
@@ -283,46 +274,46 @@ Model: $f(x) = a*(e^{\frac{x}{b}}-1)$
 
 Parameters: 
 
-* `a` : The y-scale. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty <a<\infty$. Otherwise, $0 < a <\infty$.
-* `b` : The x-scale. If `b` increases, the curve is shrunk horizontally. `b` is restricted to $b > 0$ (e.g. positive). 
+* `a` : The y-scale. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a < \infty$. Otherwise, $0 < a <\infty$.
+* `b` : The x-scale. If `b` increases, the curve is shrunk horizontally. `b` is restricted to $b > 0$ (i.e. positive). 
 
 ```{r exp2, class.source="scroll-100", fig.width=8, fig.height=5}
 fits_exp2 <- data.frame(
-  # base line 
-  y1 = exp2(ps = c(a = 0.45,b = 12,er = 0.1), x = ex_conc),
-  
   # change a
-  y2 = exp2(ps = c(a = 1.5,b = 12,er = 0.1), x = ex_conc),
-  y3 = exp2(ps = c(a = 0.1,b = 12,er = 0.1), x = ex_conc),
+  y1 = exp2(ps = c(a = 20,b = 12), x = ex_conc),
+  y2 = exp2(ps = c(a = 9,b = 12), x = ex_conc),
+  y3 = exp2(ps = c(a = 0.1,b = 12), x = ex_conc),
+  y4 = exp2(ps = c(a = -3,b = 12), x = ex_conc),
   
   # change b
-  y4 = exp2(ps = c(a = 0.45,b = 13.5,er = 0.1), x = ex_conc),
-  y5 = exp2(ps = c(a = 0.45,b = 9,er = 0.1), x = ex_conc)
+  y5 = exp2(ps = c(a = 0.45,b = 4), x = ex_conc),
+  y6 = exp2(ps = c(a = 0.45,b = 4.5), x = ex_conc),
+  y7 = exp2(ps = c(a = 0.45,b = 20), x = ex_conc)
   
 )
 
 # shows how changes in parameter 'a' affect the shape of the curve 
 exp2_plot1 <- ggplot(fits_exp2, aes(ex_conc)) +  
-    geom_line(aes(y = y1, color = "a=0.45")) +
-     geom_line(aes(y = y2, color = "a=1.5")) +
-   geom_line(aes(y = y3, color = "a=0.1")) +
+  geom_line(aes(y = y1, color = "a=20")) +
+  geom_line(aes(y = y2, color = "a=9")) +
+  geom_line(aes(y = y3, color = "a=0.1")) +
+  geom_line(aes(y = y4, color = "a=-3")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='a values',
-                     breaks=c('a=0.45', 'a=1.5', 'a=0.1'),
-                     values=c('a=0.45'='black', 'a=1.5'='red', 'a=0.1'='blue'))
+                     breaks=c('a=-3', 'a=0.1', 'a=9', 'a=20'),
+                     values=c('a=-3'='black', 'a=0.1'='red', 'a=9'='blue', 'a=20'='yellow'))
 
 # shows how changes in parameter 'b' affect the shape of the curve 
 exp2_plot2 <- ggplot(fits_exp2, aes(ex_conc)) +  
-    geom_line(aes(y = y1, color = "b=12")) +
-     geom_line(aes(y = y4, color = "b=13.5")) +
-   geom_line(aes(y = y5, color = "b=9")) +
+  geom_line(aes(y = y5, color = "b=4")) +
+  geom_line(aes(y = y6, color = "b=4.5")) +
+  geom_line(aes(y = y7, color = "b=20")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='b values',
-                     breaks=c('b=12', 'b=13.5', 'b=9'),
-                     values=c('b=12'='black', 'b=13.5'='red', 'b=9'='blue'))
-
+                     breaks=c('b=4', 'b=4.5', 'b=20'),
+                     values=c('b=4'='black', 'b=4.5'='red', 'b=20'='blue'))
 
 grid.arrange(exp2_plot1, exp2_plot2, ncol = 2)
 ```
@@ -340,20 +331,18 @@ Exponential 3 has one additional parameter `p`.
 
 ```{r exp3, class.source="scroll-100", fig.width=5, fig.height=5}
 fits_exp3 <- data.frame(
-  # base line 
-  y1 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.87,er = 0.1), x = ex_conc),
-
   # change p
-  y2 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.9,er = 0.1), x = ex_conc),
-  y3 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.7,er = 0.1), x = ex_conc)
+  y1 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.3), x = ex_conc),
+  y2 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.9), x = ex_conc),
+  y3 = exp3(ps = c(a = 1.67,b = 12.5,p = 1.2), x = ex_conc)
   
 )
 
 # shows how changes in parameter 'p' affect the shape of the curve 
 exp3_plot <- ggplot(fits_exp3, aes(ex_conc)) +  
-    geom_line(aes(y = y1, color = "p=0.87")) +
-     geom_line(aes(y = y2, color = "p=0.9")) +
-   geom_line(aes(y = y3, color = "p=0.7")) +
+  geom_line(aes(y = y1, color = "p=0.87")) +
+  geom_line(aes(y = y2, color = "p=0.9")) +
+  geom_line(aes(y = y3, color = "p=0.7")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='p values',
@@ -371,46 +360,45 @@ Model: $f(x) = tp*(1-2^{(-\frac{x}{ga})})$
 
 Parameters: 
 
-* `tp` : Top. The horizontal asymptote the curve is approaching (also can be negative); it is the maximum or minimum of the predicted responses. If bi-directional fitting is allowed, then $-\infty <tp<\infty$. Otherwise, $0 \le tp <\infty$.
+* `tp` : Top. The horizontal asymptote the curve is approaching (also can be negative); it is the maximum or minimum of the predicted responses. If bi-directional fitting is allowed, then $-\infty <tp < \infty$. Otherwise, $0 \le tp < \infty$.
 * `ga` : AC50. Concentration at 50% of maximal activity, acts as slope for x and controls how fast the curve is approaching the top. If `ga` increases, the curve is shrunk horizontally. `ga` is restricted to be $0 \le ga < \infty$ (e.g. non-negative). 
 
 ```{r exp4, class.source="scroll-100", fig.width=8, fig.height=5}
 fits_exp4 <- data.frame(
-  # base line 
-  y1 = exp4(ps = c(tp = 895,ga = 15,er = 0.1),x = ex_conc),
-  
-  # change tp
-  y2 = exp4(ps = c(tp = 950,ga = 15,er = 0.1),x = ex_conc),
-  y3 = exp4(ps = c(tp = 700,ga = 15,er = 0.1),x = ex_conc),
+  # change tp  
+  y1 = exp4(ps = c(tp = 895,ga = 15),x = ex_conc),
+  y2 = exp4(ps = c(tp = 200,ga = 15),x = ex_conc),
+  y3 = exp4(ps = c(tp = -500,ga = 15),x = ex_conc),
   
   # change ga
-  y4 = exp4(ps = c(tp = 895,ga = 18,er = 0.1),x = ex_conc),
-  y5 = exp4(ps = c(tp = 895,ga = 10,er = 0.1),x = ex_conc)
+  y4 = exp4(ps = c(tp = 500,ga = 0.4),x = ex_conc),
+  y5 = exp4(ps = c(tp = 500,ga = 10),x = ex_conc),
+  y6 = exp4(ps = c(tp = 500,ga = 20),x = ex_conc)
   
 )
 
 # shows how changes in parameter 'tp' affect the shape of the curve 
 exp4_plot1 <- ggplot(fits_exp4, aes(ex_conc)) +  
-    geom_line(aes(y = y1, color = "tp=895")) +
-     geom_line(aes(y = y2, color = "tp=950")) +
-   geom_line(aes(y = y3, color = "tp=700")) +
+  geom_line(aes(y = y1, color = "tp=895")) +
+  geom_line(aes(y = y2, color = "tp=200")) +
+  geom_line(aes(y = y3, color = "tp=-500")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.1,0.8)) +
   scale_color_manual(name='tp values',
-                     breaks=c('tp=895', 'tp=950', 'tp=700'),
-                     values=c('tp=895'='black', 'tp=950'='red', 'tp=700'='blue'))
+                     breaks=c('tp=-500', 'tp=200', 'tp=895'),
+                     values=c('tp=-500'='black', 'tp=200'='red', 'tp=895'='blue'))
 
 
 # shows how changes in parameter 'ga' affect the shape of the curve 
 exp4_plot2 <- ggplot(fits_exp4, aes(ex_conc)) +  
-    geom_line(aes(y = y1, color = "ga=15")) +
-     geom_line(aes(y = y4, color = "ga=18")) +
-   geom_line(aes(y = y5, color = "ga=10")) +
+  geom_line(aes(y = y4, color = "ga=0.4")) +
+  geom_line(aes(y = y5, color = "ga=10")) +
+  geom_line(aes(y = y6, color = "ga=20")) +
   labs(x = "x", y = "y") +
-  theme(legend.position = c(0.1,0.8)) +
+  theme(legend.position = c(0.8,0.2)) +
   scale_color_manual(name='ga values',
-                     breaks=c('ga=15', 'ga=18', 'ga=10'),
-                     values=c('ga=15'='black', 'ga=18'='red', 'ga=10'='blue'))
+                     breaks=c('ga=0.4', 'ga=10', 'ga=20'),
+                     values=c('ga=0.4'='black', 'ga=10'='red', 'ga=20'='blue'))
 
 
 grid.arrange(exp4_plot1, exp4_plot2, ncol = 2)
@@ -429,25 +417,23 @@ Exponential 5 has one additional parameter `p`.
 
 ```{r exp5, class.source="scroll-100", fig.width=5, fig.height=5}
 fits_exp5 <- data.frame(
-  # base line 
-  y1 = exp5(ps = c(tp = 793,ga = 6.25,p = 1.25,er = 0.1), x = ex_conc),
-  
   # change p
-  y2 = exp5(ps = c(tp = 793,ga = 6.25,p = 0.97,er = 0.1), x = ex_conc),
-  y3 = exp5(ps = c(tp = 793,ga = 6.25,p = 1.5,er = 0.1), x = ex_conc)
+  y1 = exp5(ps = c(tp = 793,ga = 6.25,p = 0.3), x = ex_conc),
+  y2 = exp5(ps = c(tp = 793,ga = 6.25,p = 3.4), x = ex_conc),
+  y3 = exp5(ps = c(tp = 793,ga = 6.25,p = 8), x = ex_conc)
   
 )
 
 # shows how changes in parameter 'p' affect the shape of the curve 
 exp5_plot <- ggplot(fits_exp5, aes(ex_conc)) +  
-    geom_line(aes(y = y1, color = "p=1.25")) +
-     geom_line(aes(y = y2, color = "p=0.97")) +
-   geom_line(aes(y = y3, color = "p=1.5")) +
+  geom_line(aes(y = y1, color = "p=0.3")) +
+  geom_line(aes(y = y2, color = "p=3.4")) +
+  geom_line(aes(y = y3, color = "p=8")) +
   labs(x = "x", y = "y") +
   theme(legend.position = c(0.8,0.1)) +
   scale_color_manual(name='p values',
-                     breaks=c('p=1.25', 'p=0.97', 'p=1.5'),
-                     values=c('p=1.25'='black', 'p=0.97'='red', 'p=1.5'='blue'))
+                     breaks=c('p=0.3', 'p=3.4', 'p=8'),
+                     values=c('p=0.3'='black', 'p=3.4'='red', 'p=8'='blue'))
 
 
 exp5_plot
