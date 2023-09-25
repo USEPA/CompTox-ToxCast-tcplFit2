@@ -60,6 +60,8 @@ To run a simple example, use the following code ...
   
 ```
 
+**Figure 1:** The plot depicts the fitted concentration-response curves, with each model represented in a different color. Note that the x-axis is base 10 log-transformed concentration values.
+
 The output of this run will be a data frame with one row, summarizing the results for the winning model.
 
 ```{r example1 result, warning=FALSE, echo=FALSE}
@@ -121,6 +123,8 @@ their own version of this. To run this example, use the following code ...
 
 ```
 
+**Figure 2:** Each figure shows fitted results of a random sample from `mc3` data. Each plot has a title that contains the chemical name and assay ID. On the top of each plot displays summary of the fitting, including what is the winning method, AC50, top, BMD, ACC, and hit-call. The concentration-response observations are the black dots, and the winning model curve is depicted by the black curve. If BMD is not `NA`, it and its boundaries are highlighted by green line and a green retangle The gray area around x-axis represents the noise region. 
+
 One would typically save the result rows in a data frame end export these for further analysis. You could remove the plotting function from the current loop and have a loop that read from the overall results data frame and only plot selected results (e.g. those with significant responses).
 
 ```{r example2 result, warning=FALSE, echo=FALSE}
@@ -161,6 +165,8 @@ The input data for this example contains 6 signatures for one chemical in a tran
   }
 ```
 
+**Figure 3:** These figures illustrate the plots resulted from one of the plotting option in `tcplfit2`, using the `do.plot=TRUE` argument in `concRespCore` function. 
+
 ```{r example3_plot2, fig.height = 8, fig.width = 7}
   # set up a 3 x 2 grid for the plots
   oldpar <- par(no.readonly = TRUE)
@@ -171,6 +177,8 @@ The input data for this example contains 6 signatures for one chemical in a tran
     concRespPlot(res[i,],ymin=-1,ymax=1)
   }
 ```
+
+**Figure 4:** These figures illustrate the plots resulted from one of the plotting option in `tcplfit2`, using the `concRespPlot` funciton. 
 
 ## Example 4: Running tcpl-like multi-concentration response data without a database connection
 The ToxCast pipeline `tcpl` is an R package that manages, curve-fits, plots, and stores ToxCast data to populate its linked MySQL database, InvitroDB. The original `tcplFit()` function within `tcpl` performed basic concentration response curve fitting. Processing with tcpl_v3 and beyond depends on `tcplfit2` to allow a wider variety of concentration-response models when using `invitrodb` in the 4.0 schema and beyond. `tcplLite` was deprecated with the updates to `tcpl` and development of `tcplfit2`, since `tcplfit2` allows one to perform curve-fitting and hit-calling independent of a database. The example below demonstrates how to perform an analogous `tcplLite` analysis with `tcplfit2`. For additional information, please consult vignettes for `library(tcpl)` at https://CRAN.R-project.org/package=tcpl. 
@@ -362,3 +370,5 @@ The output table resulting from the previous code chunk is the same format as th
     concRespPlot(res_wide[i,],ymin=-50,ymax=50)
   }
 ```
+
+**Figure 5:** These plots illustrate the fitted results of data in `subdat`. For all six samples in this subset, none of them has a hit. None of the curve comes out of the noise region (the grey bar). 
