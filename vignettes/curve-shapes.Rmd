@@ -26,14 +26,15 @@ knitr::opts_chunk$set(
 }
 ```
 
-```{r setup}
+```{r setup, warning=FALSE}
 library(tcplfit2)
 library(ggplot2)
 library(gridExtra)
+library(htmlTable)
 
 # prepare data for demonstration
-data("mc3")
-ex_conc <- seq(10^(min(mc3[,"logc"])),10^(max(mc3[,"logc"])),length.out = 100)
+ex_conc <- seq(0, 100, length.out = 100)
+ex2_conc <- seq(0, 3, length.out = 30)
 ```
 
 This vignette contains model details for all models available in `tcplfit2` package with parameter explanations and plots.  
@@ -44,13 +45,13 @@ This vignette contains model details for all models available in `tcplfit2` pack
 
 Polynomial 1 is a simple linear model $y = ax$ where `a` is the slope of the line (i.e. rate of change for the response across the dose range). If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \ge 0$ (i.e. non-negative).
 
-```{r poly 1, class.source="scroll-100", fig.width=8, fig.height=5}
+```{r poly 1, class.source="scroll-100", fig.width=5, fig.height=5}
 poly1_plot <- ggplot(mapping=aes(ex_conc)) +  
   geom_line(aes(y = 55*ex_conc, color = "a=55")) +
   geom_line(aes(y = 10*ex_conc, color = "a=10")) +
   geom_line(aes(y = 0.05*ex_conc, color = "a=0.05")) +
   geom_line(aes(y = -5*ex_conc, color = "a=-5")) +
-  labs(x = "x", y = "y") +
+  labs(x = "Concentration", y = "Response") +
   theme(legend.position = c(0.1,0.8)) +
   scale_color_manual(name='a values',
                      breaks=c('a=-5', 'a=0.05', 'a=10', 'a=55'),
@@ -71,7 +72,7 @@ Polynomial 2 is a quadratic model fit. Note, the version implemented in `tcplfit
 
 Parameters: 
 
-* `a` : The y-scale. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a <\infty $. Otherwise, $a \ge 0$ (i.e. non-negative).
+* `a` : The y-scale. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \ge 0$ (i.e. non-negative).
 
 * `b` : The x-scale. If `b` increase, the curve is shrunk horizontally. Polynomial 2 model is optimized such that $b > 0$. 
 
@@ -97,7 +98,7 @@ poly2_plot1 <- ggplot(fits_poly, aes(ex_conc)) +
   geom_line(aes(y = y3, color = "a=0.1")) +
   geom_line(aes(y = y4, color = "a=-2")) +
   geom_line(aes(y = y5, color = "a=-20")) +
-  labs(x = "x", y = "y") +
+  labs(x = "Concentration", y = "Response") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='a values',
                      breaks=c('a=-20', 'a=-2', 'a=0.1', 'a=6', 'a=40'),
@@ -108,7 +109,7 @@ poly2_plot2 <- ggplot(fits_poly, aes(ex_conc)) +
   geom_line(aes(y = y6, color = "b=1.8")) +
   geom_line(aes(y = y7, color = "b=7")) +
   geom_line(aes(y = y8, color = "b=16")) +
-  labs(x = "x", y = "y") +
+  labs(x = "Concentration", y = "Response") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='b values',
                      breaks=c('b=1.8', 'b=7', 'b=16'),
@@ -124,50 +125,50 @@ Model: $f(x) = a*x^b$
 
 Parameters: 
 
-* `a` : The scaling factor. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a <\infty $. Otherwise, $a \gt 0$.
+* `a` : The scaling factor. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \gt 0$.
 * `p` : Power, or the rate of growth. A measure of how steep the curve is. The larger `p` is the steeper the curve is. `p` is restricted such that $0.3 \le p \le 20$. 
 
 ```{r pow, class.source="scroll-100", fig.width=8, fig.height=5}
 fits_pow <- data.frame(
   # change a
-  y1 = pow(ps = c(a = 0.48,p = 1.45),x = ex_conc),
-  y2 = pow(ps = c(a = 7.2,p = 1.45),x = ex_conc),
-  y3 = pow(ps = c(a = -3.2,p = 1.45),x = ex_conc),
+  y1 = pow(ps = c(a = 0.48,p = 1.45),x = ex2_conc),
+  y2 = pow(ps = c(a = 7.2,p = 1.45),x = ex2_conc),
+  y3 = pow(ps = c(a = -3.2,p = 1.45),x = ex2_conc),
   
   # change p
-  y4 = pow(ps = c(a = 1.2,p = 0.3),x = ex_conc),
-  y5 = pow(ps = c(a = 1.2,p = 1.6),x = ex_conc),
-  y6 = pow(ps = c(a = 1.2,p = 2),x = ex_conc)
+  y4 = pow(ps = c(a = 1.2,p = 0.3),x = ex2_conc),
+  y5 = pow(ps = c(a = 1.2,p = 1.6),x = ex2_conc),
+  y6 = pow(ps = c(a = 1.2,p = 3.2),x = ex2_conc)
 )
 
 # shows how changes in parameter 'a' affect the shape of the curve
-pow_plot1 <- ggplot(fits_pow, aes(ex_conc)) +  
+pow_plot1 <- ggplot(fits_pow, aes(ex2_conc)) +  
   geom_line(aes(y = y1, color = "a=0.48")) +
   geom_line(aes(y = y2, color = "a=7.2")) +
   geom_line(aes(y = y3, color = "a=-3.2")) +
-  labs(x = "x", y = "y") +
+  labs(x = "Concentration", y = "Response") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='a values',
                      breaks=c('a=-3.2', 'a=0.48', 'a=7.2'),
                      values=c('a=-3.2'='black', 'a=0.48'='red', 'a=7.2'='blue'))
 
 # shows how changes in parameter 'p' affect the shape of the curve
-pow_plot2 <- ggplot(fits_pow, aes(ex_conc)) +  
+pow_plot2 <- ggplot(fits_pow, aes(ex2_conc)) +  
   geom_line(aes(y = y4, color = "p=0.3")) +
   geom_line(aes(y = y5, color = "p=1.6")) +
-  geom_line(aes(y = y6, color = "p=2")) +
-  labs(x = "x", y = "y") +
+  geom_line(aes(y = y6, color = "p=3.2")) +
+  labs(x = "Concentration", y = "Response") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='p values',
-                     breaks=c('p=0.3', 'p=1.6', 'p=2'),
-                     values=c('p=0.3'='black', 'p=1.6'='red', 'p=2'='blue'))
+                     breaks=c('p=0.3', 'p=1.6', 'p=3.2'),
+                     values=c('p=0.3'='black', 'p=1.6'='red', 'p=3.2'='blue'))
 
 
 
 grid.arrange(pow_plot1, pow_plot2, ncol = 2)
 ```
 
-**Figure 3:** Plot on the left shows how changes in parameter `a` affect the shape of power curves, while holding `p` constant. Plot on the right shows how changes in parameter `p` affect the shape of power curves, while holding `a` constant.
+**Figure 3:** Note that plots for the power model use a smaller concentration range of 0-3 to better show the affect of `p`. Plot on the left shows how changes in parameter `a` affect the shape of power curves, while holding `p` constant. Plot on the right shows how changes in parameter `p` affect the shape of power curves, while holding `a` constant.
 
 
 ## Hill {#hill}
@@ -176,53 +177,69 @@ Model: $f(x) = \frac{tp}{(1 + (ga/x)^p )}$
 Parameters: 
 
 * `tp` : Top, the highest or lowest response achieved at saturation. It is the horizontal asymptote the curve is approaching. If bi-directional fitting is allowed, then $-\infty < tp <\infty$. Otherwise $0 \le tp < \infty$.
-* `ga` : AC50. Concentration at 50% of maximal activity, it provides useful information about the "apparent affinity" of the protein under study (enzyme, transporter, etc.) for the substrate. The parameter constrain on `ga` is $-\infty <ga < \infty$ 
+* `ga` : AC50. Concentration at 50% of maximal activity, it provides useful information about the "apparent affinity" of the protein under study (enzyme, transporter, etc.) for the substrate. The parameter constrain on `ga` is $0 \le ga < \infty$ 
 * `p` : Hill coefficient, acts as power, a measure of how steep the response curve is. It's a measure of the cooperativity of substrate binding to the enzyme, transporter, etc. `p` is restricted such that $0.3 \le p \le 8$. 
 
 ```{r hill, class.source="scroll-100", fig.height=5, fig.width=8}
 fits_hill <- data.frame(
   # change tp
-  y1 = hillfn(ps = c(tp = 750,ga = 5,p = 1.76), x = ex_conc),
-  y2 = hillfn(ps = c(tp = 850,ga = 5,p = 1.76), x = ex_conc),
+  y1 = hillfn(ps = c(tp = -200,ga = 5,p = 1.76), x = ex_conc),
+  y2 = hillfn(ps = c(tp = 200,ga = 5,p = 1.76), x = ex_conc),
+  y3 = hillfn(ps = c(tp = 850,ga = 5,p = 1.76), x = ex_conc),
 
   # change ga
-  y3 = hillfn(ps = c(tp = 750,ga = 7,p = 1.76), x = ex_conc),
-  y4 = hillfn(ps = c(tp = 750,ga = 4,p = 1.76), x = ex_conc),
+  y4 = hillfn(ps = c(tp = 120,ga = 4,p = 1.76), x = ex_conc),
+  y5 = hillfn(ps = c(tp = 120,ga = 12,p = 1.76), x = ex_conc),
+  y6 = hillfn(ps = c(tp = 120,ga = 20,p = 1.76), x = ex_conc),
   
   # change p
-  y5 = hillfn(ps = c(tp = 750,ga = 5,p = 2), x = ex_conc),
-  y6 = hillfn(ps = c(tp = 750,ga = 5,p = 1.5), x = ex_conc)
+  y7 = hillfn(ps = c(tp = 120,ga = 5,p = 0.5), x = ex_conc),
+  y8 = hillfn(ps = c(tp = 120,ga = 5,p = 2), x = ex_conc),
+  y9 = hillfn(ps = c(tp = 120,ga = 5,p = 5), x = ex_conc)
   
 )
 
+# shows how changes in parameter 'tp' affect the shape of the curve
+hill_plot1 <- ggplot(fits_hill, aes(log10(ex_conc))) +  
+  geom_line(aes(y = y1, color = "tp=-200")) +
+  geom_line(aes(y = y2, color = "tp=200")) +
+  geom_line(aes(y = y3, color = "tp=850")) +
+  labs(x = "Concentration in Log-10 Scale", y = "Response") +
+  theme(legend.position = c(0.2,0.8),
+        legend.key.size = unit(0.5, 'cm')) +
+  scale_color_manual(name='tp values',
+                     breaks=c('tp=-200', 'tp=200', 'tp=850'),
+                     values=c('tp=-200'='black', 'tp=200'='red', 'tp=850'='blue'))
+
 # shows how changes in parameter 'ga' affect the shape of the curve
-hill_plot1 <- ggplot(fits_hill, aes(ex_conc)) +  
-    geom_line(aes(y = y1, color = "ga=5")) +
-     geom_line(aes(y = y3, color = "ga=7")) +
-   geom_line(aes(y = y4, color = "ga=4")) +
-  labs(x = "x", y = "y") +
-  theme(legend.position = c(0.8,0.1)) +
+hill_plot2 <- ggplot(fits_hill, aes(log10(ex_conc))) + 
+  geom_line(aes(y = y4, color = "ga=4")) +
+  geom_line(aes(y = y5, color = "ga=12")) +
+  geom_line(aes(y = y6, color = "ga=20")) +
+  labs(x = "Concentration in Log-10 Scale", y = "Response") +
+  theme(legend.position = c(0.8,0.25),
+        legend.key.size = unit(0.4, 'cm')) +
   scale_color_manual(name='ga values',
-                     breaks=c('ga=5', 'ga=7', 'ga=4'),
-                     values=c('ga=5'='black', 'ga=7'='red', 'ga=4'='blue'))
+                     breaks=c('ga=4', 'ga=12', 'ga=20'),
+                     values=c('ga=4'='black', 'ga=12'='red', 'ga=20'='blue'))
 
 # shows how changes in parameter 'p' affect the shape of the curve
-hill_plot2 <- ggplot(fits_hill, aes(ex_conc)) +  
-    geom_line(aes(y = y1, color = "p=1.76")) +
-     geom_line(aes(y = y5, color = "p=2")) +
-   geom_line(aes(y = y6, color = "p=1.5")) +
-  labs(x = "x", y = "y") +
-  theme(legend.position = c(0.8,0.1)) +
+hill_plot3 <- ggplot(fits_hill, aes(log10(ex_conc))) +  
+  geom_line(aes(y = y7, color = "p=0.5")) +
+  geom_line(aes(y = y8, color = "p=2")) +
+  geom_line(aes(y = y9, color = "p=5")) +
+  labs(x = "Concentration in Log-10 Scale", y = "Response") +
+  theme(legend.position = c(0.8,0.2),
+        legend.key.size = unit(0.4, 'cm')) +
   scale_color_manual(name='p values',
-                     breaks=c('p=1.76', 'p=2', 'p=1.5'),
-                     values=c('p=1.76'='black', 'p=2'='red', 'p=1.5'='blue'))
+                     breaks=c('p=0.5', 'p=2', 'p=5'),
+                     values=c('p=0.5'='black', 'p=2'='red', 'p=5'='blue'))
 
 
-grid.arrange(hill_plot1, hill_plot1, ncol = 2)
+grid.arrange(hill_plot1, hill_plot2, hill_plot3, ncol = 2, nrow = 2)
 ```
 
-**Figure 4:** Plot on the left shows how changes in parameter `ga` affect the shape of hill curves, while holding other parameters constant. Plot on the right shows how changes in parameter `p` affect the shape of power curves, while holding other parameters constant.
-
+**Figure 4:** Note that the x-axis is in log-10 scale. Plot on the top left corner shows how changes in parameter `tp` affect the shape of hill curves, while holding other parameters constant. Plot on the top right corner shows how changes in parameter `ga` affect the shape of hill curves, while holding other parameters constant. Plot on the bottom left corner shows how changes in parameter `p` affect the shape of power curves, while holding other parameters constant.
 
 ## Gain-Loss
 Model: $f(x) = \frac{tp}{[(1 + (ga/x)^p )(1 + (x/la)^q )]}$
@@ -231,7 +248,7 @@ Gain-Loss is the product of two hill functions, one simulates the response going
 
 The definitions of `tp`, `ga`, and `p` are the same as in [hill model](#hill), and `la` is the counterpart of `ga`, `q` is the counterpart of `p` in the decreasing half of the curve. 
 
-* `la` : Loss AC50. The larger it gets the slower the curve starts to decrease (if it increase first). The parameter constrains on `la` are $-\infty <la < \infty$ and $la-ga\ge 1.5$.
+* `la` : Loss AC50. The larger it gets the slower the curve starts to decrease (if it increase first). The parameter constrains on `la` are $0 \le la < \infty$ and $la-ga\ge 1.5$.
 * `q` : Loss power or the rate of loss. The larger it is the faster the curve decreases. `q` is restricted such that $0.3 \le p \le 8$. 
 
 ```{r gnls, class.source="scroll-100", fig.width=8, fig.height=5}
@@ -253,8 +270,8 @@ gnls_plot1 <- ggplot(fits_gnls, aes(log10(ex_conc))) +
   geom_line(aes(y = y1, color = "la=17")) +
   geom_line(aes(y = y2, color = "la=50")) +
   geom_line(aes(y = y3, color = "la=100")) +
-  labs(x = "x", y = "y") +
-  theme(legend.position = c(0.1,0.8)) +
+  labs(x = "Concentration in Log-10 Scale", y = "Response") +
+  theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='la values',
                      breaks=c('la=17', 'la=50', 'la=100'),
                      values=c('la=17'='black', 'la=50'='red', 'la=100'='blue'))
@@ -264,8 +281,8 @@ gnls_plot2 <- ggplot(fits_gnls, aes(log10(ex_conc))) +
   geom_line(aes(y = y4, color = "q=0.3")) +
   geom_line(aes(y = y5, color = "q=1.2")) +
   geom_line(aes(y = y6, color = "q=8")) +
-  labs(x = "x", y = "y") +
-  theme(legend.position = c(0.1,0.8)) +
+  labs(x = "Concentration in Log-10 Scale", y = "Response") +
+  theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='q values',
                      breaks=c('q=0.3', 'q=1.2', 'q=8'),
                      values=c('q=0.3'='black', 'q=1.2'='red', 'q=8'='blue'))
@@ -274,7 +291,7 @@ gnls_plot2 <- ggplot(fits_gnls, aes(log10(ex_conc))) +
 grid.arrange(gnls_plot1, gnls_plot2, ncol = 2)
 ```
 
-**Figure 5:** Plot on the left shows how changes in parameter `la` affect the shape of Gain-Loss curves, while holding other parameters constant. Plot on the right shows how changes in parameter `q` affect the shape of power curves, while holding other parameters constant.
+**Figure 5:** Note that the x-axis is in log-10 scale. Plot on the left shows how changes in parameter `la` affect the shape of Gain-Loss curves, while holding other parameters constant. Plot on the right shows how changes in parameter `q` affect the shape of power curves, while holding other parameters constant.
 
 ## Exponential 2 {#expoential2}
 Model: $f(x) = a*(e^{\frac{x}{b}}-1)$
@@ -282,41 +299,41 @@ Model: $f(x) = a*(e^{\frac{x}{b}}-1)$
 Parameters: 
 
 * `a` : The y-scale. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a < \infty$. Otherwise, $0 < a <\infty$.
-* `b` : The x-scale. If `b` increases, the curve is shrunk horizontally. `b` is restricted to $b > 0$ (i.e. positive). 
+* `b` : The x-scale. If `b` increases, the curve is shrunk horizontally. `b` is restricted to be $b > 0$ (i.e. positive). 
 
 ```{r exp2, class.source="scroll-100", fig.width=8, fig.height=5}
 fits_exp2 <- data.frame(
   # change a
-  y1 = exp2(ps = c(a = 20,b = 12), x = ex_conc),
-  y2 = exp2(ps = c(a = 9,b = 12), x = ex_conc),
-  y3 = exp2(ps = c(a = 0.1,b = 12), x = ex_conc),
-  y4 = exp2(ps = c(a = -3,b = 12), x = ex_conc),
+  y1 = exp2(ps = c(a = 20,b = 12), x = ex2_conc),
+  y2 = exp2(ps = c(a = 9,b = 12), x = ex2_conc),
+  y3 = exp2(ps = c(a = 0.1,b = 12), x = ex2_conc),
+  y4 = exp2(ps = c(a = -3,b = 12), x = ex2_conc),
   
   # change b
-  y5 = exp2(ps = c(a = 0.45,b = 4), x = ex_conc),
-  y6 = exp2(ps = c(a = 0.45,b = 4.5), x = ex_conc),
-  y7 = exp2(ps = c(a = 0.45,b = 20), x = ex_conc)
+  y5 = exp2(ps = c(a = 0.45,b = 4), x = ex2_conc),
+  y6 = exp2(ps = c(a = 0.45,b = 4.5), x = ex2_conc),
+  y7 = exp2(ps = c(a = 0.45,b = 20), x = ex2_conc)
   
 )
 
 # shows how changes in parameter 'a' affect the shape of the curve 
-exp2_plot1 <- ggplot(fits_exp2, aes(ex_conc)) +  
+exp2_plot1 <- ggplot(fits_exp2, aes(ex2_conc)) +  
   geom_line(aes(y = y1, color = "a=20")) +
   geom_line(aes(y = y2, color = "a=9")) +
   geom_line(aes(y = y3, color = "a=0.1")) +
   geom_line(aes(y = y4, color = "a=-3")) +
-  labs(x = "x", y = "y") +
+  labs(x = "Concentration", y = "Response") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='a values',
                      breaks=c('a=-3', 'a=0.1', 'a=9', 'a=20'),
                      values=c('a=-3'='black', 'a=0.1'='red', 'a=9'='blue', 'a=20'='yellow'))
 
 # shows how changes in parameter 'b' affect the shape of the curve 
-exp2_plot2 <- ggplot(fits_exp2, aes(ex_conc)) +  
+exp2_plot2 <- ggplot(fits_exp2, aes(ex2_conc)) +  
   geom_line(aes(y = y5, color = "b=4")) +
   geom_line(aes(y = y6, color = "b=4.5")) +
   geom_line(aes(y = y7, color = "b=20")) +
-  labs(x = "x", y = "y") +
+  labs(x = "Concentration", y = "Response") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='b values',
                      breaks=c('b=4', 'b=4.5', 'b=20'),
@@ -325,7 +342,7 @@ exp2_plot2 <- ggplot(fits_exp2, aes(ex_conc)) +
 grid.arrange(exp2_plot1, exp2_plot2, ncol = 2)
 ```
 
-**Figure 6:** Plot on the left shows how changes in parameter `a` affect the shape of exponential 2 curves, while holding `b` constant. Plot on the right shows how changes in parameter `b` affect the shape of exponential 2 curves, while holding `a` constant.
+**Figure 6:** Note that plots for exponential 2 model use a smaller concentration range of 0-3 to better show the affect of `b`. Plot on the left shows how changes in parameter `a` affect the shape of exponential 2 curves, while holding `b` constant. Plot on the right shows how changes in parameter `b` affect the shape of exponential 2 curves, while holding `a` constant.
 
 ## Exponential 3
 Model: $f(x) = a*(e^{(x/b)^p} - 1)$
@@ -339,18 +356,18 @@ Exponential 3 has one additional parameter `p`.
 ```{r exp3, class.source="scroll-100", fig.width=5, fig.height=5}
 fits_exp3 <- data.frame(
   # change p
-  y1 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.3), x = ex_conc),
-  y2 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.9), x = ex_conc),
-  y3 = exp3(ps = c(a = 1.67,b = 12.5,p = 1.2), x = ex_conc)
+  y1 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.3), x = ex2_conc),
+  y2 = exp3(ps = c(a = 1.67,b = 12.5,p = 0.9), x = ex2_conc),
+  y3 = exp3(ps = c(a = 1.67,b = 12.5,p = 1.2), x = ex2_conc)
   
 )
 
 # shows how changes in parameter 'p' affect the shape of the curve 
-exp3_plot <- ggplot(fits_exp3, aes(ex_conc)) +  
+exp3_plot <- ggplot(fits_exp3, aes(ex2_conc)) +  
   geom_line(aes(y = y1, color = "p=0.87")) +
   geom_line(aes(y = y2, color = "p=0.9")) +
   geom_line(aes(y = y3, color = "p=0.7")) +
-  labs(x = "x", y = "y") +
+  labs(x = "Concentration", y = "Response") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='p values',
                      breaks=c('p=0.87', 'p=0.9', 'p=0.7'),
@@ -360,7 +377,7 @@ exp3_plot <- ggplot(fits_exp3, aes(ex_conc)) +
 exp3_plot
 ```
 
-**Figure 7:** This plot shows how changes in parameter `p` affect the shape of exponential 3 curves, while holding other parameters constant.
+**Figure 7:** Note that plots for exponential 3 model use a smaller concentration range of 0-3 to better show the affect of `p`. This plot shows how changes in parameter `p` affect the shape of exponential 3 curves, while holding other parameters constant.
 
 ## Exponential 4 {#expoential4}
 Model: $f(x) = tp*(1-2^{(-\frac{x}{ga})})$
@@ -389,7 +406,7 @@ exp4_plot1 <- ggplot(fits_exp4, aes(ex_conc)) +
   geom_line(aes(y = y1, color = "tp=895")) +
   geom_line(aes(y = y2, color = "tp=200")) +
   geom_line(aes(y = y3, color = "tp=-500")) +
-  labs(x = "x", y = "y") +
+  labs(x = "Concentration", y = "Response") +
   theme(legend.position = c(0.1,0.8)) +
   scale_color_manual(name='tp values',
                      breaks=c('tp=-500', 'tp=200', 'tp=895'),
@@ -401,7 +418,7 @@ exp4_plot2 <- ggplot(fits_exp4, aes(ex_conc)) +
   geom_line(aes(y = y4, color = "ga=0.4")) +
   geom_line(aes(y = y5, color = "ga=10")) +
   geom_line(aes(y = y6, color = "ga=20")) +
-  labs(x = "x", y = "y") +
+  labs(x = "Concentration", y = "Response") +
   theme(legend.position = c(0.8,0.2)) +
   scale_color_manual(name='ga values',
                      breaks=c('ga=0.4', 'ga=10', 'ga=20'),
@@ -436,8 +453,8 @@ exp5_plot <- ggplot(fits_exp5, aes(ex_conc)) +
   geom_line(aes(y = y1, color = "p=0.3")) +
   geom_line(aes(y = y2, color = "p=3.4")) +
   geom_line(aes(y = y3, color = "p=8")) +
-  labs(x = "x", y = "y") +
-  theme(legend.position = c(0.8,0.1)) +
+  labs(x = "Concentration", y = "Response") +
+  theme(legend.position = c(0.8,0.2)) +
   scale_color_manual(name='p values',
                      breaks=c('p=0.3', 'p=3.4', 'p=8'),
                      values=c('p=0.3'='black', 'p=3.4'='red', 'p=8'='blue'))
@@ -447,4 +464,71 @@ exp5_plot
 ```
 
 **Figure 9:** This plot shows how changes in parameter `p` affect the shape of exponential 5 curves, while holding other parameters constant.
+
+# Appendix 
+```{r appendix-table, echo=FALSE, warning=FALSE}
+# First column - tcplfit2 available models.
+Model <- c(
+  "Constant", "Linear", "Quadratic","Power", "Hill", "Gain-Loss",
+  "Exponential 2", "Exponential 3","Exponential 4", "Exponential 5"
+)
+# Second column - model abbreviations used in invitrodb & tcplfit2.
+Abbreviation <- c(
+  "cnst", "poly1", "poly2","pow", "hill", "gnls",
+  "exp2", "exp3", "exp4", "exp5"
+)
+# Third column - model equations.
+Equations <- c(
+  "$f(x) = 0$", # constant
+  "$f(x) = ax$", # linear
+  "$f(x) = a(\\frac{x}{b}+(\\frac{x}{b})^{2})$", # quadratic
+  "$f(x) = ax^p$", # power
+  "$f(x) = \\frac{tp}{1 + (\\frac{ga}{x})^{p}}$", # hill
+  "$f(x) = \\frac{tp}{(1 + (\\frac{ga}{x})^{p} )(1 + (\\frac{x}{la})^{q} )}$", # gain-loss
+  "$f(x) = a*(exp(\\frac{x}{b}) - 1)$", # exp 2
+  "$f(x) = a*(exp((\\frac{x}{b})^{p}) - 1)$", # exp 3
+  "$f(x) = tp*(1-2^{\\frac{-x}{ga}})$", # exp 4
+  "$f(x) = tp*(1-2^{-(\\frac{x}{ga})^{p}})$" # exp 5
+)
+# Fourth column - model parameter descriptions.
+OutputParameters <- c(
+  "", # constant
+  "a (y-scale)", # linear,
+  "a (y-scale), b (x-scale)", # quadratic
+  "a (y-scale), p (power)", # power
+  "tp (top), ga (gain AC50), p (gain-power)", # hill
+  "tp (top), ga (gain AC50), p (gain power), la (loss AC50), q (loss power)", # gain-loss
+  "a (y-scale), b (x-scale)", # exp2
+  "a (y-scale), b (x-scale), p (power)", # exp3
+  "tp (top), ga (AC50)", # exp4
+  "tp (top), ga (AC50), p (power)" # exp5
+)
+# Fifth column - additional model details.
+Details <- c(
+  "Parameters always equals 'er'.", # constant
+  "", # linear 
+  "", # quadratic
+  "", # power
+  "Concentrations are converted internally to log10 units and optimized with f(x) = tp/(1 + 10^(p*(gax))), then ga and ga_sd are converted back to regular units before returning.", # hill
+  "Concentrations are converted internally to log10 units and optimized with f(x) = tp/[(1 + 10^(p*(gax)))(1 + 10^(q*(x-la)))], then ga, la, ga_sd, and la_sd are converted back to regular units before returning." , # gain-loss
+  "", # exp2
+  "", # exp3
+  "", # exp4
+  "") # exp5
+# Consolidate all columns into a table.
+output <- 
+  data.frame(Model, Abbreviation, Equations,
+             OutputParameters, Details)
+# Export/print the table into an html rendered table.
+htmlTable(output,
+        align = 'l',
+        align.header = 'l',
+        rnames = FALSE  ,
+        css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ',
+        caption="*tcplfit2* model details.",
+        tfoot = "Model descriptions are pulled from tcplFit2 manual at <https://cran.r-project.org/package=tcplfit2/tcplfit2.pdf>."
+)
+```
+
+*This is a summary of `tcplfit2` model details. This table is taken from the [Data Processing vignette](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html#concentration-response-modeling-details) from `tcpl` package.*
 
