@@ -370,23 +370,32 @@ The estimated BMD can occurs above or below an experimental dose or other specif
 
 First, let's consider a situation when BMD is below the lowest concentration tested. This situation could happen when the experiment was not designed to have enough low dose groups to capture behavior in low dose region and it can be a red flag for unreliable analysis. The following code chunk loads data of a sample from `mc3` and simulates an example like this. Data from the first couple low dose groups were removed so that the responses in the first couple groups left would increase quickly. 
 ```{r example 5 lower}
+# We'll use data from mc3 in this section
+data("mc3")
+
+# determine the background variation
+temp <- mc3[mc3$logc<= -2,"resp"]
+bmad <- mad(temp)
+onesd <- sd(temp)
+cutoff <- 3*bmad
+
 # load example data
 spid <- unique(mc3$spid)[94]
-temp <- mc3[is.element(mc3$spid,spid),]
+ex_df <- mc3[is.element(mc3$spid,spid),]
 
 # The data file has stored concentration in log10 form, fix it 
-conc <- 10**temp$logc # back-transforming concentrations on log10 scale
-resp <- temp$resp
+conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
+resp <- ex_df$resp
 
 # modify the data for demonstration purposes 
 conc2 <- conc[conc>0.41]
 resp2 <- resp[which(conc>0.41)]
 
 # pull out all of the chemical identifiers and the name of the assay
-dtxsid <- temp[1,"dtxsid"]
-casrn <- temp[1,"casrn"]
-name <- temp[1,"name"]
-assay <- temp[1,"assay"]
+dtxsid <- ex_df[1,"dtxsid"]
+casrn <- ex_df[1,"casrn"]
+name <- ex_df[1,"name"]
+assay <- ex_df[1,"assay"]
 
 # create the row object
 row <- list(conc = conc2, resp = resp2, bmed = 0, cutoff = cutoff, onesd = onesd,
@@ -397,10 +406,10 @@ res_low <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly
                                           "pow", "exp2", "exp3", "exp4", "exp5"), 
                         conthits = T, aicc = F, bidirectional=F)
 
-concRespPlot(res_low,ymin=-10,ymax=100)
+concRespPlot(res_low,ymin=-10,ymax=60)
 ```
 
-```{r example 5 lower-res, echo=FALSE}
+```{r example 5 lower-res}
 # function results
 res_low['Min. Conc.'] <- min(conc2)
 res_low['Name'] <- name
@@ -416,50 +425,63 @@ res_low2 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "pol
                          conthits = T, aicc = F, bidirectional=F, bmd_low_bnd = 0.8)
 ```
 
-```{r example 5 new lower-res, echo=FALSE}
+```{r example 5 new lower-res}
 # print out the new results
+# include previous results side by side for comparison 
 res_low2['Min. Conc.'] <- min(conc2)
-res_low2['Name'] <- name
+res_low2['Name'] <- paste(name, "after `censoring`", sep = "-")
+res_low['Name'] <- paste(name, "before `censoring`", sep = "-")
 res_low2[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")] <- round(res_low2[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")], 3)
-DT::datatable(res_low2[1, c("Name",'Min. Conc.',"bmd", "bmdl", "bmdu")],rownames = FALSE)
+
+output_low <- rbind(res_low[1, c('Name', "Min. Conc.", "bmd", "bmdl", "bmdu")], 
+                    res_low2[1, c('Name', "Min. Conc.", "bmd", "bmdl", "bmdu")])
+DT::datatable(output_low,rownames = FALSE)
 ```
 
-```{r example 5 lower cont., echo=FALSE}
+```{r example 5 lower plot}
+# generate some concentration for the fitted curve 
 logc_plot <- seq(from=-3,to=2,by=0.05)
 conc_plot <- 10**logc_plot
 
-plot(c(1,1),type="n",xlab="conc (uM)",ylab="Response",xlim=c(0.001,100),ylim=c(0,100),
+# initiate the plot
+plot(conc2,resp2,xlab="conc (uM)",ylab="Response",xlim=c(0.001,100),ylim=c(-5,60),
        log="x",main=paste(name,"\n",assay),cex.main=0.9)
 
+# add vertical lines to mark the minimum concentration in the data and the lower threshold set by bmd_low_bnd
+abline(v=min(conc2), lty = 2, col = "brown", lwd = 2)
+abline(v=res_low2$bmd, lty = 2, col = "darkviolet", lwd = 2)
+
+# add markers for BMD and its boundaries before `censoring`
 lines(c(res_low$bmd,res_low$bmd),c(0,50),col="green",lwd=2)
 rect(xleft=res_low$bmdl,ybottom=0,xright=res_low$bmdu,ytop=50,col=rgb(0,1,0, alpha = .5), border = NA)
+points(res_low$bmd, 0, pch = "x", col = "green")
 
+# add markers for BMD and its boundaries after `censoring`
 lines(c(res_low2$bmd,res_low2$bmd),c(0,50),col="blue",lwd=2)
 rect(xleft=res_low2$bmdl,ybottom=0,xright=res_low2$bmdu,ytop=50,col=rgb(0,0,1, alpha = .5), border = NA)
-
-points(res_low$bmd, 0, pch = "x", col = "green")
 points(res_low2$bmd, 0, pch = "x", col = "blue")
-points(conc2, resp2)
+
+# add the fitted curve
 lines(conc_plot, exp4(ps = c(res_low$tp, res_low$ga), conc_plot))
 ```
 
-**Figure x**: This plot shows how BMD and its boundaries changed after "censoring". The green line and green "X" mark the BMD before "censoring" and the green column shows the original boundaries. The blue line and blue "X" mark the "censored" BMD and the blue column shows the updated boundaries. The BMD and its boundaries were forced to be shifted right because it's not allowed to be lowered than 0.48. Note that the updated boundaries also became narrower.  
+**Figure 7**: This plot shows how BMD and its boundaries changed after "censoring". The green line and green "X" mark the BMD before "censoring" and the green column shows the original boundaries. The blue line and blue "X" mark the "censored" BMD and the blue column shows the updated boundaries. The violet dash line represents the minimum concentration in the data, and the brown dash line represents the threshold value set by `bmd_low_bnd`. In this example, BMD was "censored" to the threshold value, and its boundaries were shifted right.
 
 Let's consider another situation when BMD is higher than the maximum concentration in the data. This is not ideal because the experiments are typically designed as that anything beyond the maximum concentrate would cause server damage. If this happen, `bmd_up_bnd` can be used to restrict the BMD to be no higher than a percentage of the maximum dose. 
 ```{r example 5 upper}
 # load example data
 spid <- unique(mc3$spid)[26]
-temp <- mc3[is.element(mc3$spid,spid),]
+ex_df <- mc3[is.element(mc3$spid,spid),]
 
 # The data file has stored concentration in log10 form, so fix that
-conc <- 10**temp$logc # back-transforming concentrations on log10 scale
-resp <- temp$resp
+conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
+resp <- ex_df$resp
 
 # pull out all of the chemical identifiers and the name of the assay
-dtxsid <- temp[1,"dtxsid"]
-casrn <- temp[1,"casrn"]
-name <- temp[1,"name"]
-assay <- temp[1,"assay"]
+dtxsid <- ex_df[1,"dtxsid"]
+casrn <- ex_df[1,"casrn"]
+name <- ex_df[1,"name"]
+assay <- ex_df[1,"assay"]
 
 # create the row object
 row <- list(conc = conc, resp = resp, bmed = 0, cutoff = cutoff, onesd = onesd,assay=assay,
@@ -470,10 +492,10 @@ res_up <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2
                                          "pow", "exp2", "exp3", "exp4", "exp5"), 
                        conthits = T, aicc = F, bidirectional=F)
 
-concRespPlot(res_up,ymin=-10,ymax=100)
+concRespPlot(res_up,ymin=-10,ymax=40)
 ```
 
-```{r example 5 upper-res, echo=FALSE}
+```{r example 5 upper-res}
 # max conc.
 res_up['Max Conc.'] <- max(conc)
 res_up['Name'] <- name
@@ -482,28 +504,74 @@ res_up[1, c("Max Conc.", "bmd", "bmdl", "bmdu")] <- round(res_up[1, c("Max Conc.
 DT::datatable(res_up[1, c('Name','Max Conc.', "bmd", "bmdl", "bmdu")],rownames = FALSE)
 ```
 
-The BMD 299.927 is higher than the maximum concentration in the data, which is 80. One can set `bmd_up_bnd` to 1 to use the maximum concentration as the upper bound (i.e., BMD is not allowed to be larger than 100% of the maximum concentration in the data). And if BMD is bigger than this upper bound, it will be forced to be the maximum concentration. One can also input a fraction to `bmd_up_bnd` so BMD is not allowed to be larger than a percentage of the maximum concentration. For example, set it to 0.6 to have BMD no larger than 60% percentage of the maximum concentration. Doing this can avoid the maximum concentration to be the BMD and make sure BMD is in the dose range tested so the analysis can have some dose groups below the BMD and some dose groups above BMD.
-```{r example upper 2, eval=FALSE, echo=FALSE}
-# input a number larger than 1
-res_up2 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"), conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 2)
-```
-
-```{r example 5 upper cont., echo=FALSE, eval=FALSE}
-res_up2['Max Conc.'] <- max(conc)
-DT::datatable(res_up2[1, c('Max Conc.',"bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
-```
-
+The BMD 299.927 is higher than the maximum concentration in the data, which is 80. One can set `bmd_up_bnd` to 1 to use the maximum concentration as the upper bound (i.e., BMD is not allowed to be larger than 100% of the maximum concentration in the data). And if BMD is bigger than this upper bound, it will be forced to be the maximum concentration. One can also input a number larger than 1 to `bmd_up_bnd` so BMD is allowed to be larger than the maximum concentration but not larger than a specified number. For example, set it to 2 does not allow BMD to be larger than 2 times the maximum concentration. Doing this can force the extreme BMD to be topped by a specified value. 
 ```{r example upper-demo}
-res_up3 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
+# using bmd_up_bnd = 2
+res_up2 <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                           "pow", "exp2", "exp3", "exp4", "exp5"), 
-                        conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 0.6)
+                        conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 2)
 ```
 
-```{r example upper-2, echo=FALSE}
-res_up3['Max Conc.'] <- max(conc)
-res_up3['Name'] <- name
-res_up3[1, c("Max Conc.", "bmd", "bmdl", "bmdu")] <- round(res_up3[1, c("Max Conc.", "bmd", "bmdl", "bmdu")], 3)
-DT::datatable(res_up3[1, c('Max Conc.', "bmd", "bmdl", "bmdu")],rownames = FALSE,options = list(scrollX = T))
+```{r example upper-2}
+# print out the new results
+# include previous results side by side for comparison 
+res_up2['Max Conc.'] <- max(conc)
+res_up2['Name'] <- paste(name, "after", sep = "-")
+res_up['Name'] <- paste(name, "before", sep = "-")
+res_up2[1, c("Max Conc.", "bmd", "bmdl", "bmdu")] <- round(res_up2[1, c("Max Conc.", "bmd", "bmdl", "bmdu")], 3)
+
+output_up <- rbind(res_up[1, c('Name', "Max Conc.", "bmd", "bmdl", "bmdu")], 
+                   res_up2[1, c('Name', "Max Conc.", "bmd", "bmdl", "bmdu")])
+DT::datatable(output_up,rownames = FALSE)
 ```
+
+```{r example upper plot}
+# generate some concentration for the fitting curve 
+logc_plot <- seq(from=-3,to=2,by=0.05)
+conc_plot <- 10**logc_plot
+
+# initiate plot
+plot(conc,resp,xlab="conc (uM)",ylab="Response",xlim=c(0.001,500),ylim=c(-5,60),
+       log="x",main=paste(name,"\n",assay),cex.main=0.9)
+# add vertical lines to mark the maximum concentration in the data and the upper threshold set by bmd_up_bnd
+abline(v=max(conc), lty = 2, col = "black", lwd=2)
+abline(v=160, lty = 2, col = "darkviolet", lwd=2)
+
+# add marker for BMD and its boundaries before `censoring`
+lines(c(res_up$bmd,res_up$bmd),c(0,50),col="green",lwd=2)
+rect(xleft=res_up$bmdl,ybottom=0,xright=res_up$bmdu,ytop=50,col=rgb(0,1,0, alpha = .5), border = NA)
+points(res_up$bmd, 0, pch = "x", col = "green")
+
+# add marker for BMD and its boundaries after `censoring`
+lines(c(res_up2$bmd,res_up2$bmd),c(0,50),col="blue",lwd=2)
+rect(xleft=res_up2$bmdl,ybottom=0,xright=res_up2$bmdu,ytop=50,col=rgb(0,0,1, alpha = .5), border = NA)
+points(res_up2$bmd, 0, pch = "x", col = "blue")
+
+# add the fitting curve
+lines(conc_plot, exp4(ps = c(res_low$tp, res_low$ga), conc_plot))
+```
+
+**Figure 9**: This plot shows how BMD and its boundaries changed after "censoring". The green line and green "X" mark the BMD before "censoring" and the green column shows the original boundaries. The blue line and blue "X" mark the "censored" BMD and the blue column shows the updated boundaries. The brown dash line represents the maximum concentration in the data, and the violet dash line represents the threshold value set by `bmd_up_bnd`. In this example, BMD was "censored" to the threshold value, and its boundaries were shifted left.
+
+`bmd_low_bnd` and `bmd_low_bnd` are also available in `tcplhit2_core`. If one chooses to use `tcplfit2_core` and `tcplhit2_core` separately, they can do the same "censoring" for BMD. The results from these two methods are identical. Some example codes are provided below to show how to get the same result from the lower bound example above with `tcplhit2_core`.
+```{r example with hit core}
+# using the same data, fit curves 
+param <- tcplfit2_core(conc2, resp2, cutoff = cutoff)
+hit_res <- tcplhit2_core(param, conc2, resp2, cutoff = cutoff, onesd = onesd, 
+                         bmd_low_bnd = 0.8)
+```
+
+```{r res-hit core}
+# adding the result from tcplhit2_core to the output table for comparison
+hit_res["Name"]<-  paste("Chlorothalonil", "tcplhit2_core", sep = "-")
+hit_res['Min. Conc.'] <- min(conc2)
+hit_res[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")] <- round(hit_res[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")], 3)
+
+output_low <- rbind(output_low, 
+                    hit_res[1, c('Name', "Min. Conc.", "bmd", "bmdl", "bmdu")])
+DT::datatable(output_low,rownames = FALSE)
+```
+
+
 
 
