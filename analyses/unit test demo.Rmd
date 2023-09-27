@@ -4,17 +4,26 @@ output: html_document
 date: "2023-09-14"
 ---
 
+```{css, echo=FALSE}
+.scroll-100 {
+  max-height: 100px;
+  overflow-y: auto;
+}
+```
+
 ```{r setup, include=FALSE}
 library(tcplfit2)
 library(stringr)
 library(testthat)
 ```
 
-The purpose of having unit tests is to ensure future feature development does not affect current analyses. How unit tests work is that it compares the results from the code (usually after some changes made) with previous known results to ensure the output is not changed when it's not supposed to. 
+# Introduction
+The purpose of having unit tests is to ensure future feature development does not affect current analyses. How unit test work is that they compare the results from the codes (usually after some changes made) with previous known results to ensure the output is not changed when it's not supposed to. This vignette will demonstrate how to create and run unit tests, and how failed tests can help detect bug and prevent altering current analyses.  
 
-Use `fitexp3` as an example, the current fit for exponential 3 with some simulated data is as below, and we want to make sure this does not change as we add more changes to the package.  
+# Create and Run Unit Tests
+Use `fitexp3` as an example. We want to create a unit test for `fitexp3` to make sure if we add more arguments to this function or add more changes to the package, they does not change the current fitting result. The current fitting result for exponential 3 curve with some simulated data is as below.
 
-```{r}
+```{r, example unit test}
 data("signatures")
 conc=as.numeric(str_split(signatures[1,"conc"],"\\|")[[1]])
 resp=as.numeric(str_split(signatures[1,"resp"],"\\|")[[1]])
@@ -22,9 +31,9 @@ resp=as.numeric(str_split(signatures[1,"resp"],"\\|")[[1]])
 fitexp3(conc, resp)
 ```
 
-To create a test for a function, we can use `test_that` function from `testthat` package. The test will run the code above and compare the result to what we expect to see (results from above). The following chunk is the test created for `fitexp3` and it checks for the fitted values for all model parameters. This code can be ran directly and the output would be either you pass or did not pass the test. 
+To create a test for a function, one first need to use `usethis::use_test("<name of the function>")` to create a test file. In that test file contains template codes of `test_that` function from `testthat` package. The following code chunk shows the test created for `fitexp3`. It run the same codes from the code chunk above and compare the fitted values for all model parameters to what we expect to see (result from above). If they are all identical, the test passes. This code chunk can be ran directly and the output would be either you pass or did not pass the test. 
 
-```{r}
+```{r, example unit test exp3}
 test_that("fitexp3 works", {
   
   # include the same codes that expect to generate the same results 
@@ -39,22 +48,22 @@ test_that("fitexp3 works", {
 })
 ```
 
-We can also use `devtools::test()` to run all tests in the package at once. The result will show have many tests are ran and how many passed. For any failed tests, the result will show you the what is the actual output and what is the expected output.
+Repeat the process to create a test file for each function you want to test in a package. We can use `devtools::test()` to run all tests in the package at once. The output will show have many tests are ran and how many passed. For any failed tests, the result will show what is the actual output and what is the expected output.
 
-```{r}
+```{r run all tests}
 # make sure you are in the package directory, or specify the path to it
 devtools::test()
 ```
 
-Let say I'm working on adding a new argument to allow users to choose normal as error distribution. The default for this argument would still be t-distribution as is right now, and adding this feature should not change the fitting result if normal error is not used. 
+# Failed Test
+This section will show you what can cause a unit test to fail. For example, I'm working on adding a new argument to allow users to choose normal as error distribution. The default for this argument would still be t-distribution as is right now, and adding this feature should not change the fitting result if normal error assumption is not used. 
 
-For instance, I accidentally hard code the `fitexp3` to use normal for error distribution, it will return different fitted parameter values and cause the test to fail. 
+Let say I accidentally hard code function `fitexp3` to use normal for error distribution, then it will return different fitted parameter values and cause the unit test to fail. The code chunk below contains codes with a bug: in the optimization step and where it calculates standard deviations for parameters, I hard coded the error function to be normal. 
 
-```{r}
-# this is an example code that contains a bug: hardcoding in optimization step and calculation of standard deviation for parameters 
-
+**Please note that running the codes in the code chunk below will mask the original `fitexp3` function in `tcplfit2` package. Please reminder to re-load the package if you ran this chunk.** 
+```{r hard code exp3, class.source="scroll-100"}
 # running this code will mask the function in the original package
-# reminder to re-load the package if you ran the this chunk 
+# reminder to re-load the package if you ran this chunk 
 
 fitexp3 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, dmin = .3,
                    errfun = "dt4", ...){ 
@@ -209,9 +218,9 @@ fitexp3 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
 
 ```
 
-Run the the test again, but this time it will fail because a bug was introduced by the new changes. The output will show you what the code returned v.s. what it expect. 
+Run the unit test for `fitexp3` again, and this time it will fail because a bug was introduced by the new changes. The output will show you what the code returned versus what it expect. 
 
-```{r, error=TRUE}
+```{r failed test, error=TRUE}
 test_that("fitexp3 works", {
   data("signatures")
   conc=as.numeric(str_split(signatures[1,"conc"],"\\|")[[1]])
