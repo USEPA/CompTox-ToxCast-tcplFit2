@@ -34,10 +34,10 @@ library(htmlTable)
 
 # prepare data for demonstration
 ex_conc <- seq(0, 100, length.out = 100)
-ex2_conc <- seq(0, 3, length.out = 30)
+ex2_conc <- seq(0, 3, length.out = 100)
 ```
 
-This vignette contains model details for all models available in `tcplfit2` package with parameter explanations and plots.  
+This vignette contains model details for all models available in `tcplfit2` package with parameter explanations and plots. Please note that all the models are implemented with the assumption that baseline is at 0. 
 
 # Continuous Response Model
 
@@ -55,7 +55,7 @@ poly1_plot <- ggplot(mapping=aes(ex_conc)) +
   theme(legend.position = c(0.1,0.8)) +
   scale_color_manual(name='a values',
                      breaks=c('a=-5', 'a=0.05', 'a=10', 'a=55'),
-                     values=c('a=-5'='black', 'a=0.05' = 'red', 'a=10'='blue', 'a=55'='yellow'))
+                     values=c('a=-5'='black', 'a=0.05' = 'red', 'a=10'='blue', 'a=55'='slateblue3'))
 
 poly1_plot
 ```
@@ -102,7 +102,7 @@ poly2_plot1 <- ggplot(fits_poly, aes(ex_conc)) +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='a values',
                      breaks=c('a=-20', 'a=-2', 'a=0.1', 'a=6', 'a=40'),
-                     values=c('a=-20'='black', 'a=-2'='red', 'a=0.1'='blue', 'a=6'='yellow', 'a=40'='grey'))
+                     values=c('a=-20'='black', 'a=-2'='red', 'a=0.1'='blue', 'a=6'='darkviolet', 'a=40'='darkgoldenrod1'))
 
 # shows how changes in parameter 'b' affect the shape of the curve 
 poly2_plot2 <- ggplot(fits_poly, aes(ex_conc)) +  
@@ -326,7 +326,7 @@ exp2_plot1 <- ggplot(fits_exp2, aes(ex2_conc)) +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='a values',
                      breaks=c('a=-3', 'a=0.1', 'a=9', 'a=20'),
-                     values=c('a=-3'='black', 'a=0.1'='red', 'a=9'='blue', 'a=20'='yellow'))
+                     values=c('a=-3'='black', 'a=0.1'='red', 'a=9'='blue', 'a=20'='darkviolet'))
 
 # shows how changes in parameter 'b' affect the shape of the curve 
 exp2_plot2 <- ggplot(fits_exp2, aes(ex2_conc)) +  
