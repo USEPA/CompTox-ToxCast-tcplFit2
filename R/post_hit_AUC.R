@@ -3,8 +3,9 @@
 #' Function that calculates AUC for dose-response curves after hit-calling
 #'
 #' This function calculates AUC value for the winning model selected after
-#' hit-calling.
-#'
+#' hit-calling. This is a wrapper function for get_AUC. Designated to take
+#' one-row output from tcplhit2_core and parse the model details, then
+#' pass to get_AUC to obtain AUC for the winning model.
 #'
 #' @param hit_results output from tcplhit2_core
 #'
@@ -22,7 +23,7 @@
 #' post_hit_AUC(output)
 #'
 #'
-post_hit_AUC <- function(hit_results) {
+post_hit_AUC <- function(hit_results, ...) {
 
   # parameter list
   param <- c("a","tp","b","ga","p", "la", "q", "er")
@@ -34,8 +35,9 @@ post_hit_AUC <- function(hit_results) {
   modpars <- modpars[!is.na(modpars)]
   # get the winning model name
   fit_method <- hit_results[["fit_method"]]
+  out <- get_AUC(fit_method, min(conc), max(conc), ps = modpars, ...)
 
   # return AUC
-  return(get_AUC(fit_method, min(conc), max(conc), ps = modpars))
+  return(out)
 
 }
