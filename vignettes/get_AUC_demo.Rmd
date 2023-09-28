@@ -55,7 +55,7 @@ conc <- c(.03, .1, .3, 1, 3, 10, 30, 100)
 resp <- c(0, .1, 0, .2, .6, .9, 1.1, 1)
 
 # use verbose to show the winning model and plot all models 
-output <- tcplfit2_core(conc, resp, .8, verbose = TRUE, do.plot = TRUE)
+output <- tcplfit2_core(conc, resp, .8, do.plot = TRUE)
 ```
 
 Let say we want to get AUC for the winning model, in this case, hill. We can do that with `get_AUC` with inputs: the name of the model, lower and upper concentration bounds (usually are the lowest and the highest concentration in the data), and estimated model parameters. The following codes show how to extract those information from the output from above and put them into `get_AUC` function. After that calculated AUC, plot the curve and shape the area to see if the returned value makes sense. The returned value represents the area of the shaped region. 
@@ -183,6 +183,24 @@ AUC is used as an indicator of overall effect size, so for curves that pass the 
 x_intercept <- 2
 abs(get_AUC("poly2", min(conc_sim), x_intercept, ps)) + get_AUC("poly2", x_intercept, max(conc_sim), ps)
 ```
+
+# AUC after hit-calling
+
+In some scenarios, users might only run the `concRespCore` function and get information about the winning model and the hitcall. In this case, the output from `concRespCore` and `tcplhit2_core` would be a one row data frame that contains concentration data, winning model name and the parameter values. 
+
+There is a wrapper function `post_hit_AUC` available for calculating AUC after hit-calling that will extract information from this type of output so one don't need to manually input the model info into the format `get_AUC` takes, as demonstrated above. 
+
+The winning model from data used in example 1 is Hill. Compare the AUC from above and the AUC returned from the `post_hit_AUC` function, they are the same.
+
+```{r example 4}
+out <- tcplhit2_core(output, conc, resp, cutoff, onesd = 0.4)
+out
+post_hit_AUC(out)
+```
+
+
+
+
 
 
 
