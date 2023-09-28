@@ -310,7 +310,7 @@ fits_exp2 <- data.frame(
   
   # change b
   y5 = exp2(ps = c(a = 0.45,b = 4), x = ex2_conc),
-  y6 = exp2(ps = c(a = 0.45,b = 4.5), x = ex2_conc),
+  y6 = exp2(ps = c(a = 0.45,b = 9), x = ex2_conc),
   y7 = exp2(ps = c(a = 0.45,b = 20), x = ex2_conc)
   
 )
@@ -330,13 +330,13 @@ exp2_plot1 <- ggplot(fits_exp2, aes(ex2_conc)) +
 # shows how changes in parameter 'b' affect the shape of the curve 
 exp2_plot2 <- ggplot(fits_exp2, aes(ex2_conc)) +  
   geom_line(aes(y = y5, color = "b=4")) +
-  geom_line(aes(y = y6, color = "b=4.5")) +
+  geom_line(aes(y = y6, color = "b=9")) +
   geom_line(aes(y = y7, color = "b=20")) +
   labs(x = "Concentration", y = "Response") +
   theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='b values',
-                     breaks=c('b=4', 'b=4.5', 'b=20'),
-                     values=c('b=4'='black', 'b=4.5'='red', 'b=20'='blue'))
+                     breaks=c('b=4', 'b=9', 'b=20'),
+                     values=c('b=4'='black', 'b=9'='red', 'b=20'='blue'))
 
 grid.arrange(exp2_plot1, exp2_plot2, ncol = 2)
 ```
