@@ -34,6 +34,7 @@
 #'   than 1/10th of the lowest concentration tested.
 #' @param bmd_up_bnd Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
 #'   than 10 times the highest concentration tested.
+#' @param AUC If TRUE, generate and return Area under the curve (AUC) for the winning model after hit-calling. Defaults to TRUE.
 #'
 #'
 #' @export
@@ -65,7 +66,8 @@ concRespCore <- function(row,
                          errfun = "dt4",
                          bmr_scale = 1.349,
                          bmd_low_bnd = NULL,
-                         bmd_up_bnd = NULL) {
+                         bmd_up_bnd = NULL,
+                         AUC = TRUE) {
   # variable binding to pass cmd checks
   bmed <- cutoff <- onesd <- NULL
   # row needs to include cutoff and bmed
@@ -88,6 +90,11 @@ concRespCore <- function(row,
 
   # calculate the hitcall
   summary <- tcplhit2_core(params, conc, resp, cutoff, onesd, bmr_scale, bmed, conthits, aicc, identifiers,bmd_low_bnd, bmd_up_bnd)
+
+  if (AUC) {
+    summary["AUC"] <- post_hit_AUC(summary)
+  }
+
   if (return.details) {
     return(list(summary = summary, all.models = params))
   } else {
