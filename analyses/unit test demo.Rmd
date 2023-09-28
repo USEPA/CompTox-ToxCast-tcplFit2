@@ -18,10 +18,17 @@ library(testthat)
 ```
 
 # Introduction
-The purpose of having unit tests is to ensure future feature development does not affect current analyses. How unit test work is that they compare the results from the codes (usually after some changes made) with previous known results to ensure the output is not changed when it's not supposed to. This vignette will demonstrate how to create and run unit tests, and how failed tests can help detect bug and prevent altering current analyses.  
+This vignette is meant to demonstrate how to create and run unit tests for an R package.  We also provide a failed test example to demonstrate the anticipated output for these situations.  
+
+The purpose of having unit tests in an R package is to ensure feature development does not unintentionally impact current or previous analysis results.  Unit test results may be used to help detect bug(s) and allow for early resolution prior to subsequent version releases.
+
+Unit tests work by comparing known (expected) results to the results obtained from the current codebase.  This comparison helps to ensure the output is consistent from version to version and changes in results only occur when intended to do so. 
 
 # Create and Run Unit Tests
-Use `fitexp3` as an example. We want to create a unit test for `fitexp3` to make sure if we add more arguments to this function or add more changes to the package, they does not change the current fitting result. The current fitting result for exponential 3 curve with some simulated data is as below.
+
+Here, we use the `fitexp3` function as an example. First, we want to create a unit test for `fitexp3`, which will be used to check that if additional arguments are incorporated with this function, or if changes tangential to this function occur in the package, this does not change the expected fitting results.
+
+The current fitting results for the exponential 3 model is provided below with some simulated data provided in `tcplfit2`.
 
 ```{r, example unit test}
 data("signatures")
@@ -31,24 +38,26 @@ resp=as.numeric(str_split(signatures[1,"resp"],"\\|")[[1]])
 fitexp3(conc, resp)
 ```
 
-To create a test for a function, one first need to use `usethis::use_test("<name of the function>")` to create a test file. In that test file contains template codes of `test_that` function from `testthat` package. The following code chunk shows the test created for `fitexp3`. It run the same codes from the code chunk above and compare the fitted values for all model parameters to what we expect to see (result from above). If they are all identical, the test passes. This code chunk can be ran directly and the output would be either you pass or did not pass the test. 
+To create a test for a function, we can use `usethis::use_test("<name of the function>")` to create a test file, see the `usethis` package for further details. The generated test file contains template code with the `test_that` function from `testthat` package.
+
+The following code chunk shows the test created for `fitexp3`. It runs the same code from the code chunk above and compares the fitted values for all model parameters to the results what we expect to see (as in the above results). If all the values are identical, the test passes. This code chunk can be ran directly and the output indicates whether the test passes or fails.
 
 ```{r, example unit test exp3}
 test_that("fitexp3 works", {
   
-  # include the same codes that expect to generate the same results 
+  # include the same code we expect to generate the same results for 
   data("signatures")
   conc=as.numeric(str_split(signatures[1,"conc"],"\\|")[[1]])
   resp=as.numeric(str_split(signatures[1,"resp"],"\\|")[[1]])
   
-  # compare the actual result with the expected 
+  # compare the actual with the expected results
   expect_equal(fitexp3(conc, resp)$a, 2.786, tolerance = 1e-3)
   expect_equal(fitexp3(conc, resp)$b, 269.522, tolerance = 1e-3)
   expect_equal(fitexp3(conc, resp)$p, 0.6895, tolerance = 1e-3)
 })
 ```
 
-Repeat the process to create a test file for each function you want to test in a package. We can use `devtools::test()` to run all tests in the package at once. The output will show have many tests are ran and how many passed. For any failed tests, the result will show what is the actual output and what is the expected output.
+Repeat the process above for each function you need a test for in a package. We can use `devtools::test()` to run all tests in the package at once. The output will show how many tests are ran, which, and how many passed. For any failed tests, the output will provide a comparison of the actual versus the expected results.
 
 ```{r run all tests}
 # make sure you are in the package directory, or specify the path to it
@@ -56,11 +65,13 @@ devtools::test()
 ```
 
 # Failed Test
-This section will show you what can cause a unit test to fail. For example, I'm working on adding a new argument to allow users to choose normal as error distribution. The default for this argument would still be t-distribution as is right now, and adding this feature should not change the fitting result if normal error assumption is not used. 
 
-Let say I accidentally hard code function `fitexp3` to use normal for error distribution, then it will return different fitted parameter values and cause the unit test to fail. The code chunk below contains codes with a bug: in the optimization step and where it calculates standard deviations for parameters, I hard coded the error function to be normal. 
+In this section, we demonstrate what can cause a unit test to fail and what the test output looks like for a failed test. Suppose, I am adding a new argument allowing users to choose "normal" as an error distribution for model optimization. The current assumption is that the residuals follow a "t-distribution" and will remain the default for this argument.  Thus, adding this feature should not change the fitting results if the normal error assumption is not specified with this new argument. 
 
-**Please note that running the codes in the code chunk below will mask the original `fitexp3` function in `tcplfit2` package. Please reminder to re-load the package if you ran this chunk.** 
+Let us say I accidentally hard code the function `fitexp3` to use normal error distribution assumption.  This will return fitted parameter values which are different from what we expect and cause the unit test to fail. (The code chunk below contains the `fitexp3` function with the bug.  See the optimization step, which calculates the standard deviations for model parameters, to see where I hard coded the error function to be "normal".) 
+
+**Please note that running this code chunk will mask the original `fitexp3` function in `tcplfit2` package. Remember to re-load the package to obtain the original `fitexp3` from `tcplfit2` if you run this chunk.** 
+
 ```{r hard code exp3, class.source="scroll-100"}
 # running this code will mask the function in the original package
 # reminder to re-load the package if you ran this chunk 
@@ -218,7 +229,7 @@ fitexp3 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
 
 ```
 
-Run the unit test for `fitexp3` again, and this time it will fail because a bug was introduced by the new changes. The output will show you what the code returned versus what it expect. 
+Run the unit test for `fitexp3` again, and this time it will fail because a bug was introduced with the new changes. Output from the test will show what the code returns versus what we expect it to return. 
 
 ```{r failed test, error=TRUE}
 test_that("fitexp3 works", {
@@ -232,8 +243,9 @@ test_that("fitexp3 works", {
 })
 ```
 
-Running all tests as we making changes to the package can ensure the current analyses are not unintentionally affected. 
 
+# Summary
 
+Creating and running frequently as we make changes to the package can ensure the results from previous and current analyses are not unintentionally affected by our developments.  It is best practice to develop new unit tests as new functions are added to the package and in some cases when we make enhancements to existing functions.
 
-
+For further details on creating and running unit tests for an R package we refer the reader to the [testthat](https://testthat.r-lib.org/) and [usethis](https://usethis.r-lib.org/) package resources.
