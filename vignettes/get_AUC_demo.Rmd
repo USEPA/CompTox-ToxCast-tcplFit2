@@ -108,7 +108,7 @@ data.frame(mylist,row.names = "AUC")
 
 ## Negative curves
 
-This session will examine how `get_AUC` function behave with negative curves. Taking some example data for negative curves from example 3 in the [tcplfit2 vignette](tcplfit2_vignette.html). 
+This session will examine how `get_AUC` function behave with negative curves. Taking some example data for negative curves from example 3 in the [tcplfit2 vignette](https://cran.r-project.org/web/packages/tcplfit2/vignettes/tcplfit2-vignette.html). 
 ```{r example 3, fig.height = 4.55, fig.width = 8}
 # Taking the code from example 3 in the vignette 
 library(stringr)  # string management package
