@@ -1,15 +1,18 @@
-#' Calculate AUC After Hit-calling
+#' Calculate Area Under the Curve After Hit-calling
 #'
-#' Function that calculates AUC for dose-response curves after hit-calling
+#' Function that calculates the area under the curve (AUC) after hit-calling.
 #'
-#' This function calculates AUC value for the winning model selected after
-#' hit-calling. This is a wrapper function for get_AUC. Designated to take
-#' one-row output from tcplhit2_core and parse the model details, then
-#' pass to get_AUC to obtain AUC for the winning model.
+#' This function calculates the area under the curve (AUC) for the winning model
+#' selected during hit-calling. Wrapper function for `get_AUC`.
+#' Designed to take the one-row output from `tcplhit2_core`, parse the model
+#' details, and pass these values to `get_AUC` to estimate the AUC for the
+#' winning model.
 #'
-#' @param hit_results output from tcplhit2_core
+#' @param hit_results output from `tcplhit2_core`
 #'
 #' @return AUC value of the winning model
+#'
+#' @seealso get_AUC
 #'
 #' @export
 #' @importFrom stringr str_split
