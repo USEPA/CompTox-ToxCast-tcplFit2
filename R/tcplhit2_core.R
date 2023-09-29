@@ -22,10 +22,15 @@
 #'   such as the chemical name or other identifiers, and any assay identifiers. The column names
 #'   identify the type of value. This can be NULL. The values will be included in the output
 #'   summary data frame
-#' @param bmd_low_bnd Multiplier for bmd lower bound.  A value of .1 would require the bmd to be no lower
-#'   than 1/10th of the lowest concentration tested.
-#' @param bmd_up_bnd Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
-#'   than 10 times the highest concentration tested.
+#' @param bmd_low_bnd Multiplier for bmd lower bound, needs to be between 0 and 1
+#'   (not including 0). A value of .1 would require the bmd to be no lower than a threshold
+#'   of 1/10th of the lowest concentration tested. If the bmd is lower than the threshold,
+#'   the bmd will be censored to the threshold value and its confident boundaries
+#'   will also be shifted right.
+#' @param bmd_up_bnd Multiplier for the bmd upper bound, needs to be larger than or equal
+#'   to 1. A value of 10 would require the bmd to be no larger than a threshold of 10 times the
+#'   highest concentration tested. If the bmd is higher than the threshold, the bmd will be
+#'   censored to the threshold value and its confident boundaries also will be shifted left.
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:
@@ -169,27 +174,41 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
 
     # apply bmd min
     if(!is.null(bmd_low_bnd) & !is.na(bmd)){
-      min_conc <- min(conc)
-      min_bmd <- min_conc*bmd_low_bnd
-      if(bmd < min_bmd){
-        bmd_diff <- min_bmd - bmd
-        #shift all bmd to the right
-        bmd <- bmd + bmd_diff
-        bmdl <- bmdl + bmd_diff
-        bmdu <- bmdu + bmd_diff
+      # check if the argument is within its allowable range
+      if (bmd_low_bnd > 0 & bmd_low_bnd <= 1) {
+        # warning message for extreme values
+        if (bmd_low_bnd <= 1e-3){warning("bmd_low_bnd used is less than 1e-3.")}
+        min_conc <- min(conc)
+        min_bmd <- min_conc*bmd_low_bnd
+        if(bmd < min_bmd){
+          bmd_diff <- min_bmd - bmd
+          #shift all bmd to the right
+          bmd <- bmd + bmd_diff
+          bmdl <- bmdl + bmd_diff
+          bmdu <- bmdu + bmd_diff
+          }
+      } else {
+        warning("bmd_low_bnd has to be between 0 and 1 but can't be 0.")
       }
     }
 
     # apply bmd max
     if(!is.null(bmd_up_bnd) & !is.na(bmd)){
-      max_conc <- max(conc)
-      max_bmd <- max_conc*bmd_up_bnd
-      if(bmd > max_bmd){
-        #shift all bmd to the left
-        bmd_diff <- bmd - max_bmd
-        bmd <- bmd - bmd_diff
-        bmdl <- bmdl - bmd_diff
-        bmdu <- bmdu - bmd_diff
+      # check if the argument is within its allowable range
+      if (bmd_up_bnd >= 1) {
+        # warning message for extreme values
+        if (bmd_up_bnd > 1000) {warning("bmd_low_bnd used is larger than 1000.")}
+        max_conc <- max(conc)
+        max_bmd <- max_conc*bmd_up_bnd
+        if(bmd > max_bmd){
+          #shift all bmd to the left
+          bmd_diff <- bmd - max_bmd
+          bmd <- bmd - bmd_diff
+          bmdl <- bmdl - bmd_diff
+          bmdu <- bmdu - bmd_diff
+          }
+      } else {
+        warning("bmd_up_bnd has to be larger than or equal to 1.")
       }
     }
 
