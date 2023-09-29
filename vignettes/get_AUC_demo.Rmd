@@ -1,5 +1,5 @@
 ---
-title: "Calculating Area Under the Concentration-Response Curve with tcplfit2"
+title: "Calculating the Area Under the Concentration-Response Curve with tcplfit2"
 author: "Center for Computational Toxicology and Exposure"
 output:
    prettydoc::html_pretty:
@@ -25,11 +25,12 @@ library(tcplfit2)
 
 # Introduction
 
-This vignette will walk you through how to obtain area under the curve (AUC) for concentration-response curves with `tcplfit2` in various applications. AUC can be think of a measure of overall efficacy/potency that users may want to include as part of their analyses. 
+This vignette walks through how to estimate the area under the curve (AUC) for concentration-response curves with `tcplfit2`, with various applications. The AUC can be interpreted as a measure of overall efficacy/potency, which users may want to include as part of their analyses.
 
 # Main Feature 
 
-`concRespCore` function has a logical argument `AUC` that controls whether or not area under the curve (AUC) value for the winning model is obtained and returned alongside with the model and hit-calling details. This argument defaults to `TRUE` to always include AUC in the output, but one can exclude it by setting it to `FALSE`.
+The `concRespCore` function has a logical argument `AUC` controlling whether the area under the curve (AUC) is calculated for the winning model and returned alongside the other modeling results (e.g. model parameters and hit-call details). This argument defaults to `TRUE`, such that the AUC is always included in the output unless otherwise specified (i.e. `AUC=FALSE`).
+
 ```{r example 1}
 # some example data
 conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)
@@ -44,11 +45,14 @@ row <- list(conc = conc,
 concRespCore(row, conthits = TRUE)
 ```
 
-The following sections demonstrate how one can obtain AUC when they do curve fitting and hit-calling separately with `tcplfit2_core` and `tcplhit2_core`, and what AUC means for different types of curves. 
+The following sections demonstrate how to estimate the AUC when curve fitting is performed with `concRespCore` as well as separate calls to `tcplfit2_core` and `tcplhit2_core`.  Additionally, we provide several types of potential curve fits with the resulting AUC and how to interpret it. 
 
 # Applications
+
 ## Positive Curves
-This section provides an example of how to use `get_AUC` function in `tcplfit2` to calculate area under the curves (AUC) for a given concentration-response curve. First, use codes below to fit some curves with a few example data. 
+
+This section provides an example of how to use `get_AUC` function in `tcplfit2` to calculate area under the curves (AUC) for a given concentration-response curve. First, we need some curves obtained from curve-fitting on with a few data examples. 
+
 ```{r example 2, fig.height = 4.55, fig.width = 8}
 # This is taken from the example under tcplfit2_core
 conc_ex2 <- c(.03, .1, .3, 1, 3, 10, 30, 100)
@@ -62,9 +66,10 @@ par(xpd = TRUE)
 output_ex2 <- tcplfit2_core(conc_ex2, resp_ex2, .8, do.plot = TRUE)
 ```
 
-**Figure 1:** This figure depicts all concentration-response curves fitted. The models are polynomial 1 and 2, power, hill, gain-loss, exponential 2 to exponential 5. 
+**Figure 1:** This figure depicts all fit concentration-response curves. The models are polynomial 1 and 2, power, hill, gain-loss, and exponential 2 to exponential 5. 
 
-We can use the `get_AUC` function to calculate AUC for a single model. Inputs to this function are: the name of the model, lower and upper concentration bounds (usually are the lowest and the highest concentration in the data), and fitted model parameters. Codes below demonstrate how to calculate AUC for the hill model, starting by showing how to extract information from the output of `tcplfit2_core` and input them into the `get_AUC` function. After calculated the AUC, plot the hill curve and shade the area below the curve to see if the returned value makes sense. 
+We can use the `get_AUC` function to calculate the AUC for a single model. Inputs to this function are: the name of the model, lower and upper concentration bounds (usually the lowest and the highest concentrations in the data, respectively), and the estimated model parameters. The code chunk below demonstrate how to calculate AUC for the hill model, starting with extracting information from `tcplfit2_core` output then inputting this information into the `get_AUC` function. After estimating the AUC, we plot the hill curve and shade the corresponding area under the curve.
+
 ```{r example 2 cont., fig.height = 6, fig.width = 6}
 fit_method <- "hill"
 # extract the parameters 
@@ -85,9 +90,10 @@ lines(log10(conc_ex2), pred_resp)
 polygon(c(log10(conc_ex2), max(log10(conc_ex2))), c(pred_resp, min(pred_resp)), col=rgb(1, 0, 0,0.5))
 ```
 
-**Figure 2:** The red region is the area under the fitted hill curve. AUC calculated by the `get_AUC` function is 1.64823. It seems to be a good estimate for the area of the shaded region. 
+**Figure 2:** The red region is the area under the fitted hill curve. The AUC estimated with `get_AUC` is 1.64823. This estimate seems to align with the area of the shaded region. 
 
-We can calculate AUC for other models too (excluding constant model).
+We can also calculate the AUC for other models too (with exception of the constant model).
+
 ```{r example 2 other models}
 # hill and gnls will return a much smaller number because they are in log10-scale 
 fitmodels = c("gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5")
@@ -108,7 +114,8 @@ data.frame(mylist,row.names = "AUC")
 
 ## Negative curves
 
-This session will examine how `get_AUC` function behave with negative curves. Taking some example data for negative curves from example 3 in the [tcplfit2 vignette](https://cran.r-project.org/web/packages/tcplfit2/vignettes/tcplfit2-vignette.html). 
+This section demonstrates the behavior of the `get_AUC` function with negative curves. Here, we use some example data from example 3 in the [tcplfit2 vignette](https://cran.r-project.org/web/packages/tcplfit2/vignettes/tcplfit2-vignette.html). 
+
 ```{r example 3, fig.height = 4.55, fig.width = 8}
 # Taking the code from example 3 in the vignette 
 library(stringr)  # string management package
@@ -126,9 +133,10 @@ par(xpd = TRUE)
 output_negative <- tcplfit2_core(conc, resp, cutoff, do.plot = TRUE)
 ```
 
-**Figure 3:** This plot depicts all fitted concentration-response curves. All curves are decreasing from 0 and are below x-axis. 
+**Figure 3:** This plot depicts all fitted concentration-response curves. All curves are decreasing starting from 0 and are below x-axis. 
 
-For example, we try to calculate AUC for exponential 3 model with the `get_AUC` function. We've noticed that the function returns a negative AUC, -12.92738.    
+The code chunk below calculates the AUC for exponential 3 model with the `get_AUC` function. Notice the function returns a negative AUC value, -12.92738.
+
 ```{r example 3 cont., fig.height = 6, fig.width = 6}
 fit_method <- "exp3"
 
@@ -145,20 +153,22 @@ lines(conc[order(conc)], pred_resp)
 polygon(c(conc[order(conc)], max(conc)), c(pred_resp, max(pred_resp)), col=rgb(1, 0, 0,0.5))
 ```
 
-**Figure 4:** Note that the x-axis in this plot is in regular unit, so it looks different from the curve in figure 3, whose x-axis is in log-10 scale. The absolute value 12.92738 seems to be a good estimate for the area between the curve and x-axis. 
+**Figure 4:** The absolute value, 12.92738, seems to align with the area between the curve and x-axis. Note: The x-axis in this plot is in the original units, so it looks different from the curve in figure 3, which has the x-axis in $log_{10}$ units.
 
-When integrating over a negative curve, the function will return a negative AUC value. However, some users may want to consider all "areas" positive. In this case, they can use `return.abs = TRUE` argument in `get_AUC` to convert negative AUC to positive when return. This argument is defaulted to `FALSE`. 
+As demonstrated, when integrating over a curve in the negative direction, the function will return a negative AUC value. However, some users may want to consider all "areas" as positive values. For this reason, we added the `return.abs = TRUE` argument in `get_AUC` to convert negative AUC values to positive values when returned. This argument is by default `FALSE`.
+
 ```{r example 3 convert negative AUC}
 get_AUC(fit_method, min(conc), max(conc), modpars, return.abs = TRUE) 
 ```
 
 ## Bi-phasic Curves
 
-For now, none of the models in `tcplfit2` package would be able to fit a bi-phasic curve. This session for demonstration purpose shows what happens if one wanted to calculate AUC for a bi-phasic curve.  
+Currently, none of the models in `tcplfit2` are capable of fitting bi-phasic curves. However, this section demonstrates what happens if a user did want to estimate the AUC for a bi-phasic curve.  
 
-The following chunk simulates a polynomial 2 curve that has areas below and above x-axis. Please note that polynomial 2 implemented in this package is re-parameterized so that it assumes the baseline response is always 0. 
+The following chunk simulates a polynomial 2 curve that has area below and above the x-axis. Please note, the polynomial 2 model implemented in this package is re-parameterized such that the baseline response is always assumed to be 0. 
 
 Polynomial 2 in this package is implemented as $a*(\frac{x}{b} + \frac{x^2}{b^2})$. Use a = 1 and b = -2 to simulate a curve of $\frac{1}{4} x^2 - \frac{1}{2}x$
+
 ```{r example 4, fig.height = 6, fig.width = 6}
 # simulate a poly2 curve
 ps <- unlist(list(a = 1, b = -2))
