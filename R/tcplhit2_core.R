@@ -26,11 +26,11 @@
 #'   (not including 0). A value of .1 would require the bmd to be no lower than a threshold
 #'   of 1/10th of the lowest concentration tested. If the bmd is lower than the threshold,
 #'   the bmd will be censored to the threshold value and its confident boundaries
-#'   will also be shifted right.
+#'   will be shifted right.
 #' @param bmd_up_bnd Multiplier for the bmd upper bound, needs to be larger than or equal
 #'   to 1. A value of 10 would require the bmd to be no larger than a threshold of 10 times the
 #'   highest concentration tested. If the bmd is higher than the threshold, the bmd will be
-#'   censored to the threshold value and its confident boundaries also will be shifted left.
+#'   censored to the threshold value and its confident boundaries will be shifted left.
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:
@@ -177,7 +177,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
       # check if the argument is within its allowable range
       if (bmd_low_bnd > 0 & bmd_low_bnd <= 1) {
         # warning message for extreme values
-        if (bmd_low_bnd <= 1e-3){warning("bmd_low_bnd used is less than 1e-3.")}
+        if (bmd_low_bnd <= 1e-3){warning("The specified bmd_lower_bnd is less than 1e-3, and may result in an extremely low threshold value for BMD censoring. Typically recommended value is 0.1.")}
         min_conc <- min(conc)
         min_bmd <- min_conc*bmd_low_bnd
         if(bmd < min_bmd){
@@ -197,7 +197,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
       # check if the argument is within its allowable range
       if (bmd_up_bnd >= 1) {
         # warning message for extreme values
-        if (bmd_up_bnd > 1000) {warning("bmd_low_bnd used is larger than 1000.")}
+        if (bmd_up_bnd > 1000) {warning("The specified bmd_up_bnd is larger than 1000, and may result in an extremely high threshold value for BMD censoring. Typically recommended value is 10.")}
         max_conc <- max(conc)
         max_bmd <- max_conc*bmd_up_bnd
         if(bmd > max_bmd){
