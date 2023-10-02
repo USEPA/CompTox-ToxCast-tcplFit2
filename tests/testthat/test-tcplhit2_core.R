@@ -14,7 +14,7 @@ test_that("tcplhit2 works", {
   expect_equal(output$ga, 9.59, tolerance = 1e-2)
 })
 
-test_that("tcplhit2 BMD boundary checks", {
+test_that("tcplhit2 BMD upper boundary censor checks", {
   data("mc3")
 
   spid <- unique(mc3$spid)[26]
@@ -29,6 +29,7 @@ test_that("tcplhit2 BMD boundary checks", {
 
   params <- tcplfit2_core(conc, resp, cutoff,
                           force.fit = T, bidirectional = F)
+  # hit-calling with and without using the BMD boundary argument
   output_before <- tcplhit2_core(params, conc, resp, cutoff, onesd,
                                  bmed=0, conthits=T, aicc=F)
   output_after <- tcplhit2_core(params, conc, resp, cutoff, onesd,
@@ -43,3 +44,80 @@ test_that("tcplhit2 BMD boundary checks", {
   expect_equal(output_before$bmdu, 475.0638, tolerance = 1e-3)
   expect_equal(output_after$bmdu, 335.1364, tolerance = 1e-3)
 })
+
+test_that("tcplhit2 BMD lower boundary censor checks", {
+  data("mc3")
+
+  temp <- mc3[mc3$logc<= -2,"resp"]
+  bmad <- mad(temp)
+  onesd <- sd(temp)
+  cutoff <- 3*bmad
+
+  # load example data
+  spid <- unique(mc3$spid)[94]
+  ex_df <- mc3[is.element(mc3$spid,spid),]
+  conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
+  resp <- ex_df$resp
+
+  conc2 <- conc[conc>0.41]
+  resp2 <- resp[which(conc>0.41)]
+
+  params <- tcplfit2_core(conc2, resp2, cutoff,
+                          force.fit = T, bidirectional = F)
+
+  # hit-calling with and without using the BMD boundary argument
+  output_before <- tcplhit2_core(params, conc2, resp2, cutoff, onesd,
+                                 bmed=0, conthits=T, aicc=F)
+  output_after <- tcplhit2_core(params, conc2, resp2, cutoff, onesd,
+                                bmed=0, conthits=T, aicc=F, bmd_low_bnd = 0.8)
+  output_between <- tcplhit2_core(params, conc2, resp2, cutoff, onesd,
+                                bmed=0, conthits=T, aicc=F, bmd_low_bnd = 0.4)
+
+  expect_equal(output_before$bmd, 0.302, tolerance = 1e-3)
+  expect_equal(output_after$bmd, 0.48, tolerance = 1e-3)
+  expect_equal(output_between$bmd, 0.302, tolerance = 1e-3)
+
+  expect_equal(output_before$bmdl, 0.1048, tolerance = 1e-3)
+  expect_equal(output_after$bmdl, 0.2826, tolerance = 1e-3)
+  expect_equal(output_between$bmdl, 0.1048, tolerance = 1e-3)
+
+  expect_equal(output_before$bmdu, 0.815, tolerance = 1e-3)
+  expect_equal(output_after$bmdu, 0.9928, tolerance = 1e-3)
+  expect_equal(output_between$bmdu, 0.815, tolerance = 1e-3)
+})
+
+test_that("tcplhit2 BMD boundary censor checks", {
+  data("mc3")
+
+  temp <- mc3[mc3$logc<= -2,"resp"]
+  bmad <- mad(temp)
+  onesd <- sd(temp)
+  cutoff <- 3*bmad
+
+  # find another example
+  spid <- unique(mc3$spid)[78]
+  ex_df <- mc3[is.element(mc3$spid,spid),]
+  conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
+  resp <- ex_df$resp
+
+  params <- tcplfit2_core(conc, resp, cutoff,
+                          force.fit = T, bidirectional = F)
+
+  # Estimated BMD is in between the concentration range,
+  # using the boundary
+  output_before <- tcplhit2_core(params, conc, resp, cutoff, onesd,
+                                 bmed=0, conthits=T, aicc=F)
+  output_after <- tcplhit2_core(params, conc, resp, cutoff, onesd,
+                                bmed=0, conthits=T, aicc=F,
+                                bmd_low_bnd = 0.8, bmd_up_bnd = 2)
+
+  expect_equal(output_before$bmd, 21.63718, tolerance = 1e-3)
+  expect_equal(output_after$bmd, 21.63718, tolerance = 1e-3)
+
+  expect_equal(output_before$bmdl, 21.14863, tolerance = 1e-3)
+  expect_equal(output_after$bmdl, 21.14863, tolerance = 1e-3)
+
+  expect_equal(output_before$bmdu, 22.21793, tolerance = 1e-3)
+  expect_equal(output_after$bmdu, 22.21793, tolerance = 1e-3)
+})
+
