@@ -197,7 +197,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
       # check if the argument is within its allowable range
       if (bmd_up_bnd >= 1) {
         # warning message for extreme values
-        if (bmd_up_bnd > 1000) {warning("The specified bmd_up_bnd is larger than 1000, and may result in an extremely high threshold value for BMD censoring. Typically recommended value is 10.")}
+        if (bmd_up_bnd > 1000) {warning(" The specified bmd_up_bnd is larger than 1000, and may result in an extremely high threshold value for BMD censoring. Typically recommended value is 10.")}
         max_conc <- max(conc)
         max_bmd <- max_conc*bmd_up_bnd
         if(bmd > max_bmd){
