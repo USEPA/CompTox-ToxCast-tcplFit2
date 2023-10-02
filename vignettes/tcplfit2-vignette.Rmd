@@ -428,7 +428,7 @@ DT::datatable(res_low[1, c("Name","Min. Conc.", "bmd", "bmdl", "bmdu")],rownames
 
 The lowest concentration (i.e. reference dose) in the data is `r min(conc2)` but the estimated BMD from the hit-calling result is `r round(res_low$bmd, 3)`, which is lower. Users can allow the estimated BMD to be lower than the reference dose while restricting it to be no lower than a threshold dose set by using the argument `bmd_low_bnd`. 
 
-For example, we want the estimated BMD to be no lower than 80% of the reference dose. We can use `bmd_low_bnd = 0.8` to set a threshold dose of 0.48. If the estimated BMD is lower than the threshold dose (like in this example), it will be "censored" to the threshold dose, and its confident boundaries will be shifted right by a distance equals to the difference between the estimated BMD and the threshold dose. Figure 7 provides a visual representation of this process. Valid inputs for `bmd_low_bnd` are numbers between 0 and 1, not including 0.
+For example, we want the estimated BMD to be no lower than 80% of the reference dose. We can use `bmd_low_bnd = 0.8` to set a threshold dose of 0.48. If the estimated BMD is lower than the threshold dose (like in this example), it will be "censored" to the threshold dose, and its confident boundaries will be shifted right by a distance equal to the difference between the estimated BMD and the threshold dose. Figure 7 provides a visual representation of this process. Valid inputs for `bmd_low_bnd` are numbers between 0 and 1, not including 0.
 ```{r example 5 lower-demo}
 # using the argument to set a lower bound for BMD
 res_low2 <- concRespCore(row_low,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
@@ -590,9 +590,9 @@ DT::datatable(output_low,rownames = FALSE)
 ```
 
 ### BMD falls between the "threshold value" and the "reference dose"
-If the estimated BMD falls between the the reference dose and the threshold dose, the estimated BMD will remain unchanged. For demonstration purposes, we use the lower bound censoring example, but the same principle applies for the upper bound censoring case.
+If the estimated BMD falls between the reference dose and the threshold dose, the estimated BMD will remain unchanged. For demonstration purposes, we use the lower bound censoring example, but the same principle applies to the upper bound censoring case.
 
-We use the same data from the ["censor" with lower bound example](#censorlowerbound) and show what happens if we use a lower threshold dose. Let's assume it is acceptable as long as the estimated BMD is not lower than 40% (two fifths) of the minimum concentration (i.e. reference dose) in the data. The estimated BMD `r res_low$bmd` is between the reference dose `r min(conc2)` and the new threshold dose 0.24. The BMD estimates and its boundaries will remain unchanged. 
+We use the same data from the ["censor" with lower bound example](#censorlowerbound) and show what happens if we use a lower threshold dose. Let's assume it is acceptable as long as the estimated BMD is not lower than 40% (two-fifths) of the minimum concentration (i.e. reference dose) in the data. The estimated BMD `r res_low$bmd` is between the reference dose `r min(conc2)` and the new threshold dose 0.24. The BMD estimates and its boundaries will remain unchanged. 
 ```{r example even lower bound}
 res_low3 <- concRespCore(row_low,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                            "pow", "exp2", "exp3", "exp4", "exp5"), 
@@ -636,5 +636,5 @@ legend(1e-3, 60, legend=c("Reference Dose", "Threshold Dose", "BMD-before", "BMD
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-**Figure 8**: This plot shows how BMD and its boundaries changed after "censoring" with a threshold dose of 0.24. The dark violet dashed line represents the threshold dose, and the brown solid line represents the minimum concentration in the data. BMD = 0.302 falls between the reference dose and the threshold dose, so it will remain unchanged. A green column and a green "X" should mark the original BMD estimate and it's boundaries, and a blue column and a blue "X" should mark the "censored" BMD and its boundaries. In this case, they are completely overlapped. 
+**Figure 8**: This plot shows how BMD and its boundaries changed after "censoring" with a threshold dose of 0.24. The dark violet dashed line represents the threshold dose, and the brown solid line represents the minimum concentration in the data. BMD = 0.302 falls between the reference dose and the threshold dose, so it will remain unchanged. A green column and a green "X" should mark the original BMD estimate and its boundaries, and a blue column and a blue "X" should mark the "censored" BMD and its boundaries. In this case, they are completely overlapped. 
 
