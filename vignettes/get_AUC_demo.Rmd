@@ -49,7 +49,7 @@ The following sections demonstrate how to estimate the AUC when curve fitting is
 
 # Applications
 
-## Positive Curves
+## Positive Curves {#positivecurve}
 
 This section provides an example of how to use `get_AUC` function in `tcplfit2` to calculate area under the curves (AUC) for a given concentration-response curve. First, we need some curves obtained from curve-fitting on with a few data examples. 
 
@@ -78,7 +78,8 @@ modpars <- output_ex2[[fit_method]][output_ex2[[fit_method]]$pars]
 # plug into get_AUC function 
 # for hill and gnls, no need to convert concentration used for bounds to log-scale 
 # they will be converted inside the function
-get_AUC(fit_method, min(conc_ex2), max(conc_ex2), modpars)
+estimated_auc1 <- get_AUC(fit_method, min(conc_ex2), max(conc_ex2), modpars)
+estimated_auc1
 
 # extract the predicted responses from the model
 pred_resp <- output_ex2[[fit_method]][["modl"]]
@@ -90,7 +91,7 @@ lines(log10(conc_ex2), pred_resp)
 polygon(c(log10(conc_ex2), max(log10(conc_ex2))), c(pred_resp, min(pred_resp)), col=rgb(1, 0, 0,0.5))
 ```
 
-**Figure 2:** The red region is the area under the fitted hill curve. The AUC estimated with `get_AUC` is 1.64823. This estimate seems to align with the area of the shaded region. 
+**Figure 2:** The red region is the area under the fitted hill curve. The AUC estimated with `get_AUC` is `r round(estimated_auc1,5)`. This estimate seems to align with the area of the shaded region. 
 
 We can also calculate the AUC for other models too (with exception of the constant model).
 
@@ -135,8 +136,7 @@ output_negative <- tcplfit2_core(conc, resp, cutoff, do.plot = TRUE)
 
 **Figure 3:** This plot depicts all fitted concentration-response curves. All curves are decreasing starting from 0 and are below x-axis. 
 
-The code chunk below calculates the AUC for exponential 3 model with the `get_AUC` function. Notice the function returns a negative AUC value, -12.92738.
-
+The code chunk below calculates the AUC for exponential 3 model with the `get_AUC` function. 
 ```{r example 3 cont., fig.height = 6, fig.width = 6}
 fit_method <- "exp3"
 
@@ -144,7 +144,8 @@ fit_method <- "exp3"
 modpars <- output_negative[[fit_method]][output_negative[[fit_method]]$pars]
 pred_resp <- output_negative[[fit_method]][["modl"]]
 
-get_AUC(fit_method, min(conc), max(conc), modpars)
+estimated_auc2 <- get_AUC(fit_method, min(conc), max(conc), modpars)
+estimated_auc2
 
 # plot this curve
 pred_resp <- pred_resp[order(conc)]
@@ -153,7 +154,7 @@ lines(conc[order(conc)], pred_resp)
 polygon(c(conc[order(conc)], max(conc)), c(pred_resp, max(pred_resp)), col=rgb(1, 0, 0,0.5))
 ```
 
-**Figure 4:** The absolute value, 12.92738, seems to align with the area between the curve and x-axis. Note: The x-axis in this plot is in the original units, so it looks different from the curve in figure 3, which has the x-axis in $log_{10}$ units.
+**Figure 4:** Notice the function returns a negative AUC value, `r round(estimated_auc2, 5)`. The absolute value, `r abs(round(estimated_auc2,5))`, seems to align with the area between the curve and x-axis. Note: The x-axis in this plot is in the original units, so it looks different from the curve in figure 3, which has the x-axis in $log_{10}$ units.
 
 As demonstrated, when integrating over a curve in the negative direction, the function will return a negative AUC value. However, some users may want to consider all "areas" as positive values. For this reason, we added the `return.abs = TRUE` argument in `get_AUC` to convert negative AUC values to positive values when returned. This argument is by default `FALSE`.
 
@@ -197,10 +198,11 @@ Since the AUC is used as an indicator of overall effect size in a toxicological 
 ```{r, example 4 cont.2}
 # calculate area of each section separately and then sum them together 
 x_intercept <- 2
-abs(get_AUC("poly2", min(conc_sim), x_intercept, ps)) + get_AUC("poly2", x_intercept, max(conc_sim), ps)
+total_auc <- abs(get_AUC("poly2", min(conc_sim), x_intercept, ps)) + get_AUC("poly2", x_intercept, max(conc_sim), ps)
+total_auc
 ```
 
-The total area of red region plus blue region is 0.8373333. 
+The total area of red region plus blue region is `r total_auc`. 
 
 # AUC after hit-calling
 
@@ -208,7 +210,7 @@ In some cases, users may want to run the `tcplfit2_core` and `tcplhit2_core` fun
 
 `tcplhit2_core` provides output in a data frame format with a single row containing the concentration-response data, the winning model name along with the fitted parameter values, and hit-calling results. The code chunk below provides an example demonstrating how to use the wrapper function `post_hit_AUC`. Internally, the wrapper function extracts information from the one-row data frame output and pass it to `get_AUC`, which calculates the AUC. Thus, manual entry of the model name, parameters values, etc. into `get_AUC` is not necessary with `post_hit_AUC`.
 
-The winning model from the positive curve example is the Hill model. Comparing the AUC from the previous example and the AUC returned from the `post_hit_AUC` here should be identical, i.e. 1.64823.
+The winning model from the [positive curve example](#positivecurve) is the Hill model. Comparing the AUC from the previous example and the AUC returned from the `post_hit_AUC` here should be identical, i.e. `r round(estimated_auc1,5)`.
 
 ```{r example 5}
 out <- tcplhit2_core(output_ex2, conc_ex2, resp_ex2, 0.8, onesd = 0.4)
