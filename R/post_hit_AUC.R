@@ -10,7 +10,7 @@
 #'
 #' @param hit_results output from `tcplhit2_core`
 #'
-#' @return AUC value of the winning model
+#' @return AUC value of the winning model (numeric)
 #'
 #' @seealso get_AUC
 #'
