@@ -167,7 +167,7 @@ Currently, none of the models in `tcplfit2` are capable of fitting bi-phasic cur
 
 The following chunk simulates a polynomial 2 curve that has area below and above the x-axis. Please note, the polynomial 2 model implemented in this package is re-parameterized such that the baseline response is always assumed to be 0. 
 
-Polynomial 2 in this package is implemented as $a*(\frac{x}{b} + \frac{x^2}{b^2})$. Use a = 1 and b = -2 to simulate a curve of $\frac{1}{4} x^2 - \frac{1}{2}x$
+The Polynomial 2 model in `tcplfit2` is implemented as $a*(\frac{x}{b} + \frac{x^2}{b^2})$. Here, we use $a = 1$ and $b = (-2)$ to simulate a bi-phasic curve, which can be represented in the typical form as $\frac{1}{4} x^2 - \frac{1}{2}x$.
 
 ```{r example 4, fig.height = 6, fig.width = 6}
 # simulate a poly2 curve
@@ -180,33 +180,36 @@ plot(conc_sim, resp_sim)
 lines(conc_sim, resp_sim)
 abline(h = 0)
 polygon(conc_sim[1:6], resp_sim[1:6], col=rgb(1, 0, 0,0.5))
-polygon(c(conc_sim[6:9], 3.20), c(resp_sim[6:9], 0), col=rgb(0, 1, 0,0.5))
+polygon(c(conc_sim[6:9], 3.20), c(resp_sim[6:9], 0), col=rgb(0, 0, 1,0.5))
 ```
 
-**Figure 5:** This plot depicts the simulated polynomial curve. This curve decreases first and then increases, crosses the x-axis at `x = 2`. 
+**Figure 5:** This plot illustrates the simulated bi-phasic polynomial 2 curve. The curve initially decreases, then increases and crosses the x-axis at `x = 2` (x-intercept). 
 
 ```{r, example 4 cont.}
 # get AUC for the simulated Polynomial 2 curve 
 get_AUC("poly2", min(conc_sim), max(conc_sim), ps)
 ```
 
-If we integrate over a curve that has areas below and above the x-axis, the function will return the difference between the total area above the x-axis and the total area blow x-axis (green region minus red region). In this example, area above the x-axis is slightly larger than the area below the x-axis so the function returned a positive difference.   
+Integrating over a curve with area above and below the x-axis, the current function returns the difference between the total area above the x-axis and the total area below the x-axis (i.e. blue region minus red region). In this example, area above the x-axis is slightly larger than the area below the x-axis so the function returned a positive difference.   
 
-AUC is used as an indicator of overall effect size, so for curves that pass the x-axis, it makes more sense to report the total area of the sections above and below x-axis (i.e., green region plus red region). To do that, we need to calculate the area sections separately and sum them together. Codes below demonstrate how to do that for the simulated polynomial 2 curve. One would need to identify where the curve intercepts with x-axis in order to calculate area sections separately. In this example, we know the x-intercept is at `x = 2`.   
+Since the AUC is used as an indicator of overall effect size in a toxicological context, then it makes more sense to report the total area of the above and below x-axis (i.e., blue region plus red region) for bi-phasic curves. To do that, we need to calculate each area separately and take the sum of those areas. The code below demonstrate how this is done for the previously simulated polynomial 2 curve. It should be noted, one needs to identify where the x-intercept(s) occur in order to calculate each area. In this example, we know the x-intercept is at `x = 2`.   
+
 ```{r, example 4 cont.2}
 # calculate area of each section separately and then sum them together 
 x_intercept <- 2
 abs(get_AUC("poly2", min(conc_sim), x_intercept, ps)) + get_AUC("poly2", x_intercept, max(conc_sim), ps)
 ```
-The total area of red region plus green region is 0.8373333. 
+
+The total area of red region plus blue region is 0.8373333. 
 
 # AUC after hit-calling
 
-In some cases, users might want to run `tcplfit2_core` and `tcplhit2_core` separately, and only want to obtain AUC for the winning model selected in `tcplhit2_core`. 
+In some cases, users may want to run the `tcplfit2_core` and `tcplhit2_core` functions separately, and only obtain the AUC for the winning model from `tcplhit2_core`. Thus, `tcplfit2` also includes a wrapper function for `get_AUC`, called `post_hit_AUC`, which allows users to estimate the AUC for the winning model only.
 
-Output from `tcplhit2_core` is in form of a one-row data frame that contains concentration data, winning model name and the fitted parameter values. Codes below provide an example of how to use the wrapper function `post_hit_AUC` for `get_AUC`. This wrapper function is able to extract information from one-row data frame output and pass them into `get_AUC` to calculate AUC. One don't need to manually enter the model name, parameters values, etc. into `get_AUC`.  
+`tcplhit2_core` provides output in a data frame format with a single row containing the concentration-response data, the winning model name along with the fitted parameter values, and hit-calling results. The code chunk below provides an example demonstrating how to use the wrapper function `post_hit_AUC`. Internally, the wrapper function extracts information from the one-row data frame output and pass it to `get_AUC`, which calculates the AUC. Thus, manual entry of the model name, parameters values, etc. into `get_AUC` is not necessary with `post_hit_AUC`.
 
-The winning model from the positive curve example is the Hill model. Compare the AUC from above, 1.64823, with the AUC returned from the `post_hit_AUC` function. They should be identical.
+The winning model from the positive curve example is the Hill model. Comparing the AUC from the previous example and the AUC returned from the `post_hit_AUC` here should be identical, i.e. 1.64823.
+
 ```{r example 5}
 out <- tcplhit2_core(output_ex2, conc_ex2, resp_ex2, 0.8, onesd = 0.4)
 out
