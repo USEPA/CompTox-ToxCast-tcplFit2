@@ -32,7 +32,7 @@ conc <- c(.03, .1, .3, 1, 3, 10, 30, 100)
 resp <- c(0, .1, 0, .2, .6, .9, 1.1, 1)
 
 # use verbose to show the winning model and plot all models 
-output <- tcplfit2_core(conc, resp, .8, verbose = TRUE, do.plot = TRUE)
+output <- tcplfit2_core(conc, resp, .8, do.plot = TRUE)
 ```
 
 Let say we want to get AUC for the winning model, in this case, hill. We can do that with `get_AUC` with inputs: the name of the model, lower and upper concentration bounds (usually are the lowest and the highest concentration in the data), and estimated model parameters. The following codes show how to extract those information from the output from above and put them into `get_AUC` function. After that calculated AUC, plot the curve and shape the area to see if the returned value makes sense. The returned value represents the area of the shaped region. 
@@ -149,12 +149,29 @@ polygon(c(conc_sim[6:9], 3.20), c(resp_sim[6:9], 0), col="blue")
 get_AUC("poly2", min(conc_sim), max(conc_sim), ps)
 ```
 
-If we integrate over a curve that has areas below and above 0, the function will return area above the curve minus area blow the curve (blue-yellow). In this example, area above the curve for the simulated curve is slightly larger than the area below the curve so it returns a positive value. The function seems to function normally but this might not be how the biologist/toxicologist want to interpret and use it. 
-
+If we integrate over a curve that has areas below and above 0, the function will return area above the curve minus area blow the curve (blue-yellow). In this example, area above the curve for the simulated curve is slightly larger than the area below the curve so it returns a positive value. The function seems to function normally but this might not be how the biologist/toxicologist want to interpret and use it. Further consideration needed.
 AUC is used as an indicator of overall effect size, so for curves that pass the x-axis, we should add the absolute value of the area sections, that is, blue area plus yellow area. The following code shows how to get the total area wanted in this case. 
 
 ```{r, example 3 cont.2}
 abs(get_AUC("poly2", min(conc_sim), 2, ps)) + get_AUC("poly2", 2, max(conc_sim), ps)
 ```
+
+# AUC after hit-calling
+
+In some scenarios, users might only run the `concRespCore` function and get information about the winning model and the hitcall. In this case, the output from `concRespCore` and `tcplhit2_core` would be a one row data frame that contains concentration data, winning model name and the parameter values. 
+
+There is a wrapper function `post_hit_AUC` available for calculating AUC after hit-calling that will extract information from this type of output so one don't need to manually input the model info into the format `get_AUC` takes, as demonstrated above. 
+
+The winning model from data used in example 1 is Hill. Compare the AUC from above and the AUC returned from the `post_hit_AUC` function, they are the same.
+
+```{r example 4}
+out <- tcplhit2_core(output, conc, resp, cutoff, onesd = 0.4)
+out
+post_hit_AUC(out)
+```
+
+
+
+
 
 
