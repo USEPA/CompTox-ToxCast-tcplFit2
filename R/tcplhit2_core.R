@@ -22,15 +22,16 @@
 #'   such as the chemical name or other identifiers, and any assay identifiers. The column names
 #'   identify the type of value. This can be NULL. The values will be included in the output
 #'   summary data frame
-#' @param bmd_low_bnd Multiplier for bmd lower bound, needs to be between 0 and 1
-#'   (not including 0). A value of .1 would require the bmd to be no lower than a threshold
-#'   of 1/10th of the lowest concentration tested. If the bmd is lower than the threshold,
-#'   the bmd will be censored to the threshold value and its confident boundaries
-#'   will be shifted right.
-#' @param bmd_up_bnd Multiplier for the bmd upper bound, needs to be larger than or equal
-#'   to 1. A value of 10 would require the bmd to be no larger than a threshold of 10 times the
-#'   highest concentration tested. If the bmd is higher than the threshold, the bmd will be
-#'   censored to the threshold value and its confident boundaries will be shifted left.
+#' @param bmd_low_bnd Multiplier for bmd lower bound, must be between 0 and 1
+#'   (excluding 0). A value of 0.1 would require the bmd is no lower than a
+#'   of 1/10th of the lowest tested concentration (i.e. lower threshold).
+#'   If the bmd is less than the threshold, the bmd and its confidence
+#'   interval will be censored and shifted right.
+#' @param bmd_up_bnd Multiplier for the bmd upper bound, must be greater than
+#'   or equal to 1. A value of 10 would require the bmd is no larger than 10
+#'   times the highest tested concentration (i.e. upper threshold). If the bmd
+#'   is greater than the threshold, the bmd and its confidence interval will be
+#'   censored and shifted left.
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:
@@ -177,7 +178,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
       # check if the argument is within its allowable range
       if (bmd_low_bnd > 0 & bmd_low_bnd <= 1) {
         # warning message for extreme values
-        if (bmd_low_bnd <= 1e-3){warning("The specified bmd_lower_bnd is less than 1e-3, and may result in an extremely low threshold value for BMD censoring. Typically recommended value is 0.1.")}
+        if (bmd_low_bnd < 1e-3){warning("The specified bmd_lower_bnd is less than 1e-3. This may result in an extremely low threshold value for BMD censoring. Suggested value is 0.1.")}
         min_conc <- min(conc)
         min_bmd <- min_conc*bmd_low_bnd
         if(bmd < min_bmd){
@@ -188,7 +189,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
           bmdu <- bmdu + bmd_diff
           }
       } else {
-        warning("bmd_low_bnd has to be between 0 and 1 but can't be 0.")
+        warning("bmd_low_bnd must be between 0 and 1, not including 0.")
       }
     }
 
@@ -197,7 +198,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
       # check if the argument is within its allowable range
       if (bmd_up_bnd >= 1) {
         # warning message for extreme values
-        if (bmd_up_bnd > 1000) {warning(" The specified bmd_up_bnd is larger than 1000, and may result in an extremely high threshold value for BMD censoring. Typically recommended value is 10.")}
+        if (bmd_up_bnd > 1e3) {warning("The specified bmd_up_bnd is larger than 1e3. This may result in an extremely high threshold value for BMD censoring. Suggested value is 10.")}
         max_conc <- max(conc)
         max_bmd <- max_conc*bmd_up_bnd
         if(bmd > max_bmd){
@@ -208,7 +209,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
           bmdu <- bmdu - bmd_diff
           }
       } else {
-        warning("bmd_up_bnd has to be larger than or equal to 1.")
+        warning("bmd_up_bnd must be greater than or equal to 1.")
       }
     }
 
