@@ -20,7 +20,10 @@ RoxygenNote: 7.2.3
 Suggests: 
     knitr,
     rmarkdown,
-    stringi
+    stringi,
+    DT,
+    data.table,
+    tcpl
 VignetteBuilder: knitr
 Imports: 
     stats,
