@@ -14,7 +14,7 @@ test_that("tcplhit2 works", {
   expect_equal(output$ga, 9.59, tolerance = 1e-2)
 })
 
-test_that("tcplhit2 BMD upper boundary censor checks", {
+test_that("tcplhit2 BMD boundary check - upper censoring required", {
   data("mc3")
 
   # use example data from mc3
@@ -57,9 +57,7 @@ test_that("tcplhit2 BMD upper boundary censor checks", {
   expect_equal(output_after_ten$bmdu, 475.0638, tolerance = 1e-3)
 })
 
-test_that("tcplhit2 BMD lower boundary censor checks", {
-  data("mc3")
-
+test_that("tcplhit2 BMD boundary check - lower censoring required", {
   temp <- mc3[mc3$logc<= -2,"resp"]
   bmad <- mad(temp)
   onesd <- sd(temp)
@@ -103,9 +101,7 @@ test_that("tcplhit2 BMD lower boundary censor checks", {
   expect_equal(output_after_ten$bmdu, 0.815, tolerance = 1e-3)
 })
 
-test_that("tcplhit2 BMD boundary censor checks", {
-  data("mc3")
-
+test_that("tcplhit2 BMD boundary check - no censoring needed", {
   temp <- mc3[mc3$logc<= -2,"resp"]
   bmad <- mad(temp)
   onesd <- sd(temp)
@@ -141,5 +137,43 @@ test_that("tcplhit2 BMD boundary censor checks", {
   # checks for bmd confident upper bound, expect them to be the same
   expect_equal(output_before$bmdu, 22.21793, tolerance = 1e-3)
   expect_equal(output_after$bmdu, 22.21793, tolerance = 1e-3)
+})
+
+test_that("tcplhit2 BMD boundary check - Use both arguments, one censoring needed", {
+  onesd <- 2.2
+  cutoff <- 1.5
+
+  # find some example data from mc3
+  spid <- "Tox21_400063"
+  ex_df <- mc3[is.element(mc3$spid,spid),]
+  conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
+  resp <- ex_df$resp
+  conc2 <- conc[conc <= 30]
+  resp2 <- resp[which(conc <= 30)]
+
+  params <- tcplfit2_core(conc2, resp2, cutoff,
+                          force.fit = T, bidirectional = F)
+
+  # Estimated BMD is in the experimental concentration range
+  output_before <- tcplhit2_core(params, conc2, resp2, cutoff, onesd,
+                                 bmed=0, conthits=T, aicc=F)
+
+  # Estimated BMD is above the upper 'threshold dose'.
+  # Using both arguments, but only upper censoring is needed.
+  output_after <- tcplhit2_core(params, conc2, resp2, cutoff, onesd,
+                                bmed=0, conthits=T, aicc=F,
+                                bmd_low_bnd = 0.1, bmd_up_bnd = 10)
+
+  # checks for bmd estimates
+  expect_equal(output_before$bmd, 310.9535, tolerance = 1e-3)
+  expect_equal(output_after$bmd, 300, tolerance = 1e-3)
+
+  # checks for bmd confident lower bound
+  expect_equal(output_before$bmdl, 149.4587, tolerance = 1e-3)
+  expect_equal(output_after$bmdl, 138.5052, tolerance = 1e-3)
+
+  # checks for bmd confident upper bound, both are NA's
+  expect_true(is.na(output_before$bmdu))
+  expect_true(is.na(output_after$bmdu))
 })
 
