@@ -23,7 +23,8 @@ Suggests:
     stringi,
     DT,
     data.table,
-    tcpl
+    tcpl,
+    prettydoc
 VignetteBuilder: knitr
 Imports: 
     stats,
