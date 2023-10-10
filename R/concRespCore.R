@@ -25,6 +25,7 @@
 #' @param verbose  If TRUE, write extra output from tcplfit2_core (default FALSE)
 #' @param do.plot If TRUE, create a plot in the tcplfit2_core function (default FALSE)
 #' @param return.details If TRUE, return the hitcalling details and the summary, if FALSE (default), just return the summary
+#' @param errfun Which error distribution to assume for each point, defaults to "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another supported distribution is "dnorm", the normal distribution
 #' @param bmr_scale - bmr scaling factor (for bmd calculation) default = 1.349
 #' @return A list of two elements. The first (summary) is the output from tcplhit2_core. The second, params is the
 #' output from tcplfit2_core
@@ -33,6 +34,7 @@
 #'   than 1/10th of the lowest concentration tested.
 #' @param bmd_up_bnd Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
 #'   than 10 times the highest concentration tested.
+#' @param AUC If TRUE, generate and return Area under the curve (AUC) for the winning model after hit-calling. Defaults to TRUE.
 #'
 #'
 #' @export
@@ -61,9 +63,11 @@ concRespCore <- function(row,
                          verbose = FALSE,
                          do.plot = FALSE,
                          return.details = FALSE,
+                         errfun = "dt4",
                          bmr_scale = 1.349,
                          bmd_low_bnd = NULL,
-                         bmd_up_bnd = NULL) {
+                         bmd_up_bnd = NULL,
+                         AUC = TRUE) {
   # variable binding to pass cmd checks
   bmed <- cutoff <- onesd <- NULL
   # row needs to include cutoff and bmed
@@ -81,11 +85,16 @@ concRespCore <- function(row,
   # run the fits
   params <- tcplfit2_core(conc, resp, cutoff,
     force.fit = conthits, bidirectional = bidirectional, fitmodels = fitmodels,
-    verbose = verbose, do.plot = do.plot
+    verbose = verbose, do.plot = do.plot, errfun = errfun
   )
 
   # calculate the hitcall
   summary <- tcplhit2_core(params, conc, resp, cutoff, onesd, bmr_scale, bmed, conthits, aicc, identifiers,bmd_low_bnd, bmd_up_bnd)
+
+  if (AUC) {
+    summary["AUC"] <- post_hit_AUC(summary)
+  }
+
   if (return.details) {
     return(list(summary = summary, all.models = params))
   } else {

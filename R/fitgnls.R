@@ -22,6 +22,9 @@
 #' @param nofit If nofit = TRUE, returns formatted output filled with missing values.
 #' @param minwidth Minimum allowed distance between gain ac50 and loss ac50 (in
 #'   log10 units).
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #'
 #' @importFrom methods is
 #' @importFrom numDeriv hessian
@@ -36,7 +39,8 @@
 #'
 #' @examples
 #' fitgnls(c(.03,.1,.3,1,3,10,30,100), c(0,.3,1, 2, 2.1, 1.5, .8, .2))
-fitgnls = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, minwidth = 1.5){
+fitgnls = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, minwidth = 1.5,
+                   errfun = "dt4"){
 
   logc = log10(conc)
   fenv <- environment()
@@ -122,7 +126,8 @@ fitgnls = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
                                          maxit = 6000),
                           conc = logc,
                           resp = resp,
-                          fname = "loggnls"),
+                          fname = "loggnls",
+                          errfun = errfun),
               silent = !verbose)
 
   ## Generate some summary statistics
@@ -149,7 +154,8 @@ fitgnls = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
                                    fit$par,
                                    conc = logc,
                                    resp = resp,
-                                   fname = "loggnls")),
+                                   fname = "loggnls",
+                                   errfun = errfun)),
                     silent = !verbose)
 
     if (!is(fit$cov, "try-error")) { # Could invert gnls Hessian
