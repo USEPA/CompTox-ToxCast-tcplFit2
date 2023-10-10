@@ -1,6 +1,6 @@
 Package: tcplfit2
 Title: Concentration-Response Modeling of HTS or Transcriptomics Data 
-Version: 0.1.5
+Version: 0.1.6
 Authors@R: c(person("Thomas", "Sheffield", email = "tysheff@gmail.com", role = c("aut")),
 				person("Richard", "Judson", role = c("ctb"),email = "Judson.Richard@epa.gov"),
 				person("Jason", "Brown", role = c("ctb", "cre"),email = "brown.jason@epa.gov"),
@@ -20,7 +20,11 @@ RoxygenNote: 7.2.3
 Suggests: 
     knitr,
     rmarkdown,
-    stringi
+    stringi,
+    DT,
+    data.table,
+    tcpl,
+    prettydoc
 VignetteBuilder: knitr
 Imports: 
     stats,
