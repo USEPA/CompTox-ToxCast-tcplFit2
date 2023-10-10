@@ -191,10 +191,11 @@ The input for this example comes from the ACEA_AR assay. Data from the assay com
 * clowder_uid = clowder unique id for source files
 * git_hash = hash key for pre-processing scripts
 
-```{r example4_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE}
+```{r example4_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE,echo=-4}
 # Loading in the level 0 example data set from invitrodb
 data("mc0")
 library(data.table)
+data.table::setDTthreads(2)
 dat <- mc0
 DT::datatable(head(dat[wllt=='t',]),rownames= FALSE, options = list(scrollX = T))
 ```
