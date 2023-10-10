@@ -14,19 +14,20 @@ test_that("tcplhit2 works", {
   expect_equal(output$ga, 9.59, tolerance = 1e-2)
 })
 
-test_that("tcplhit2 BMD boundary check - upper censoring required", {
-  data("mc3")
+# Preparation for test on BMD boundary arguments
+data("mc3")
 
+temp <- mc3[mc3$logc<= -2,"resp"]
+bmad <- mad(temp)
+onesd <- sd(temp)
+cutoff <- 3*bmad
+
+test_that("tcplhit2 BMD boundary check - upper censoring required", {
   # use example data from mc3
   spid <- unique(mc3$spid)[26]
   ex_df <- mc3[is.element(mc3$spid,spid),]
   conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
   resp <- ex_df$resp
-
-  temp <- mc3[mc3$logc<= -2,"resp"]
-  bmad <- mad(temp)
-  onesd <- sd(temp)
-  cutoff <- 3*bmad
 
   params <- tcplfit2_core(conc, resp, cutoff,
                           force.fit = T, bidirectional = F)
@@ -58,11 +59,6 @@ test_that("tcplhit2 BMD boundary check - upper censoring required", {
 })
 
 test_that("tcplhit2 BMD boundary check - lower censoring required", {
-  temp <- mc3[mc3$logc<= -2,"resp"]
-  bmad <- mad(temp)
-  onesd <- sd(temp)
-  cutoff <- 3*bmad
-
   # load example data from mc3
   spid <- unique(mc3$spid)[94]
   ex_df <- mc3[is.element(mc3$spid,spid),]
@@ -102,11 +98,6 @@ test_that("tcplhit2 BMD boundary check - lower censoring required", {
 })
 
 test_that("tcplhit2 BMD boundary check - no censoring needed", {
-  temp <- mc3[mc3$logc<= -2,"resp"]
-  bmad <- mad(temp)
-  onesd <- sd(temp)
-  cutoff <- 3*bmad
-
   # find some example data from mc3
   spid <- unique(mc3$spid)[78]
   ex_df <- mc3[is.element(mc3$spid,spid),]
@@ -139,7 +130,7 @@ test_that("tcplhit2 BMD boundary check - no censoring needed", {
   expect_equal(output_after$bmdu, 22.21793, tolerance = 1e-3)
 })
 
-test_that("tcplhit2 BMD boundary check - Use both arguments, one censoring needed", {
+test_that("tcplhit2 BMD boundary check - Use both arguments, one-side censoring needed", {
   onesd <- 2.2
   cutoff <- 1.5
 
