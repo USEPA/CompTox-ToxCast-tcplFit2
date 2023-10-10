@@ -1,3 +1,9 @@
+# tcplfit2 0.1.6
+==============
+* updated vignettes
+* updated documentation
+* added additional example data
+
 # tcplfit2 0.1.5
 ==============
 * Removed dependency of 'future' package for 'acy' function as our implementation of future package was being deprecated and testing showed it was generally no faster
