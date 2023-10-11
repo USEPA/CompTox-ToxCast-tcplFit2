@@ -14,157 +14,156 @@ test_that("tcplhit2 works", {
   expect_equal(output$ga, 9.59, tolerance = 1e-2)
 })
 
-# Preparation for test on BMD boundary arguments
-data("mc3")
+# Preparation for tests on BMD boundary arguments
+# Simulate some data
+X <- rep(seq(0.001,3,length.out = 10),each = 5)
 
-temp <- mc3[mc3$logc<= -2,"resp"]
-bmad <- mad(temp)
-onesd <- sd(temp)
-cutoff <- 3*bmad
+set.seed(918)
+Case_1 <- hillfn(ps = c(4,0.00105,1.08,0.1),x = X) + rt(n = length(X),df = 4)
+Case_3 <- pow(ps = c(10,5,0.1),x = X) + rt(n = length(X),df = 4)
+set.seed(455)
+Case_2 <- hillfn(ps = c(4,0.00105,1.08,0.1),x = X) + rt(n = length(X),df = 4)
+set.seed(321)
+Case_4 <- exp2(ps = c(5.6,15,0.1),x = X) + rt(n = length(X),df = 4)
+set.seed(322)
+Case_5 <- exp5(ps = c(4,10,5,0.1),x = X) + rt(n = length(X),df = 4)
+
+Y <- rbind(Case_1, Case_2, Case_3, Case_4, Case_5)
+
+# Y contains 5 rows of simulated responses, each row corresponds to
+# one data cases in order:
+
+# 1. BMD < lower threshold
+# 2. lower threshold < BMD < lowest expt dose
+# 3. lowest expt dose < BMD < upper expt dose
+# 4. upper expt dose < BMD < upper threshold
+# 5. BMD > upper threshold
+
+df <- matrix(nrow = 5, ncol = 14)
+colnames(df) <- c("onesd", "cutoff", "bmd", "bmdu", "bmdl",
+                  "combo1", "combo1u", "combo1l",
+                  "combo2", "combo2u", "combo2l",
+                  "combo3", "combo3u", "combo3l")
+
+# fit each data case and hit-call with different argument combinations
+for (i in 1:5) {
+  temp <- Y[i, 1:10]
+  bmad <- mad(temp)
+  onesd <- sd(temp)
+  cutoff <- 3*bmad
+
+  df[i, "onesd"] <- onesd
+  df[i, "cutoff"] <- cutoff
+
+  params <- tcplfit2_core(X, Y[i, ], cutoff,
+                          force.fit = T, bidirectional = F)
+  # No thresholds specified, no censoring
+  output <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
+                          bmed=0, conthits=T, aicc=F)
+
+  df[i, "bmd"] <- output$bmd
+  df[i, "bmdu"] <- output$bmdu
+  df[i, "bmdl"] <- output$bmdl
+
+  # Combo 1: Only the upper boundary threshold is specified
+  combo1 <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
+                          bmed=0, conthits=T, aicc=F, bmd_up_bnd = 10)
+
+  # Combo 2: Only the lower boundary threshold is specified
+  combo2 <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
+                          bmed=0, conthits=T, aicc=F, bmd_low_bnd = 0.7)
+
+  # Combo 3: Both lower and upper threshold is specified
+  combo3 <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
+                          bmed=0, conthits=T, aicc=F, bmd_up_bnd = 10, bmd_low_bnd = 0.7)
+
+  # record BMDs
+  df[i, "combo1"] <- combo1$bmd; df[i, "combo1u"] <- combo1$bmdu; df[i, "combo1l"] <- combo1$bmdl
+  df[i, "combo2"] <- combo2$bmd; df[i, "combo2u"] <- combo2$bmdu; df[i, "combo2l"] <- combo2$bmdl
+  df[i, "combo3"] <- combo3$bmd; df[i, "combo3u"] <- combo3$bmdu; df[i, "combo3l"] <- combo3$bmdl
+
+}
+df <- as.data.frame(cbind(Cases = c("Case_1", "Case_2", "Case_3", "Case_4", "Case_5"), df))
 
 test_that("tcplhit2 BMD boundary check - upper censoring required", {
-  # use example data from mc3
-  spid <- unique(mc3$spid)[26]
-  ex_df <- mc3[is.element(mc3$spid,spid),]
-  conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
-  resp <- ex_df$resp
 
-  params <- tcplfit2_core(conc, resp, cutoff,
-                          force.fit = T, bidirectional = F)
-  # hit-calling with and without using the BMD boundary argument
-  output_before <- tcplhit2_core(params, conc, resp, cutoff, onesd,
-                                 bmed=0, conthits=T, aicc=F)
-  # Estimated BMD is greater than the upper 'threshold dose'.
-  output_after <- tcplhit2_core(params, conc, resp, cutoff, onesd,
-                                bmed=0, conthits=T, aicc=F, bmd_up_bnd = 2)
-  # Estimated BMD is below the upper 'threshold dose' and
-  # above the 'reference dose' (highest expt dose).
-  output_after_ten <- tcplhit2_core(params, conc, resp, cutoff, onesd,
-                                bmed=0, conthits=T, aicc=F, bmd_up_bnd = 10)
+  # Argument combination: Only the upper boundary threshold is specified
+  # only case 5 where BMD > upper threshold should be affected
 
-  # checks for bmd estimates
-  expect_equal(output_before$bmd, 299.9274, tolerance = 1e-3)
-  expect_equal(output_after$bmd, 160, tolerance = 1e-3)
-  expect_equal(output_after_ten$bmd, 299.9274, tolerance = 1e-3)
-
-  # checks for bmd confident lower bound
-  expect_equal(output_before$bmdl, 217.343, tolerance = 1e-3)
-  expect_equal(output_after$bmdl, 77.41564, tolerance = 1e-3)
-  expect_equal(output_after_ten$bmdl, 217.343, tolerance = 1e-3)
-
-  # checks for bmd confident upper bound
-  expect_equal(output_before$bmdu, 475.0638, tolerance = 1e-3)
-  expect_equal(output_after$bmdu, 335.1364, tolerance = 1e-3)
-  expect_equal(output_after_ten$bmdu, 475.0638, tolerance = 1e-3)
+  # Case 1 unaffected
+  expect_equal(df[1, "combo1"], df[1, "bmd"], tolerance = 1e-3)
+  expect_equal(df[1, "combo1u"], df[1, "bmdu"], tolerance = 1e-3)
+  expect_equal(df[1, "combo1l"], df[1, "bmdl"], tolerance = 1e-3)
+  # Case 2 unaffected
+  expect_equal(df[2, "combo1"], df[2, "bmd"], tolerance = 1e-3)
+  expect_equal(df[2, "combo1u"], df[2, "bmdu"], tolerance = 1e-3)
+  expect_equal(df[2, "combo1l"], df[2, "bmdl"], tolerance = 1e-3)
+  # Case 3 unaffected
+  expect_equal(df[3, "combo1"], df[3, "bmd"], tolerance = 1e-3)
+  expect_equal(df[3, "combo1u"], df[3, "bmdu"], tolerance = 1e-3)
+  expect_equal(df[3, "combo1l"], df[3, "bmdl"], tolerance = 1e-3)
+  # Case 4 unaffected
+  expect_equal(df[4, "combo1"], df[4, "bmd"], tolerance = 1e-3)
+  expect_equal(df[4, "combo1u"], df[4, "bmdu"], tolerance = 1e-3)
+  expect_equal(df[4, "combo1l"], df[4, "bmdl"], tolerance = 1e-3)
+  # Case 5 - BMD will be censored to the upper threshold
+  expect_equal(df[5, "combo1"], max(X)*10, tolerance = 1e-3)
+  expect_true(is.na(df[5, "combo1u"]))
+  expect_equal(df[5, "combo1l"], df[5, "bmdl"]-(df[5, "bmd"] - max(X)*10), tolerance = 1e-3)
 })
 
 test_that("tcplhit2 BMD boundary check - lower censoring required", {
-  # load example data from mc3
-  spid <- unique(mc3$spid)[94]
-  ex_df <- mc3[is.element(mc3$spid,spid),]
-  conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
-  resp <- ex_df$resp
-  conc2 <- conc[conc>0.41]
-  resp2 <- resp[which(conc>0.41)]
 
-  params <- tcplfit2_core(conc2, resp2, cutoff,
-                          force.fit = T, bidirectional = F)
+  # Argument combination: Only the lower boundary threshold is specified
+  # use a multiplier of 0.7
+  # only case 1 where BMD < lower threshold should be affected
 
-  # hit-calling with and without using the BMD boundary argument
-  output_before <- tcplhit2_core(params, conc2, resp2, cutoff, onesd,
-                                 bmed=0, conthits=T, aicc=F)
-  # Estimated BMD is less than the lower 'threshold dose'.
-  output_after <- tcplhit2_core(params, conc2, resp2, cutoff, onesd,
-                                bmed=0, conthits=T, aicc=F, bmd_low_bnd = 0.8)
-  # Estimated BMD is above the lower 'threshold dose' and
-  # below the 'reference dose' (lowest expt dose).
-  output_after_ten <- tcplhit2_core(params, conc2, resp2, cutoff, onesd,
-                                bmed=0, conthits=T, aicc=F, bmd_low_bnd = 0.1)
-
-  # checks for bmd estimates
-  expect_equal(output_before$bmd, 0.302, tolerance = 1e-3)
-  expect_equal(output_after$bmd, 0.48, tolerance = 1e-3)
-  expect_equal(output_after_ten$bmd, 0.302, tolerance = 1e-3)
-
-  # checks for bmd confident lower bound
-  expect_equal(output_before$bmdl, 0.1048, tolerance = 1e-3)
-  expect_equal(output_after$bmdl, 0.2826, tolerance = 1e-3)
-  expect_equal(output_after_ten$bmdl, 0.1048, tolerance = 1e-3)
-
-  # checks for bmd confident upper bound
-  expect_equal(output_before$bmdu, 0.815, tolerance = 1e-3)
-  expect_equal(output_after$bmdu, 0.9928, tolerance = 1e-3)
-  expect_equal(output_after_ten$bmdu, 0.815, tolerance = 1e-3)
+  # Case 1 - BMD will be censored to the lower threshold
+  expect_equal(df[1, "combo2"], min(X)*0.7, tolerance = 1e-3)
+  expect_equal(df[1, "combo2u"], df[1, "bmdu"] + (min(X)*0.7-df[1, "bmd"]) , tolerance = 1e-3)
+  expect_equal(df[1, "combo2l"], df[1, "bmdl"] + (min(X)*0.7-df[1, "bmd"]), tolerance = 1e-3)
+  # Case 2 unaffected
+  expect_equal(df[2, "combo2"], df[2, "bmd"], tolerance = 1e-3)
+  expect_equal(df[2, "combo2u"], df[2, "bmdu"], tolerance = 1e-3)
+  expect_equal(df[2, "combo2u"], df[2, "bmdu"], tolerance = 1e-3)
+  # Case 3 unaffected
+  expect_equal(df[3, "combo2"], df[3, "bmd"], tolerance = 1e-3)
+  expect_equal(df[3, "combo2u"], df[3, "bmdu"], tolerance = 1e-3)
+  expect_equal(df[3, "combo2l"], df[3, "bmdl"], tolerance = 1e-3)
+  # Case 4 unaffected
+  expect_equal(df[4, "combo2"], df[4, "bmd"], tolerance = 1e-3)
+  expect_equal(df[4, "combo2u"], df[4, "bmdu"], tolerance = 1e-3)
+  expect_equal(df[4, "combo2l"], df[4, "bmdl"], tolerance = 1e-3)
+  # Case 5 unaffected
+  expect_equal(df[5, "combo2"], df[5, "bmd"], tolerance = 1e-3)
+  expect_equal(df[5, "combo2u"], df[5, "bmdu"], tolerance = 1e-3)
+  expect_equal(df[5, "combo2l"], df[5, "bmdl"], tolerance = 1e-3)
 })
 
-test_that("tcplhit2 BMD boundary check - no censoring needed", {
-  # find some example data from mc3
-  spid <- unique(mc3$spid)[78]
-  ex_df <- mc3[is.element(mc3$spid,spid),]
-  conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
-  resp <- ex_df$resp
+test_that("tcplhit2 BMD boundary check - Use both arguments", {
 
-  params <- tcplfit2_core(conc, resp, cutoff,
-                          force.fit = T, bidirectional = F)
+  # Argument combination: Both lower and upper threshold is specified
+  # only case 1 and case 5 should be affected
 
-  # Estimated BMD is in the experimental concentration range
-  output_before <- tcplhit2_core(params, conc, resp, cutoff, onesd,
-                                 bmed=0, conthits=T, aicc=F)
-
-  # Estimated BMD is below the upper 'reference dose' (highest expt dose)
-  # and is above the lower 'reference dose' (lowest expt. dose).
-  output_after <- tcplhit2_core(params, conc, resp, cutoff, onesd,
-                                bmed=0, conthits=T, aicc=F,
-                                bmd_low_bnd = 0.8, bmd_up_bnd = 2)
-
-  # checks for bmd estimates, expect them to be the same
-  expect_equal(output_before$bmd, 21.63718, tolerance = 1e-3)
-  expect_equal(output_after$bmd, 21.63718, tolerance = 1e-3)
-
-  # checks for bmd confident lower bound, expect them to be the same
-  expect_equal(output_before$bmdl, 21.14863, tolerance = 1e-3)
-  expect_equal(output_after$bmdl, 21.14863, tolerance = 1e-3)
-
-  # checks for bmd confident upper bound, expect them to be the same
-  expect_equal(output_before$bmdu, 22.21793, tolerance = 1e-3)
-  expect_equal(output_after$bmdu, 22.21793, tolerance = 1e-3)
-})
-
-test_that("tcplhit2 BMD boundary check - Use both arguments, one-side censoring needed", {
-  onesd <- 2.2
-  cutoff <- 1.5
-
-  # find some example data from mc3
-  spid <- "Tox21_400063"
-  ex_df <- mc3[is.element(mc3$spid,spid),]
-  conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
-  resp <- ex_df$resp
-  conc2 <- conc[conc <= 30]
-  resp2 <- resp[which(conc <= 30)]
-
-  params <- tcplfit2_core(conc2, resp2, cutoff,
-                          force.fit = T, bidirectional = F)
-
-  # Estimated BMD is in the experimental concentration range
-  output_before <- tcplhit2_core(params, conc2, resp2, cutoff, onesd,
-                                 bmed=0, conthits=T, aicc=F)
-
-  # Estimated BMD is above the upper 'threshold dose'.
-  # Using both arguments, but only upper censoring is needed.
-  output_after <- tcplhit2_core(params, conc2, resp2, cutoff, onesd,
-                                bmed=0, conthits=T, aicc=F,
-                                bmd_low_bnd = 0.1, bmd_up_bnd = 10)
-
-  # checks for bmd estimates
-  expect_equal(output_before$bmd, 310.9535, tolerance = 1e-3)
-  expect_equal(output_after$bmd, 300, tolerance = 1e-3)
-
-  # checks for bmd confident lower bound
-  expect_equal(output_before$bmdl, 149.4587, tolerance = 1e-3)
-  expect_equal(output_after$bmdl, 138.5052, tolerance = 1e-3)
-
-  # checks for bmd confident upper bound, both are NA's
-  expect_true(is.na(output_before$bmdu))
-  expect_true(is.na(output_after$bmdu))
+  # Case 1 - BMD will be censored to the lower threshold
+  expect_equal(df[1, "combo3"], min(X)*0.7, tolerance = 1e-3)
+  expect_equal(df[1, "combo3u"], df[1, "bmdu"] + (min(X)*0.7-df[1, "bmd"]) , tolerance = 1e-3)
+  expect_equal(df[1, "combo3u"], df[1, "bmdu"] + (min(X)*0.7-df[1, "bmd"]) , tolerance = 1e-3)
+  # Case 2 unaffected
+  expect_equal(df[2, "combo3"], df[2, "bmd"], tolerance = 1e-3)
+  expect_equal(df[2, "combo3u"], df[2, "bmdu"], tolerance = 1e-3)
+  expect_equal(df[2, "combo3l"], df[2, "bmdl"], tolerance = 1e-3)
+  # Case 3 unaffected
+  expect_equal(df[3, "combo3"], df[3, "bmd"], tolerance = 1e-3)
+  expect_equal(df[3, "combo3u"], df[3, "bmdu"], tolerance = 1e-3)
+  expect_equal(df[3, "combo3l"], df[3, "bmdl"], tolerance = 1e-3)
+  # Case 4 unaffected
+  expect_equal(df[4, "combo3"], df[4, "bmd"], tolerance = 1e-3)
+  expect_equal(df[4, "combo3u"], df[4, "bmdu"], tolerance = 1e-3)
+  expect_equal(df[4, "combo3l"], df[4, "bmdl"], tolerance = 1e-3)
+  # Case 5  - BMD will be censored to the upper threshold
+  expect_equal(df[5, "combo3"], max(X)*10, tolerance = 1e-3)
+  expect_true(is.na(df[5, "combo3u"]))
+  expect_equal(df[5, "combo3l"], df[5, "bmdl"]-(df[5, "bmd"] - max(X)*10), tolerance = 1e-3)
 })
 
