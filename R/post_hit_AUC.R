@@ -8,7 +8,8 @@
 #' details, and pass these values to `get_AUC` to estimate the AUC for the
 #' winning model.
 #'
-#' @param hit_results output from `tcplhit2_core`
+#' @param hit_results output from `tcplhit2_core`.
+#' @param ... Optional arguments passed to get_AUC.
 #'
 #' @return AUC value of the winning model (numeric)
 #'
