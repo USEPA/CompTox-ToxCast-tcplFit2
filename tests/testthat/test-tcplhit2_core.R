@@ -14,78 +14,77 @@ test_that("tcplhit2 works", {
   expect_equal(output$ga, 9.59, tolerance = 1e-2)
 })
 
-# Preparation for tests on BMD boundary arguments
-# Simulate some data
-X <- rep(seq(0.001,3,length.out = 10),each = 5)
+test_that("tcplhit2 BMD boundary check", {
+  # Preparation for tests on BMD boundary arguments
+  # Simulate some data
+  X <- rep(seq(0.001,3,length.out = 10),each = 5)
 
-set.seed(918)
-Case_1 <- hillfn(ps = c(4,0.00105,1.08,0.1),x = X) + rt(n = length(X),df = 4)
-Case_3 <- pow(ps = c(10,5,0.1),x = X) + rt(n = length(X),df = 4)
-set.seed(455)
-Case_2 <- hillfn(ps = c(4,0.00105,1.08,0.1),x = X) + rt(n = length(X),df = 4)
-set.seed(321)
-Case_4 <- exp2(ps = c(5.6,15,0.1),x = X) + rt(n = length(X),df = 4)
-set.seed(322)
-Case_5 <- exp5(ps = c(4,10,5,0.1),x = X) + rt(n = length(X),df = 4)
+  set.seed(918)
+  Case_1 <- hillfn(ps = c(4,0.00105,1.08,0.1),x = X) + rt(n = length(X),df = 4)
+  Case_3 <- pow(ps = c(10,5,0.1),x = X) + rt(n = length(X),df = 4)
+  set.seed(455)
+  Case_2 <- hillfn(ps = c(4,0.00105,1.08,0.1),x = X) + rt(n = length(X),df = 4)
+  set.seed(321)
+  Case_4 <- exp2(ps = c(5.6,15,0.1),x = X) + rt(n = length(X),df = 4)
+  set.seed(322)
+  Case_5 <- exp5(ps = c(4,10,5,0.1),x = X) + rt(n = length(X),df = 4)
 
-Y <- rbind(Case_1, Case_2, Case_3, Case_4, Case_5)
+  Y <- rbind(Case_1, Case_2, Case_3, Case_4, Case_5)
 
-# Y contains 5 rows of simulated responses, each row corresponds to
-# one data cases in order:
+  # Y contains 5 rows of simulated responses, each row corresponds to
+  # one data cases in order:
 
-# 1. BMD < lower threshold
-# 2. lower threshold < BMD < lowest expt dose
-# 3. lowest expt dose < BMD < upper expt dose
-# 4. upper expt dose < BMD < upper threshold
-# 5. BMD > upper threshold
+  # 1. BMD < lower threshold
+  # 2. lower threshold < BMD < lowest expt dose
+  # 3. lowest expt dose < BMD < upper expt dose
+  # 4. upper expt dose < BMD < upper threshold
+  # 5. BMD > upper threshold
 
-df <- matrix(nrow = 5, ncol = 14)
-colnames(df) <- c("onesd", "cutoff", "bmd", "bmdu", "bmdl",
-                  "combo1", "combo1u", "combo1l",
-                  "combo2", "combo2u", "combo2l",
-                  "combo3", "combo3u", "combo3l")
+  df <- matrix(nrow = 5, ncol = 14)
+  colnames(df) <- c("onesd", "cutoff", "bmd", "bmdu", "bmdl",
+                    "combo1", "combo1u", "combo1l",
+                    "combo2", "combo2u", "combo2l",
+                    "combo3", "combo3u", "combo3l")
 
-# fit each data case and hit-call with different argument combinations
-for (i in 1:5) {
-  temp <- Y[i, 1:10]
-  bmad <- mad(temp)
-  onesd <- sd(temp)
-  cutoff <- 3*bmad
+  # fit each data case and hit-call with different argument combinations
+  for (i in 1:5) {
+    temp <- Y[i, 1:10]
+    bmad <- mad(temp)
+    onesd <- sd(temp)
+    cutoff <- 3*bmad
 
-  df[i, "onesd"] <- onesd
-  df[i, "cutoff"] <- cutoff
+    df[i, "onesd"] <- onesd
+    df[i, "cutoff"] <- cutoff
 
-  params <- tcplfit2_core(X, Y[i, ], cutoff,
-                          force.fit = T, bidirectional = F)
-  # No thresholds specified, no censoring
-  output <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
-                          bmed=0, conthits=T, aicc=F)
+    params <- tcplfit2_core(X, Y[i, ], cutoff,
+                            force.fit = T, bidirectional = F)
+    # No thresholds specified, no censoring
+    output <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
+                            bmed=0, conthits=T, aicc=F)
 
-  df[i, "bmd"] <- output$bmd
-  df[i, "bmdu"] <- output$bmdu
-  df[i, "bmdl"] <- output$bmdl
+    df[i, "bmd"] <- output$bmd
+    df[i, "bmdu"] <- output$bmdu
+    df[i, "bmdl"] <- output$bmdl
 
-  # Combo 1: Only the upper boundary threshold is specified
-  combo1 <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
-                          bmed=0, conthits=T, aicc=F, bmd_up_bnd = 10)
+    # Combo 1: Only the upper boundary threshold is specified
+    combo1 <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
+                            bmed=0, conthits=T, aicc=F, bmd_up_bnd = 10)
 
-  # Combo 2: Only the lower boundary threshold is specified
-  combo2 <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
-                          bmed=0, conthits=T, aicc=F, bmd_low_bnd = 0.7)
+    # Combo 2: Only the lower boundary threshold is specified
+    combo2 <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
+                            bmed=0, conthits=T, aicc=F, bmd_low_bnd = 0.7)
 
-  # Combo 3: Both lower and upper threshold is specified
-  combo3 <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
-                          bmed=0, conthits=T, aicc=F, bmd_up_bnd = 10, bmd_low_bnd = 0.7)
+    # Combo 3: Both lower and upper threshold is specified
+    combo3 <- tcplhit2_core(params, X, Y[i,], cutoff, onesd,
+                            bmed=0, conthits=T, aicc=F, bmd_up_bnd = 10, bmd_low_bnd = 0.7)
 
-  # record BMDs
-  df[i, "combo1"] <- combo1$bmd; df[i, "combo1u"] <- combo1$bmdu; df[i, "combo1l"] <- combo1$bmdl
-  df[i, "combo2"] <- combo2$bmd; df[i, "combo2u"] <- combo2$bmdu; df[i, "combo2l"] <- combo2$bmdl
-  df[i, "combo3"] <- combo3$bmd; df[i, "combo3u"] <- combo3$bmdu; df[i, "combo3l"] <- combo3$bmdl
+    # record BMDs
+    df[i, "combo1"] <- combo1$bmd; df[i, "combo1u"] <- combo1$bmdu; df[i, "combo1l"] <- combo1$bmdl
+    df[i, "combo2"] <- combo2$bmd; df[i, "combo2u"] <- combo2$bmdu; df[i, "combo2l"] <- combo2$bmdl
+    df[i, "combo3"] <- combo3$bmd; df[i, "combo3u"] <- combo3$bmdu; df[i, "combo3l"] <- combo3$bmdl
 
-}
-df <- as.data.frame(cbind(Cases = c("Case_1", "Case_2", "Case_3", "Case_4", "Case_5"), df))
-
-test_that("tcplhit2 BMD boundary check - upper censoring required", {
+  }
+  df <- as.data.frame(cbind(Cases = seq(1,5,1), df))
 
   # Argument combination: Only the upper boundary threshold is specified
   # only case 5 where BMD > upper threshold should be affected
@@ -110,9 +109,6 @@ test_that("tcplhit2 BMD boundary check - upper censoring required", {
   expect_equal(df[5, "combo1"], max(X)*10, tolerance = 1e-3)
   expect_true(is.na(df[5, "combo1u"]))
   expect_equal(df[5, "combo1l"], df[5, "bmdl"]-(df[5, "bmd"] - max(X)*10), tolerance = 1e-3)
-})
-
-test_that("tcplhit2 BMD boundary check - lower censoring required", {
 
   # Argument combination: Only the lower boundary threshold is specified
   # use a multiplier of 0.7
@@ -138,9 +134,6 @@ test_that("tcplhit2 BMD boundary check - lower censoring required", {
   expect_equal(df[5, "combo2"], df[5, "bmd"], tolerance = 1e-3)
   expect_equal(df[5, "combo2u"], df[5, "bmdu"], tolerance = 1e-3)
   expect_equal(df[5, "combo2l"], df[5, "bmdl"], tolerance = 1e-3)
-})
-
-test_that("tcplhit2 BMD boundary check - Use both arguments", {
 
   # Argument combination: Both lower and upper threshold is specified
   # only case 1 and case 5 should be affected
