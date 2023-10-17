@@ -369,15 +369,18 @@ The output table resulting from the previous code chunk is the same format as th
   }
 ```
 
-## Example 5: How to "Censor" BMD
-The estimated BMD can occur above or below an experimental dose or other specified values; e.g., it is higher or lower than the maximum or minimum tested concentrations in the data. When this happens, `tcplhit2_core` and `concRespCore` provide options for users to "censor" the estimated BMD with the use of arguments `bmd_low_bnd` and `bmd_up_bnd`. 
+## Example 5: How to "Censor" the BMD
 
-`bmd_low_bnd` and `bmd_up_bnd` are multipliers applied to the minimum or maximum tested concentrations (i.e. reference doses) to generate the lower and upper boundaries for BMD estimates (i.e. threshold doses), respectively. This section provides examples to demonstrate how to "censor" BMD estimates with a lower and an upper bound, and how to "censor" BMD estimates with calls to `concRespCore` and `tcplhit2_core`.
+The estimated BMD can occur outside the experimental concentration range; e.g., the BMD may be greater than the maximum tested concentration in the data. In these cases, `tcplhit2_core` and `concRespCore` provide options for users to "censor" the estimated BMD.  This can be done using the `bmd_low_bnd` and `bmd_up_bnd` arguments. 
 
-### "Censor" BMD with a lower bound {#censorlowerbound}
-First, let's consider a situation when the estimated BMD is below the lowest tested concentration. When this happened, it implies that the experiment was not designed to have enough low-dose groups to capture behaviors in the low-dose regions and it can be a red flag for unreliable analysis. 
+`bmd_low_bnd` and `bmd_up_bnd` are multipliers applied to the minimum or maximum tested concentrations (i.e. reference doses), respectively, to provide the lower and upper boundaries for BMD estimates (i.e. threshold doses). This section demonstrates how to "censor" BMD estimates using the provided arguments in the `concRespCore` and `tcplhit2_core` functions.
 
-In the following code chunk, we use some data from `mc3` to simulate an example of this case. We take the data of a sample and remove data from dose groups that are below 0.41. The lack of data in low-dose regions can cause the estimated BMD to be lower than the lowest concentration left in the data. 
+### "Censor" the BMD with a lower bound {#censorlowerbound}
+
+First, let's consider a situation when the estimated BMD is below the lowest tested concentration. This occurs when the experimental concentrations do not go low enough to capture the gradual transition between the baseline response to an adverse response, around the benchmark response (BMR).  Failure to capture the response behavior in the low-dose region of the experimental design may indicate the data is not suitable for estimating a reliable point-of-departure, and rather should be flagged.
+
+In the following code chunk, we use data from `mc3`, with some minor modifications, to demonstrate this case. We take one of the responses in the data and remove the dose groups less $0.41$. Removing the lower dose groups simulates the lack of data in low-dose region causing the the estimated BMD to be less than the lowest concentration remaining in the data for our example. 
+
 ```{r example 5 lower}
 # We'll use data from mc3 in this section
 data("mc3")
@@ -426,9 +429,10 @@ res_low[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")] <- round(res_low[1, c("Min. C
 DT::datatable(res_low[1, c("Name","Min. Conc.", "bmd", "bmdl", "bmdu")],rownames = FALSE)
 ```
 
-The lowest concentration (i.e. reference dose) in the data is `r min(conc2)` but the estimated BMD from the hit-calling result is `r round(res_low$bmd, 3)`, which is lower. Users can allow the estimated BMD to be lower than the reference dose while restricting it to be no lower than a threshold dose set by using the argument `bmd_low_bnd`. 
+The lowest concentration (i.e. reference dose) in the data is `r min(conc2)` but the estimated BMD from the hit-calling results is `r round(res_low$bmd, 3)`, which is lower. Users may allow the estimated BMD to be lower than the reference dose while restricting it to be no lower than a threshold dose set by using the argument `bmd_low_bnd`. 
 
-For example, we want the estimated BMD to be no lower than 80% of the reference dose. We can use `bmd_low_bnd = 0.8` to set a threshold dose of 0.48. If the estimated BMD is lower than the threshold dose (like in this example), it will be "censored" to the threshold dose, and its confident boundaries will be shifted right by a distance equal to the difference between the estimated BMD and the threshold dose. Figure 7 provides a visual representation of this process. Valid inputs for `bmd_low_bnd` are numbers between 0 and 1, not including 0.
+Suppose, we want the estimated BMD to be no lower than 80% of the lowest tested concentration, then we can use `bmd_low_bnd = 0.8` to set a threshold dose.  Here that resulting threshold dose is $0.48$. If the estimated BMD is less than the threshold dose (like in this example), it will be "censored" to the threshold dose.  Similarly, its confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the threshold dose. Figure 7 provides a visual representation of the lower boundary censoring. The valid input range for `bmd_low_bnd` is between 0 and 1, excluding 0, ($0 < \text{bmd_low_bnd} \leq 1$).
+
 ```{r example 5 lower-demo}
 # using the argument to set a lower bound for BMD
 res_low2 <- concRespCore(row_low,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
@@ -478,10 +482,12 @@ legend(1e-3, 60, legend=c("Reference Dose", "Threshold Dose", "BMD-before", "BMD
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-**Figure 7**: This plot shows how BMD and its boundaries changed after "censoring". The green line and green "X" mark the estimated BMD before "censoring" and the green column represents its boundaries. The blue line and blue "X" mark the estimated BMD after "censoring" and the blue column represents its boundaries. The brown solid line represents the minimum concentration in the data, and the dark dashed line represents the threshold dose set by `bmd_low_bnd`. In this example, BMD was "censored" to the threshold value, and its boundaries were shifted right.
+**Figure 7**: This plot shows the BMD and confidence interval before and after "censoring". The green line and green "X" mark the estimated BMD before "censoring" and the green column represents the confidence interval. The blue line and blue "X" mark the estimated BMD after "censoring" and the blue column represents the confidence interval. The brown solid line represents the minimum concentration in the data, and the dark violet dashed line represents the threshold dose set by `bmd_low_bnd`. In this example, the BMD was "censored" to the threshold value, and its boundaries were shifted right.
 
-### "Censor" BMD with an upper bound 
-Let's consider another situation when the estimated BMD is higher than the maximum concentration in the data. In the following chunk, we take some example data from `mc3` and run a concentration-repose fitting and hit-calling. This is an example in which the estimated BMD is a lot larger than the maximum concentration in the data. We will show how to use `bmd_up_bnd` to top extreme BMD estimates by an upper bound. 
+### "Censor" the BMD with an upper bound 
+
+Let's consider another situation, in this scenario the estimated BMD is greater than the maximum tested concentration. In the following code chunk, we take example data from `mc3` and run a concentration-response fitting and hit-calling. This is an example in which the estimated BMD is much larger than the maximum tested concentration. Here, we demonstrate how to use `bmd_up_bnd` to set an  upper bound on extremely large BMD estimates. 
+
 ```{r example 5 upper}
 # load example data
 spid <- unique(mc3$spid)[26]
@@ -518,7 +524,10 @@ res_up[1, c("Max Conc.", "bmd", "bmdl", "bmdu")] <- round(res_up[1, c("Max Conc.
 DT::datatable(res_up[1, c('Name','Max Conc.', "bmd", "bmdl", "bmdu")],rownames = FALSE)
 ```
 
-The BMD `r round(res_up$bmd, 3)` is higher than the maximum concentration (i.e. reference dose) in the data, which is `r max(conc)`. Similarly with `bmd_low_bnd`, we can allow BMD to be larger than the reference dose but not larger than a threshold dose set by using `bmd_up_bnd`. For example, we don't want the estimated BMD to be larger than 2 times the reference dose. We can use `bmd_up_bnd = 2` to set a threshold dose of 160. If the estimated BMD is bigger than this threshold dose (like in this example), it will be "censored" to the threshold dose, and its boundaries will be shifted left. Figure 9 provides a visual representation of this process. Valid inputs for `bmd_up_bnd` are numbers larger than or equal to 1.
+The estimated BMD `r round(res_up$bmd, 3)` is greater than the maximum tested concentration (i.e. reference dose), which is `r max(conc)`. As with the `bmd_low_bnd`, users may allow the BMD to be greater than the maximum tested concentration but no greater than a threshold dose set using `bmd_up_bnd`.
+
+Suppose, we do not want the estimated BMD to be larger than 2 times the maximum tested concentration. Here, we can set `bmd_up_bnd = 2` to set the upper threshold dose to $160$. If the estimated BMD is greter than the upper threshold dose (like in this example), it will be "censored" to the threshold dose, and its confidence interval will be shifted left. Figure 9 provides a visual representation of upper boundary censoring. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$).
+
 ```{r example upper-demo}
 # using bmd_up_bnd = 2
 res_up2 <- concRespCore(row_up,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
@@ -567,10 +576,12 @@ legend(1e-3, 40, legend=c("Reference Dose", "Threshold Dose", "BMD-before", "BMD
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-**Figure 9**: This plot shows how BMD and its boundaries changed before and after "censoring". The green line and green "X" mark the BMD before "censoring" and the green column represents its boundaries. The blue line and blue "X" mark the "censored" BMD and the blue column represents its boundaries. The brown solid line represents the maximum concentration in the data, and the dark violet dashed line represents the threshold value set by `bmd_up_bnd`. In this example, BMD was "censored" to the threshold value, and its boundaries were shifted left.
+**Figure 9**: This plot shows the BMD and confidence interval before and after "censoring". The green line and green "X" mark the BMD before "censoring" and the green column represents the confidence interval. The blue line and blue "X" mark the "censored" BMD and the blue column represents the confidence interval. The brown solid line represents the maximum concentration in the data, and the dark violet dashed line represents the threshold dose set by `bmd_up_bnd`. In this example, the BMD was "censored" to the threshold value, and the confidence interval was shifted left.
 
-### "Censor" BMD with tcplhit2_core
-`bmd_low_bnd` and `bmd_low_bnd` are presented in `tcplhit2_core`. `concRespCore` "inherit" them through leveraging `tcplhit2_core` within the function. That means, if one chooses to make calls to `tcplfit2_core` and `tcplhit2_core` separately, they can do the same BMD "censoring" with `tcplhit2_core`. The results from using these two arguments in `concRespCore` or in `tcplhit2_core` are identical. Codes are provided below to show how to replicate the same result from the ["censor" with lower bound example](#censorlowerbound) above with `tcplhit2_core`.
+### "Censor" the BMD with `tcplhit2_core`
+
+The previous two examples provided for BMD censoring use the `concRespCore` function.  However, the `bmd_low_bnd` and `bmd_low_bnd` are arguments originating from `tcplhit2_core` function, which is utilized within the `concRespCore` function. Thus, for users that perform dose-response modeling and hit-calling utilizing the `tcplfit2_core` and `tcplhit2_core` separately can do the same BMD "censoring". Regardless of whether a user utilizes the `bmd_low_bnd` and `bmd_low_bnd` arguments in the `concRespCore` or `tcplhit2_core` function  the results should be identical. The code provided below shows how to replicate the results from the ["censor" with lower bound example](#censorlowerbound) example using `tcplhit2_core` as an alternative.
+
 ```{r example with hit core}
 # using the same data, fit curves 
 param <- tcplfit2_core(conc2, resp2, cutoff = cutoff)
@@ -589,10 +600,12 @@ output_low <- rbind(output_low,
 DT::datatable(output_low,rownames = FALSE)
 ```
 
-### BMD falls between the "threshold value" and the "reference dose"
-If the estimated BMD falls between the reference dose and the threshold dose, the estimated BMD will remain unchanged. For demonstration purposes, we use the lower bound censoring example, but the same principle applies to the upper bound censoring case.
+### The BMD falls between the "threshold value" and the "reference dose"
 
-We use the same data from the ["censor" with lower bound example](#censorlowerbound) and show what happens if we use a lower threshold dose. Let's assume it is acceptable as long as the estimated BMD is not lower than 40% (two-fifths) of the minimum concentration (i.e. reference dose) in the data. The estimated BMD `r res_low$bmd` is between the reference dose `r min(conc2)` and the new threshold dose 0.24. The BMD estimates and its boundaries will remain unchanged. 
+If the estimated BMD falls between the reference dose and the threshold dose, e.g. lowest tested dose and lower threshold, the estimated BMD will remain unchanged. For demonstration purposes, we use the lower bound censoring example, but the same principle applies to the upper bound censoring case.
+
+We use the same data from the ["censor" with lower bound example](#censorlowerbound) and use a lower value for `bmd_low_bnd` to obtain a lower threshold dose. Here, we suppose the estimated BMD is acceptable as long as it is no less than 40% (two-fifths) of the minimum tested concentration (i.e. reference dose). The estimated BMD is `r res_low$bmd`, which is between the lowest tested dose, `r min(conc2)`, and the new threshold dose $0.24$. Thus, the BMD estimate and its confidence interval will remain unchanged.
+
 ```{r example even lower bound}
 res_low3 <- concRespCore(row_low,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                            "pow", "exp2", "exp3", "exp4", "exp5"), 
@@ -636,5 +649,4 @@ legend(1e-3, 60, legend=c("Reference Dose", "Threshold Dose", "BMD-before", "BMD
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-**Figure 8**: This plot shows how BMD and its boundaries changed after "censoring" with a threshold dose of 0.24. The dark violet dashed line represents the threshold dose, and the brown solid line represents the minimum concentration in the data. BMD = 0.302 falls between the reference dose and the threshold dose, so it will remain unchanged. A green column and a green "X" should mark the original BMD estimate and its boundaries, and a blue column and a blue "X" should mark the "censored" BMD and its boundaries. In this case, they are completely overlapped. 
-
+**Figure 8**: This plot shows the BMD and the confidence interval before and after "censoring" with a threshold dose of 0.24. The dark violet dashed line represents the threshold dose, and the brown solid line represents the minimum tested concentration. The estimated BMD is 0.302 and falls between the reference dose and the threshold dose.  Thus, it will remain unchanged. A green column and a green "X" should mark the original BMD estimate and the confidence interval, and a blue column and a blue "X" mark the "censored" BMD and the confidence interval. In this plot, the estimated BMD and "censored" BMD are completely overlapped. 
