@@ -2,7 +2,9 @@
 #'
 #' Core of concentration response curve fitting for pvalue based cutoff. This
 #' function calls tcplfit2_core to get curve fits, and then tcplhit2_core to
-#' perform the hitcalling.
+#' perform the hitcalling. Prior to model fitting, this function includes two
+#' data preparation steps (1) centering responses when bmed is not 0 or NULL and
+#' (2) removal of replicates with missing response values.
 #'
 #' @param row A named list that must include:
 #'   \itemize{
