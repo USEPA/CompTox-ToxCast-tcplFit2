@@ -1,7 +1,9 @@
 ## Scripts used to create HTPP subsets at global, category, and feature levels for unit test
 
-## load HTTP data
-load(system.file("data-raw/HTPP", "htpp_inputData.RData", package = "tcplfit2"))
+## load HTPP data
+load("~/CompTox-ToxCast-tcplFit2/data-raw/HTPP/htpp_inputData.RData")
+load("~/CompTox-ToxCast-tcplFit2/data-raw/HTPP/htpp_tcplOutput.RData")
+
 
 ## chemicals selected for global subset
 ## Try to include at least one response from each curve, and balance active and inactive responses
@@ -10,16 +12,18 @@ global_chem_id <- c("EPAPLT0202E05", # the only exp2 - active
                     "EPAPLT0202F18", # the only exp5 - active
                     "EPAPLT0202G15", # power - active
                     "ETOP", # hill - active
-                    "EPAPLT0202A11", # exp4 - inactive
                     "DEX", # exp4 - active
-                    "EPAPLT0202D18", # poly1 - inactive
+                    "EPAPLT0202A11", # exp4 - inactive
+                    "EPAPLT0202C12", # poly1 - inactive
+                    "EPAPLT0202D11", # poly1 - inactive
                     "EPAPLT0202F22", # poly1 - inactive
                     "EPAPLT0202C01", # csnt - inactive
                     "EPAPLT0202F11" # poly1 - hit-call around 0.5, top/cutoff 1.2
 )
 
-## create the subset, n = 10
+## subset the input and output files, n = 11
 htpp_global_subset <- tcpl_global[tcpl_global$chem_id %in% global_chem_id]
+htpp_global_input <- htpp_global_mah[htpp_global_mah$chem_id %in% global_chem_id]
 
 
 ## chemicals selected for category subset
@@ -48,31 +52,34 @@ htpp_global_subset <- tcpl_global[tcpl_global$chem_id %in% global_chem_id]
 ## and DNA categories.
 ## Example codes I used to filter and select:
 ## temp <- tcpl_cat[grepl("RNA", tcpl_cat$endpoint), ]
-## table(temp$fit_method) check if there's unique cases in this
 ## temp <- temp %>% filter(stype == "test sample" & fit_method == "exp4") # select the first or the second row
 
-cat_chem_id <- c(   "EPAPLT0202A05-ER_Radial_Cells", # only poly2, robust high hit-call
-                    "EPAPLT0202E05-DNA_Axial_Nuclei", # pow borderline high hitcall
-                    "EPAPLT0202A06-ER_Profile_Cytoplasm", # poly1 borderline low hitcall
-                    "EPAPLT0202E12-Mito_Intensity_Ring", # poly1 borderline 0.5 hitcall
-                    "EPAPLT0202A05-AGP_Compactness_Cells", # hill high hit-cal
-                    "EPAPLT0202A11-AGP_Texture_Ring", # exp4 low hit-call
-                    "EPAPLT0202F18-RNA_Intensity_Nuclei", # exp5 high hit-call
-                    "EPAPLT0202D10-RNA_Intensity_Nuclei", # csnt low hit-call
-                    "EPAPLT0202A12-Shape", # poly1 high hit-call
-                    "DEX-Shape", # exp4 low hit-call
-                    "EPAPLT0202D18-DNA_Symmetry_Nuclei", # exp5 low hit-call
-                    "EPAPLT0202E05-Mito_Compactness_Cells" # exp2 high hit-call
-                    )
+cat_chem_id <- c( "EPAPLT0202A05-ER_Radial_Cells", # only poly2, robust active
+                  "EPAPLT0202E05-DNA_Axial_Nuclei", # pow, borderline
+                  "EPAPLT0202A06-ER_Profile_Cytoplasm", # poly1, borderline
+                  "EPAPLT0202E12-Mito_Intensity_Ring", # poly1, borderline
+                  "EPAPLT0202A05-AGP_Compactness_Cells", # hill, active
+                  "EPAPLT0202A11-AGP_Texture_Ring", # exp4, inactive
+                  "EPAPLT0202F18-RNA_Intensity_Nuclei", # exp5, active
+                  "EPAPLT0202D10-RNA_Intensity_Nuclei", # csnt, inactive
+                  "EPAPLT0202A12-Shape", # poly1, active
+                  "DEX-Shape", # exp4, inactive
+                  "EPAPLT0202D18-DNA_Symmetry_Nuclei", # exp5, inactive
+                  "EPAPLT0202E05-Mito_Compactness_Cells" # exp2, active
+)
 
-## create the subset, n = 12
-htpp_cat_subset <- data.frame(matrix(ncol = ncol(tcpl_cat), nrow = 0))
+
+## subset the input and output files, n = 12
+htpp_cat_subset <- NULL
+htpp_cat_input <- NULL
 
 for (each in cat_chem_id) {
   chem <- strsplit(each, split="-")[[1]][1]
   cat <- strsplit(each, split="-")[[1]][2]
   row <- tcpl_cat[tcpl_cat$chem_id == chem & tcpl_cat$endpoint == cat,]
+  sub <- htpp_cat_mah[htpp_cat_mah$chem_id == chem & htpp_cat_mah$category_name_r == cat,]
   htpp_cat_subset <- rbind(htpp_cat_subset, row)
+  htpp_cat_input <- rbind(htpp_cat_input, sub)
 }
 
 
@@ -88,46 +95,84 @@ for (each in cat_chem_id) {
 
 # temp <- tcpl_feature[tcpl_feature$stype == "test sample"]
 # sub1 <- temp %>% filter(hitcall < 0.1)
-# table(sub1$fit_method) - sub1 has cnst, exp2, exp4, exp5, hill, poly1 and pow
 # sub2 <- temp %>% filter(hitcall > 0.9)
-# table(sub2$fit_method) - sub2 has exp2, exp3, exp4, exp5, hill, poly1, poly2 and pow
-# sub3 <- temp %>% filter(top_over_cutoff > 0.9 & temp$top_over_cutoff < 1.2)
-# table(sub3$fit_method) - sub3 has exp2, exp4, exp5, hill, poly1 and pow
+# sub3 <- temp %>% filter(top_over_cutoff > 0.9 & temp$top_over_cutoff < 1.5)
 
 feature_chem_id <- c(
   ## from sub1
-  "EPAPLT0202H02-f_1073", # f_1073 cnst inactive
-  "EPAPLT0202H02-f_984", # f_984 exp4 inactive
-  "EPAPLT0202A14-f_703",  # f_703 exp5 inactive
-  "EPAPLT0202E12-f_441",  # f_441 hill inactive
-  "EPAPLT0202D10-f_902",  # f_902 pow inactive
-  "EPAPLT0202A01-f_841", # f_841 poly1 inactive
+  "EPAPLT0202H02-f_1073", # cnst - inactive
+  "EPAPLT0202H02-f_984", # exp4 - inactive
+  "EPAPLT0202A14-f_703", # exp5 - inactive
+  "EPAPLT0202E12-f_441", # hill - inactive
+  "EPAPLT0202D10-f_902", # pow - inactive
+  "EPAPLT0202A01-f_841", # poly1 - inactive
   ## from sub2
-  "EPAPLT0202A05-f_1105", # f_1105 exp2 active
-  "EPAPLT0202E12-f_329",  # f_329 exp3 active
-  "EPAPLT0202A05-f_993", # f_993 exp4 active
-  "EPAPLT0202F18-f_436", # f_436 exp5 active
-  "EPAPLT0202E12-f_556", # f_556 poly1 active
-  "EPAPLT0202A05-f_1160", # f_1160 poly2 active
-  "EPAPLT0202A05-f_519", # f_519 pow active
+  "EPAPLT0202A05-f_1105", # exp2 active
+  "EPAPLT0202E12-f_329", # exp3 active
+  "EPAPLT0202A05-f_993", # exp4 active
+  "EPAPLT0202F18-f_436", # exp5 active
+  "EPAPLT0202E12-f_556", # poly1 active
+  "EPAPLT0202A05-f_1160", # poly2 active
+  "EPAPLT0202A05-f_519", # pow active
   ## from sub3
-  "EPAPLT0202E14-f_192", # only hill in sub3, high hit-call
-  "EPAPLT0202A01-f_250", # exp2, low hit-call (exp2 all have very low hit-call
-  "EPAPLT0202A06-f_1178", # poly1, hit-call between 0.25-0.3
-  "EPAPLT0202A01-f_958", # pow, hit-call around 0.5
-  "EPAPLT0202A11-f_722" # poly1, hit-call around 0.79
+  "EPAPLT0202E14-f_192", # only hill in sub3, borderline high hit-call
+  "EPAPLT0202A01-f_250", # exp2, borderline, high hit-call
+  "EPAPLT0202A06-f_1178", # poly1 borderline, low hit-call
+  "EPAPLT0202A01-f_958", # pow, borderline hit-call around 0.5
+  "EPAPLT0202A11-f_722", # poly1, borderline hit-call around 0.79
+  "EPAPLT0202E12-f_160" # pow, borderline hit-call around 0.34
 )
 
-## create the subset, n = 18
-htpp_feature_subset <- data.frame(matrix(ncol =  ncol(tcpl_feature), nrow = 0))
+## subset the input and output files, n = 19
+htpp_feature_subset <- NULL
+htpp_feature_input <- NULL
 
 for (each in feature_chem_id) {
   chem <- strsplit(each, split="-")[[1]][1]
   fname <- strsplit(each, split="-")[[1]][2]
   row <- tcpl_feature[tcpl_feature$chem_id == chem & tcpl_feature$endpoint == fname,]
+
+  sub <- htpp_well_norm %>% filter(chem_id == chem) %>% select(c(1:17, which(colnames(htpp_well_norm) == fname)))
+  colnames(sub)[ncol(sub)] <- "d"
+  sub$Feature <- fname
   htpp_feature_subset <- rbind(htpp_feature_subset, row)
+  htpp_feature_input <- rbind(htpp_feature_input, sub)
 }
 
-# usethis::use_data(htpp_global_subset, htpp_cat_subset, htpp_feature_subset, internal = TRUE)
+## Calculate Vehicle Control Information for Three Levels
+# Global - uses the same cutoff and BMED for the whole data set
+# Category - each category uses specific cutoff and BMED values
+# Feature - each feature uses specific cutoff and BMED values
+
+CONTROL_GMAH <- htpp_global_mah %>%
+  dplyr::filter(stype == "test sample") %>%
+  dplyr::filter(dose_level == 1|dose_level == 2) %>%
+  dplyr::summarise(BMED = mean(d),CUTOFF = sd(d),ONESD = sd(d)/1.349)
+
+CONTROL_CMAH <- htpp_cat_mah %>%
+  dplyr::filter(stype == "test sample") %>%
+  dplyr::group_by(category_name_r) %>%
+  dplyr::filter(dose_level == 1|dose_level == 2) %>%
+  dplyr::summarise(BMED = mean(d),CUTOFF = sd(d),ONESD = sd(d)/1.349)
+
+
+df <- htpp_well_norm %>%
+  dplyr::filter(stype == "test sample")  %>%
+  dplyr::filter(dose_level == 1|dose_level == 2)
+
+CONTROL_FMAH <- NULL
+for (i in 18:ncol(htpp_well_norm)){
+  temp <- df %>% select(i)
+  CONTROL_FMAH <- rbind(CONTROL_FMAH,
+  data.frame(BMED = mean(temp[[1]]),
+             CUTOFF = sd(temp[[1]]),
+             ONESD = sd(temp[[1]])/1.349,
+             fname = colnames(htpp_well_norm)[i]))
+  }
+
+# save all the data frames created as internal data files
+usethis::use_data(htpp_global_subset, htpp_cat_subset, htpp_feature_subset,
+                  htpp_global_input, htpp_cat_input, htpp_feature_input,
+                  CONTROL_GMAH, CONTROL_CMAH, CONTROL_FMAH, internal = TRUE)
 # utils::sessionInfo()
 
