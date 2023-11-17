@@ -53,8 +53,26 @@ test_that("HTPP global data internal check", {
     my_global <- rbind(my_global, newLine)
   }
 
-  # compare results
+  ## Compare results
+  ## Compare BMD, top_over_cutoff, and hit-call
 
+  ## Differences in decimals places are normal rounding errors
+  ## check if the differences in the BMD estimates exceed a threshold value
+  ## BMD could be NA, replace NA with -1 so it wouldn't cause trouble with all()
+  my_global$bmd[is.na(my_global$bmd)] <- -1
+  htpp_global_subset$bmd[is.na(htpp_global_subset$bmd)] <- -1
+  bmd_check <- all(abs(my_global$bmd - htpp_global_subset$bmd) < 1e-2)
+  expect_true(bmd_check)
+
+  # check if the differences in hit-calls exceed a threshold value
+  hitcall_check <- all(abs(my_global$hitcall - htpp_global_subset$hitcall) < 1e-1)
+  expect_true(hitcall_check)
+
+  # check if the differences in top_over_cutoff exceed a threshold value
+  my_global$top_over_cutoff[is.na(my_global$top_over_cutoff)] <- -1
+  htpp_global_subset$top_over_cutoff[is.na(htpp_global_subset$top_over_cutoff)] <- -1
+  top_cutoff_check <- all(abs(my_global$top_over_cutoff - htpp_global_subset$top_over_cutoff) < 1e-1)
+  expect_true(hitcall_check)
 })
 
 
