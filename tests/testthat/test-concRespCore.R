@@ -17,6 +17,10 @@ test_that("concRespCore works", {
 })
 
 test_that("HTPP global data internal check", {
+
+  skip_on_cran()
+
+  # load necessary data
   load("~/CompTox-ToxCast-tcplFit2/R/sysdata.rda")
 
   my_global <- NULL
@@ -56,6 +60,11 @@ test_that("HTPP global data internal check", {
   ## Compare results
   ## Compare BMD, top_over_cutoff, and hit-call
 
+  ## vector operation, Order by chemerty id to make sure we are comparing the same
+  ## chemical
+  my_global<- my_global[order(my_global$chem_id),]
+  htpp_global_subset<- htpp_global_subset[order(htpp_global_subset$chem_id),]
+
   ## Differences in decimals places are normal rounding errors
   ## check if the differences in the BMD estimates exceed a threshold value
   ## BMD could be NA, replace NA with -1 so it wouldn't cause trouble with all()
@@ -65,13 +74,14 @@ test_that("HTPP global data internal check", {
   expect_true(bmd_check)
 
   # check if the differences in hit-calls exceed a threshold value
-  hitcall_check <- all(abs(my_global$hitcall - htpp_global_subset$hitcall) < 1e-1)
+  hitcall_check <- all(abs(my_global$hitcall - htpp_global_subset$hitcall) < 1e-3)
   expect_true(hitcall_check)
 
   # check if the differences in top_over_cutoff exceed a threshold value
+  # top_over_cutoff is NA when the model is none - replace NA with -1
   my_global$top_over_cutoff[is.na(my_global$top_over_cutoff)] <- -1
   htpp_global_subset$top_over_cutoff[is.na(htpp_global_subset$top_over_cutoff)] <- -1
-  top_cutoff_check <- all(abs(my_global$top_over_cutoff - htpp_global_subset$top_over_cutoff) < 1e-1)
+  top_cutoff_check <- all(abs(my_global$top_over_cutoff - htpp_global_subset$top_over_cutoff) < 1e-3)
   expect_true(hitcall_check)
 })
 
