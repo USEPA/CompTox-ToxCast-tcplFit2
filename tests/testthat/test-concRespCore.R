@@ -23,6 +23,21 @@ test_that("HTPP global data internal check", {
   # load necessary data
   load("~/CompTox-ToxCast-tcplFit2/R/sysdata.rda")
 
+  ## Confirmed with Derik Haggard, for chemical EPAPLT0617C02,
+  ## concentrations above 2.98 uM are removed from curve-fitting
+  ## because higher concentrations cause cytotoxicity above the standard threshold of 50%.
+  ## (i.e. concentration that is below the fitted EC50 value for a chemical is removed.)
+
+  ## dropping higher concentrations for EPAPLT0617C02
+  htpp_global_input = subset(htpp_global_input, htpp_global_input$chem_id !=  "EPAPLT0617C02" |
+                      htpp_global_input$conc <= 2.98 )
+
+  ## One can use the following code to verify that for curve fitting, EPAPLT0617C02 uses
+  ## 5 unique concentrations, with the highest concentration being 2.98.
+  ## htpp_global_subset[htpp_global_subset$chem_id == "EPAPLT0617C02",c("chem_id", "min_conc", "max_conc","n_conc", "conc")]
+  ## unique(htpp_global_input[htpp_global_input$chem_id == "EPAPLT0617C02","conc"])
+
+
   my_global <- NULL
   for (this.chem in unique(htpp_global_subset$chem_id)){
     ## for each chemical, prepare data for concRespCore
