@@ -16,6 +16,8 @@
 #'   will be positive only.
 #' @param verbose If TRUE, gives optimization and hessian inversion details.
 #' @param nofit If nofit = TRUE, returns formatted output filled with missing values.
+#' @param biphasic If biphasic = TRUE, constraints are set to allow the
+#'   polynomial 2 model to fit bi-phasic (i.e. non-monotonic) curves.
 #'
 #' @importFrom methods is
 #' @importFrom numDeriv hessian
@@ -30,7 +32,7 @@
 #'
 #' @examples
 #' fitpoly2(c(.03,.1,.3,1,3,10,30,100), c(0,.01,.1, .1, .2, .5, 2, 8))
-fitpoly2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE){
+fitpoly2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE,biphasic = TRUE){
 
   fenv <- environment()
   #initialize myparams
@@ -65,9 +67,15 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F
   ## Starting parameters for the Model
   a0 = mmed #use largest response with desired directionality
   if(a0 == 0) a0 = .01  #if 0, use a smallish number
-  g <- c(a0/2, # y scale (a); set to run through the max resp at the max conc
-         conc_max, # x scale (b); set to max conc
-         er_est) # logSigma (er)
+  if(biphasic){
+    g <- c(-a0/2, # y scale (a); set to run through the max resp at the max conc
+           -conc_max, # x scale (b); set to max conc
+           er_est) # logSigma (er)
+  }else{
+    g <- c(a0/2, # y scale (a); set to run through the max resp at the max conc
+           conc_max, # x scale (b); set to max conc
+           er_est) # logSigma (er)
+  }
 
   ## Generate the bound matrices to constrain the model.
   #                a   b    er
@@ -81,8 +89,13 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F
     bnds <- c(0, -1e8*abs(a0), # a bounds (always positive)
               1e-8*conc_max, -1e8*conc_max) # b bounds (always increasing)
   } else {
-    bnds <- c(-1e8*abs(a0), -1e8*abs(a0), # a bounds (positive or negative)
-              1e-8*conc_max, -1e8*conc_max) # b bounds (always increasing or always decreasing)
+    if(biphasic){
+      bnds <- c(-1e8*abs(a0), -1e8*abs(a0), # a bounds (positive or negative)
+                -1e8*conc_max, -1e8*conc_max) # b bounds (always increasing or always decreasing)
+    }else{
+      bnds <- c(-1e8*abs(a0), -1e8*abs(a0), # a bounds (positive or negative)
+                1e-8*conc_max, -1e8*conc_max) # b bounds (always increasing or always decreasing)
+    }
   }
 
   Ci <- matrix(bnds, nrow = 4, ncol = 1)

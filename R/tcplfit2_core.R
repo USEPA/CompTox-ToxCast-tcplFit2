@@ -16,6 +16,8 @@
 #' @param do.plot If do.plot = TRUE, will generate a plot comparing model curves.
 #' @param fitmodels Vector of model names to try fitting. Missing models still
 #'   return a skeleton output filled with NAs.
+#' @param poly2.biphasic If poly2.biphasic = TRUE, constraints are set to allow
+#'   for the polynomial 2 model fit to be bi-phasic (i.e. non-monotonic).
 #' @param ... Other fitting parameters (deprecated).
 #'
 #' @import RColorBrewer
@@ -53,6 +55,7 @@
 #' )
 tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional = TRUE, verbose = FALSE, do.plot = FALSE,
                           fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"),
+                          poly2.biphasic = TRUE,
                           ...) {
   logc <- log10(conc)
   rmds <- tapply(resp, logc, median)
@@ -75,10 +78,18 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
       model == "cnst"))
     fname <- paste0("fit", model) # requires each model function have name "fit____" where ____ is the model name
     # use do.call to call fit function; cnst has different inputs than others.
-    assign(model, do.call(fname, list(
+    if(fname != "fitpoly2"){
+      assign(model, do.call(fname, list(
         conc = conc, resp = resp, bidirectional = bidirectional, verbose = verbose,
         nofit = !to.fit
       )))
+    }else{
+      assign(model, do.call(fname, list(
+        conc = conc, resp = resp, bidirectional = bidirectional, verbose = verbose,
+        nofit = !to.fit,biphasic = poly2.biphasic
+      )))
+    }
+
       if (to.fit) {
         if (model %in% c("poly1", "poly2", "pow", "exp2", "exp3")) {
           # methods that grow without bound: top defined as model value at max conc
