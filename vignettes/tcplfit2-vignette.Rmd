@@ -66,7 +66,7 @@ To run a simple example, use the following code ...
   
 ```
 
-**Figure 1:** This plot depicts the fitted concentration-response curves, with each model represented in a different color. Note that the x-axis uses log-10 concentrations. 
+**Figure 1:** This plot depicts the fitted concentration-response curves, with each model represented in a different color. Note, concentrations (x-axis) are in log-10 units. 
 
 The output of this run will be a data frame with one row, summarizing the results for the winning model.
 
@@ -129,7 +129,7 @@ their own version of this. To run this example, use the following code ...
 
 ```
 
-**Figure 2:** Each figure shows the curve-fit result of a random sample from `mc3` data. Each plot has a title that contains the chemical name and assay ID. On the top of each plot displays a summary of the fitting, including what is the winning model, AC50, top, BMD, ACC, and hit-call. The concentration-response observations are the black dots, and the winning model curve is depicted by the black curve. If BMD is not `NA`, it and its boundaries are highlighted by a green line and a green rectangle. The gray bar around the x-axis represents the estimated noise region. 
+**Figure 2:** Each figure shows the curve-fit results for a random sample in the `mc3` data. The title contains the chemical name and assay ID. Each plot displays the summary of curve-fit results -- including the winning model, AC50, top, BMD, ACC, and hitcall -- at the top of the plot. The black dots indicate observed responses, and the winning model fit is displayed as the solid black curve. The estimated BMD is displayed the solid green vertical line, and the solid green lines bonding the shaded green region indicate the estimated confidence bounds on the BMD (i.e., lower and upper BMD confidence bounds - BMDL and BMDU). The black horizontal lines bonding the shaded gray region centers at x-axis indicate the estimated noise region.
 
 One would typically save the result rows in a data frame end export these for further analysis. You could remove the plotting function from the current loop and have a loop that read from the overall results data frame and only plot selected results (e.g. those with significant responses).
 
@@ -171,7 +171,7 @@ The input data for this example contains 6 signatures for one chemical in a tran
   }
 ```
 
-**Figure 3:** These figures are plots generated from using one of the plotting options in `tcplfit2`: using the `do.plot=TRUE` argument in `concRespCore` function. Each figure plots all models used to fit one row of data in `signatures`.
+**Figure 3:** These plots demonstrate the plots generated using the `tcplfit2` plotting option through the `do.plot=TRUE` argument in the `concRespCore` function. Each figure displays all model fits to one row of data in the `signatures` dataset.
 
 ```{r example3_plot2, fig.height = 8, fig.width = 7}
   # set up a 3 x 2 grid for the plots
@@ -378,7 +378,7 @@ The output table resulting from the previous code chunk is the same format as th
   }
 ```
 
-**Figure 5:** Each figure plots the winning curve and displays some of the hit-call result of one sample in `subdat`.
+**Figure 5:** Each figure plots the winning curve and displays some of the hit-call results for one sample in the `subdat` dataset.
 
 ## Example 5: How to "Censor" the BMD
 
@@ -493,7 +493,7 @@ legend(1e-3, 60, legend=c("Reference Dose", "Threshold Dose", "BMD-before", "BMD
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-**Figure 6**: This plot shows the BMD and confidence interval before and after "censoring". The green line and green "X" mark the estimated BMD before "censoring" and the green column represents the confidence interval. The blue line and blue "X" mark the estimated BMD after "censoring" and the blue column represents the confidence interval. The brown solid line represents the minimum concentration in the data, and the dark violet dashed line represents the threshold dose set by `bmd_low_bnd`. In this example, the BMD was "censored" to the threshold value, and its boundaries were shifted right.
+**Figure 6**: This plot shows the estimated BMD and confidence interval before and after "censoring". The green line and the "X" mark the estimated BMD before "censoring" along with the green shaded region representing the estimated confidence interval. The blue line and the "X" mark the estimated BMD after "censoring" along with the blue shaded region representing the estimated confidence interval. The solid brown line represents the minimum concentration in the data, and the dashed dark violet line represents the threshold dose set by `bmd_low_bnd`. In this example plot, the estimated BMD and the boundaries were shifted right such that the BMD was "censored" to the threshold value (blue "X" and region).
 
 ### "Censor" the BMD with an upper bound 
 
@@ -587,7 +587,7 @@ legend(1e-3, 40, legend=c("Reference Dose", "Threshold Dose", "BMD-before", "BMD
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-**Figure 7**: This plot shows the BMD and confidence interval before and after "censoring". The green line and green "X" mark the BMD before "censoring" and the green column represents the confidence interval. The blue line and blue "X" mark the "censored" BMD and the blue column represents the confidence interval. The brown solid line represents the maximum concentration in the data, and the dark violet dashed line represents the threshold dose set by `bmd_up_bnd`. In this example, the BMD was "censored" to the threshold value, and the confidence interval was shifted left.
+**Figure 7**: This plot shows the estimated BMD and confidence interval before and after "censoring". The green line and the "X" mark the BMD before "censoring" along with the green shaed region representing the estimated confidence interval. The blue line and the "X" mark the "censored" BMD along with the blue shaded region representing the estimated confidence interval. The solid brown line represents the maximum concentration in the data, and the dashed dark violet line represents the threshold dose set by `bmd_up_bnd`. In this example plot, the estimated BMD and the boundaries were shifted left such that the BMD was "censored" to the threshold value (blue "X" and region).
 
 ### "Censor" the BMD with `tcplhit2_core`
 
@@ -660,4 +660,4 @@ legend(1e-3, 60, legend=c("Reference Dose", "Threshold Dose", "BMD-before", "BMD
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-**Figure 8**: This plot shows the BMD and the confidence interval before and after "censoring" with a threshold dose of 0.24. The dark violet dashed line represents the threshold dose, and the brown solid line represents the minimum tested concentration. The estimated BMD is 0.302 and falls between the reference dose and the threshold dose.  Thus, it will remain unchanged. A green column and a green "X" should mark the original BMD estimate and the confidence interval, and a blue column and a blue "X" mark the "censored" BMD and the confidence interval. In this plot, the estimated BMD and "censored" BMD are completely overlapped. 
+**Figure 8**: This plot shows the estimated BMD and the confidence interval before and after "censoring" with a threshold dose of 0.24. The dashed dark violet line represents the threshold dose, and the solid brown line represents the minimum tested concentration. The estimated BMD 0.302 falls between the reference dose and the threshold dose and therefore remains unchanged. In this example plot, the estimated BMD and "censored" BMD are the same. Thus, the green and blue lines and the "X"s that mark the estimated BMD before and after "censoring" , respectively, along with their shaded regions indicating the estimated confidence bounds are completely overlapped. 
