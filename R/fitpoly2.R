@@ -67,13 +67,14 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F
   ## Starting parameters for the Model
   a0 = mmed #use largest response with desired directionality
   if(a0 == 0) a0 = .01  #if 0, use a smallish number
+
+  g <- c(a0/2, # y scale (a); set to run through the max resp at the max conc
+         conc_max, # x scale (b); set to max conc
+         er_est) # logSigma (er)
+
   if(biphasic){
     g <- c(a0/2, # y scale (a); set to run through the max resp at the max conc
            -conc_max, # x scale (b); set to max conc
-           er_est) # logSigma (er)
-  }else{
-    g <- c(a0/2, # y scale (a); set to run through the max resp at the max conc
-           conc_max, # x scale (b); set to max conc
            er_est) # logSigma (er)
   }
 
@@ -89,12 +90,12 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F
     bnds <- c(0, -1e8*abs(a0), # a bounds (always positive)
               1e-8*conc_max, -1e8*conc_max) # b bounds (always increasing)
   } else {
+    bnds <- c(-1e8*abs(a0), -1e8*abs(a0), # a bounds (positive or negative)
+              1e-8*conc_max, -1e8*conc_max) # b bounds (always increasing or always decreasing)
+
     if(biphasic){
       bnds <- c(-1e8*abs(a0), -1e8*abs(a0), # a bounds (positive or negative)
                 -1e8*conc_max, -1e8*conc_max) # b bounds (always increasing or always decreasing)
-    }else{
-      bnds <- c(-1e8*abs(a0), -1e8*abs(a0), # a bounds (positive or negative)
-                1e-8*conc_max, -1e8*conc_max) # b bounds (always increasing or always decreasing)
     }
   }
 
