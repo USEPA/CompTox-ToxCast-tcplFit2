@@ -1,9 +1,14 @@
-## Scripts used to create HTPP subsets at global, category, and feature levels for unit test
+## This R script should be ran from the command line using
+## R CMD BATCH data-raw/HTPP_subset.R
+
+## Script used to create HTPP subsets at global, category, and feature levels for unit tests
 
 ## load HTPP data
 load("~/CompTox-ToxCast-tcplFit2/data-raw/HTPP/htpp_inputData.RData", verbose = T)
 load("~/CompTox-ToxCast-tcplFit2/data-raw/HTPP/htpp_tcplOutput.RData", verbose = T)
 
+## load necessary package
+library(dplyr)
 
 ## chemicals selected for global subset
 ## Try to include at least one response from each curve, and balance active and inactive responses
@@ -24,7 +29,7 @@ global_chem_id <- c("EPAPLT0617B02", # poly1 - borderline, low hit-call 0.2, top
 
 ## subset the input and output files, n = 12
 htpp_global_subset <- tcpl_global[tcpl_global$chem_id %in% global_chem_id,]
-htpp_global_input <- htpp_global_mah[htpp_global_mah$chem_id %in% global_chem_id]
+htpp_global_input <- htpp_global_mah[htpp_global_mah$chem_id %in% global_chem_id,]
 
 
 ## chemicals selected for category subset
@@ -170,6 +175,6 @@ for (i in 24:ncol(htpp_well_norm)){
 # save all the data frames created as internal data files
 usethis::use_data(htpp_global_subset, htpp_cat_subset, htpp_feature_subset,
                   htpp_global_input, htpp_cat_input, htpp_feature_input,
-                  CONTROL_GMAH, CONTROL_CMAH, CONTROL_FMAH, internal = TRUE)
-# utils::sessionInfo()
+                  CONTROL_GMAH, CONTROL_CMAH, CONTROL_FMAH, internal = TRUE, overwrite = T)
+utils::sessionInfo()
 
