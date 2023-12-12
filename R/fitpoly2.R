@@ -68,7 +68,7 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F
   a0 = mmed #use largest response with desired directionality
   if(a0 == 0) a0 = .01  #if 0, use a smallish number
   if(biphasic){
-    g <- c(-a0/2, # y scale (a); set to run through the max resp at the max conc
+    g <- c(a0/2, # y scale (a); set to run through the max resp at the max conc
            -conc_max, # x scale (b); set to max conc
            er_est) # logSigma (er)
   }else{
