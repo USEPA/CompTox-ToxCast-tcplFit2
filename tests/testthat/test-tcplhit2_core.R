@@ -178,3 +178,34 @@ test_that("tcplhit2 BMD boundary check", {
   expect_equal(df[5, "combo3l"], df[5, "bmdl"]-(df[5, "bmd"] - max(X)*5), tolerance = 1e-3)
 })
 
+test_that("tcplhit2 BMD lower boundary censoring works with data including control group", {
+
+  # Simulate concentration series including the untreated control group. (conc = 0)
+  # In this case, the lowest experimental dose is the lowest concentration that is not 0. (1.111)
+  X <- rep(seq(0,10,length.out = 10),each = 5)
+  min_exp_conc <- min(unique(X)[unique(X) != 0])
+
+  set.seed(842)
+  Y <- tcplfit2::hillfn(ps = c(tp = 15,ga = 0.25,p = 0.15,er = 0.1),x = X) +
+    rt(n = length(X),df = 4)
+
+  tfit <- tcplfit2::tcplfit2_core(conc = X,resp = Y,
+                                  cutoff = 2,
+                                  force.fit = TRUE,
+                                  bidirectional = TRUE,
+                                  verbose = FALSE)
+
+  # Hitcalling with no BMD censoring
+  # The estimated BMD is 0.0003023477.
+  thit_nobounds <- tcplfit2::tcplhit2_core(tfit,conc = X,resp = Y,cutoff = 2,onesd = sd(Y[1:5]),bmr_scale = 1.349)
+
+  # Hitcalling with BMD censoring, default lower threshold setting is bmd_low_bnd = 0.1
+  thit_bound <- tcplfit2::tcplhit2_core(tfit,conc = X,resp = Y,cutoff = 2,onesd = sd(Y[1:5]),bmr_scale = 1.349,bmd_low_bnd = 0.1,bmd_up_bnd = 10)
+
+  # check if BMD lower censoring is working
+  expect_equal(thit_bound[1, "bmd"], 0.1*min_exp_conc)
+  expect_equal(thit_bound[1, "bmdu"], thit_nobounds[1, "bmdu"] + (0.1*min_exp_conc-thit_nobounds[1,"bmd"]) )
+  expect_equal(thit_bound[1, "bmdl"], thit_nobounds[1, "bmdl"] + (0.1*min_exp_conc-thit_nobounds[1,"bmd"]) )
+
+})
+
