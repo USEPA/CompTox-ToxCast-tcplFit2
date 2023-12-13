@@ -86,7 +86,10 @@ test_that("HTPP global data internal check", {
   ## The maximum difference between BMD's is 0.0048828.
   my_global$bmd[is.na(my_global$bmd)] <- (-1)
   htpp_global_subset$bmd[is.na(htpp_global_subset$bmd)] <- (-1)
-  bmd_check <- all(abs(my_global$bmd - htpp_global_subset$bmd) < 1e-2)
+  ## Adjust the BMD values to 3 significant digit to be consistent with how they are being applied
+  my_global$bmd <- signif(my_global$bmd, 3)
+  htpp_global_subset$bmd <- signif(htpp_global_subset$bmd, 3)
+  bmd_check <- all(abs(my_global$bmd - htpp_global_subset$bmd) < 1e-5)
   expect_true(bmd_check)
 
   # check if the differences in hit-calls exceed a threshold value
