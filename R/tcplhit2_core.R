@@ -179,7 +179,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
       if (bmd_low_bnd > 0 & bmd_low_bnd <= 1) {
         # warning message for extreme values
         if (bmd_low_bnd < 1e-3){warning("The specified bmd_lower_bnd is less than 1e-3. This may result in an extremely low threshold value for BMD censoring. Suggested value is 0.1.")}
-        min_conc <- min(conc)
+        min_conc <- min(conc[conc!=0])
         min_bmd <- min_conc*bmd_low_bnd
         if(bmd < min_bmd){
           bmd_diff <- min_bmd - bmd
