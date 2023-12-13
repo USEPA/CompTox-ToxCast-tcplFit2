@@ -1,8 +1,10 @@
 ## This R script should be ran from the command line using
 ## R CMD BATCH data-raw/HTPP_subset.R
 
-## Script used to create HTPP subsets at global, category, and feature levels for unit tests
+## Script used to create the HTPP subsets at global, category, and feature levels for unit tests
 
+## The original HTPP data sets can be found under the following folder:
+## "L:\Lab\NCCT_ToxCast\Derik Haggard\HTPP\tcplfit2_HTPP_unitTestData\res_htpp_mcf7_apcra_unitTestData"
 ## load HTPP data
 load("~/CompTox-ToxCast-tcplFit2/data-raw/HTPP/htpp_inputData.RData", verbose = T)
 load("~/CompTox-ToxCast-tcplFit2/data-raw/HTPP/htpp_tcplOutput.RData", verbose = T)
