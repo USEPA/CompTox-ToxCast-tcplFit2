@@ -176,5 +176,42 @@ test_that("tcplhit2 BMD boundary check", {
   expect_equal(df[5, "combo3"], max(X)*5, tolerance = 1e-3)
   expect_true(is.na(df[5, "combo3u"]))
   expect_equal(df[5, "combo3l"], df[5, "bmdl"]-(df[5, "bmd"] - max(X)*5), tolerance = 1e-3)
-})
+
+  ## checks on BMD CI widths
+  ## Case 1 and Case 5 are the two cases in which censoring is required.
+  ## Check if the BMD CI widths are the same before and after censoring for Case 1
+  expect_equal(df[1, "bmdu"] - df[1, "bmdl"], df[1, "combo3u"] - df[1, "combo3l"])
+  expect_equal(df[1, "bmd"] - df[1, "bmdl"], df[1, "combo3"] - df[1, "combo3l"])
+  expect_equal(df[1, "bmdu"] - df[1, "bmd"], df[1, "combo3u"] - df[1, "combo3"])
+
+  # Case 5 BMDU is NA
+  # Check if the distance between BMD and BMDU stays the same before and after censoring.
+  expect_equal(df[5, "bmd"] - df[5, "bmdl"], df[5, "combo3"] - df[5, "combo3l"])
+
+  # Adding another Case 6 where BMDU and BMDL are both non-NA and upper bound censoring
+  # is required.
+  X <- rep(c(0.03,0.1,0.3,1,3,10,30),each = 5)
+  set.seed(88)
+  Y <- poly1(ps = c(0.25),x = X) + rnorm(n = length(X), sd = 4.5)
+  bmad <- mad(Y[1:10])
+  cutoff <- 3*bmad
+  onesd <- sd(Y[1:10])
+  params <- tcplfit2_core(X, Y, cutoff,
+                          force.fit = T, bidirectional = F)
+  # No thresholds specified, no censoring
+  output_nobound <- tcplhit2_core(params, X, Y, cutoff, onesd,
+                          bmed=0, conthits=T, aicc=F)
+  # This case uses an upper BMD threshold multiple of 3 for demonstration.
+  # This threshold multiple is not necessarily align with the typical default value of 10 for
+  # upper threshold multiple.
+  output_withbound <- tcplhit2_core(params, X, Y, cutoff, onesd,
+                          bmed=0, conthits=T, aicc=F, bmd_low_bnd = 0.1, bmd_up_bnd = 3)
+
+  # Check if the BMD CI widths are the same before and after censoring for Case 6
+  expect_equal(output_withbound["bmdu"]-output_withbound["bmdl"], output_nobound["bmdu"]-output_nobound["bmdl"])
+  expect_equal(output_withbound["bmdu"]-output_withbound["bmd"], output_nobound["bmdu"]-output_nobound["bmd"])
+  expect_equal(output_withbound["bmd"]-output_withbound["bmdl"], output_nobound["bmd"]-output_nobound["bmdl"])
+
+
+  })
 
