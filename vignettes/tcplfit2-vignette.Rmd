@@ -129,7 +129,7 @@ their own version of this. To run this example, use the following code ...
 
 ```
 
-**Figure 2:** Each figure shows the curve-fit results for a random sample in the `mc3` data. The title contains the chemical name and assay ID. Each plot displays the summary of curve-fit results -- including the winning model, AC50, top, BMD, ACC, and hitcall -- at the top of the plot. The black dots indicate observed responses, and the winning model fit is displayed as the solid black curve. The estimated BMD is displayed the solid green vertical line, and the solid green lines bonding the shaded green region indicate the estimated confidence bounds on the BMD (i.e., lower and upper BMD confidence bounds - BMDL and BMDU). The black horizontal lines bonding the shaded gray region centers at x-axis indicate the estimated noise region.
+**Figure 2:** Each figure shows the curve-fit results for a random sample in the `mc3` data. The title contains the chemical name and assay ID. Each plot displays the summary of curve-fit results -- including the winning model, AC50, top, BMD, ACC, and hitcall -- at the top of the plot. The black dots indicate observed responses, and the winning model fit is displayed as the solid black curve. The estimated BMD is displayed by the solid green vertical line, and the solid green lines bounding the shaded green region indicates the estimated confidence bounds on the BMD (i.e., lower and upper BMD confidence bounds - BMDL and BMDU, respectively). The black horizontal lines bounding the shaded grey region centers at x-axis indicates the estimated noise region.
 
 One would typically save the result rows in a data frame end export these for further analysis. You could remove the plotting function from the current loop and have a loop that read from the overall results data frame and only plot selected results (e.g. those with significant responses).
 
@@ -171,7 +171,7 @@ The input data for this example contains 6 signatures for one chemical in a tran
   }
 ```
 
-**Figure 3:** These plots demonstrate the plots generated using the `tcplfit2` plotting option through the `do.plot=TRUE` argument in the `concRespCore` function. Each figure displays all model fits to one row of data in the `signatures` dataset.
+**Figure 3:** This figure provides an example of plots generated using the `tcplfit2` plotting option through the `do.plot=TRUE` argument in the `concRespCore` function. Each plot displays all model fits for one row of data in the `signatures` dataset.
 
 ```{r example3_plot2, fig.height = 8, fig.width = 7}
   # set up a 3 x 2 grid for the plots
@@ -184,7 +184,7 @@ The input data for this example contains 6 signatures for one chemical in a tran
   }
 ```
 
-**Figure 4:** These figures are plots generated from using one of the plotting option in `tcplfit2`: using the `concRespPlot` function. `concRespPlot`, when takes output from `concRespCore`, plots the winning curve with additional hit-call information. 
+**Figure 4:** This figure provides an example of plots generated using the `concRespPlot` function. Each plot displays the winning curve with a summary of the fitting for one row of data in the `signatures` dataset.
 
 ## Example 4: Running tcpl-like multi-concentration response data without a database connection
 The ToxCast pipeline `tcpl` is an R package that manages, curve-fits, plots, and stores ToxCast data to populate its linked MySQL database, InvitroDB. The original `tcplFit()` function within `tcpl` performed basic concentration response curve fitting. Processing with tcpl_v3 and beyond depends on `tcplfit2` to allow a wider variety of concentration-response models when using `invitrodb` in the 4.0 schema and beyond. `tcplLite` was deprecated with the updates to `tcpl` and development of `tcplfit2`, since `tcplfit2` allows one to perform curve-fitting and hit-calling independent of a database. The example below demonstrates how to perform an analogous `tcplLite` analysis with `tcplfit2`. For additional information, please consult vignettes for `library(tcpl)` at https://CRAN.R-project.org/package=tcpl. 
@@ -587,7 +587,7 @@ legend(1e-3, 40, legend=c("Reference Dose", "Threshold Dose", "BMD-before", "BMD
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-**Figure 7**: This plot shows the estimated BMD and confidence interval before and after "censoring". The green line and the "X" mark the BMD before "censoring" along with the green shaed region representing the estimated confidence interval. The blue line and the "X" mark the "censored" BMD along with the blue shaded region representing the estimated confidence interval. The solid brown line represents the maximum concentration in the data, and the dashed dark violet line represents the threshold dose set by `bmd_up_bnd`. In this example plot, the estimated BMD and the boundaries were shifted left such that the BMD was "censored" to the threshold value (blue "X" and region).
+**Figure 7**: This plot shows the estimated BMD and confidence interval before and after "censoring". The green line and the "X" mark the BMD before "censoring" along with the green shaded region representing the estimated confidence interval. The blue line and the "X" mark the "censored" BMD along with the blue shaded region representing the estimated confidence interval. The solid brown line represents the maximum concentration in the data, and the dashed dark violet line represents the threshold dose set by `bmd_up_bnd`. In this example plot, the estimated BMD and the boundaries were shifted left such that the BMD was "censored" to the threshold value (blue "X" and region).
 
 ### "Censor" the BMD with `tcplhit2_core`
 
