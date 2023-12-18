@@ -73,7 +73,7 @@ test_that("HTPP global data internal check", {
   }
 
   ## Compare results
-  ## Compare BMD, top_over_cutoff, and hit-call
+  ## Compare BMD, BMDU, BMDL, top_over_cutoff, hit-call, top, and AC50
 
   ## vector operation, Order by chemical id to make sure we are comparing the same
   ## chemical
@@ -86,22 +86,46 @@ test_that("HTPP global data internal check", {
   ## The maximum difference between BMD's is 0.0048828.
   my_global$bmd[is.na(my_global$bmd)] <- (-1)
   htpp_global_subset$bmd[is.na(htpp_global_subset$bmd)] <- (-1)
-  ## Adjust the BMD values to 3 significant digit to be consistent with how they are being applied
-  my_global$bmd <- signif(my_global$bmd, 3)
-  htpp_global_subset$bmd <- signif(htpp_global_subset$bmd, 3)
+  ## Adjust the BMD values to 3 significant digits to be consistent with how they are being applied
+  my_global[, c("bmd", "bmdu", "bmdl")] <- signif(my_global[, c("bmd", "bmdu", "bmdl")], 3)
+  htpp_global_subset[, c("bmd", "bmdu", "bmdl")] <- signif(htpp_global_subset[, c("bmd", "bmdu", "bmdl")], 3)
   bmd_check <- all(abs(my_global$bmd - htpp_global_subset$bmd) < 1e-5)
   expect_true(bmd_check)
 
-  # check if the differences in hit-calls exceed a threshold value
+  ## Compare BMDU and BMDL with 3 significant digits
+  ## BMDU and BMDL could be NA. Replacing NA with -1.
+  my_global$bmdu[is.na(my_global$bmdu)] <- (-1)
+  htpp_global_subset$bmdu[is.na(htpp_global_subset$bmdu)] <- (-1)
+  bmdu_check <- all(abs(my_global$bmdu - htpp_global_subset$bmdu) < 1e-5)
+  expect_true(bmdu_check)
+
+  my_global$bmdl[is.na(my_global$bmdl)] <- (-1)
+  htpp_global_subset$bmdl[is.na(htpp_global_subset$bmdl)] <- (-1)
+  bmdl_check <- all(abs(my_global$bmdl - htpp_global_subset$bmdl) < 1e-5)
+  expect_true(bmdl_check)
+
+  ## check if the differences in hit-calls exceed a threshold value
   hitcall_check <- all(abs(my_global$hitcall - htpp_global_subset$hitcall) < 1e-5)
   expect_true(hitcall_check)
 
-  # check if the differences in top_over_cutoff exceed a threshold value
-  # top_over_cutoff is NA when the model is none - replace NA with -1
+  ## check if the differences in top_over_cutoff exceed a threshold value
+  ## top_over_cutoff is NA when the model is none - replace NA with -1
   my_global$top_over_cutoff[is.na(my_global$top_over_cutoff)] <- (-1)
   htpp_global_subset$top_over_cutoff[is.na(htpp_global_subset$top_over_cutoff)] <- (-1)
   top_cutoff_check <- all(abs(my_global$top_over_cutoff - htpp_global_subset$top_over_cutoff) < 1e-5)
   expect_true(hitcall_check)
+
+  ## check if the differences in top exceed a threshold value
+  my_global$top[is.na(my_global$top)] <- (-1)
+  htpp_global_subset$top[is.na(htpp_global_subset$top)] <- (-1)
+  top_check <- all(abs(my_global$top - htpp_global_subset$top) < 1e-5)
+  expect_true(top_check)
+
+  ## check if the differences in AC50 exceed a threshold value
+  my_global$ac50[is.na(my_global$ac50)] <- (-1)
+  htpp_global_subset$ac50[is.na(htpp_global_subset$ac50)] <- (-1)
+  ac50_check <- all(abs(my_global$ac50 - htpp_global_subset$ac50) < 1e-5)
+  expect_true(ac50_check)
 })
 
 
