@@ -21,7 +21,7 @@ test_that("HTPP global data internal check", {
   skip_on_cran()
 
   # load necessary data
-  load("~/CompTox-ToxCast-tcplFit2/R/sysdata.rda")
+  load("R/sysdata.rda")
 
   ## Confirmed with Derik Haggard, for chemical EPAPLT0617C02,
   ## concentrations above 2.98 uM are removed from curve-fitting
