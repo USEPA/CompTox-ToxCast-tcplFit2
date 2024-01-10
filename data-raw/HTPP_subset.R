@@ -135,7 +135,7 @@ for (each in feature_chem_id) {
   chem <- strsplit(each, split="-")[[1]][1]
   fname <- strsplit(each, split="-")[[1]][2]
   row <- tcpl_feature[tcpl_feature$trt == chem & tcpl_feature$endpoint == fname,]
-  sub <- htpp_well_norm %>% filter(trt == chem) %>% select(c(1:11, which(colnames(htpp_well_norm) == fname)))
+  sub <- htpp_well_norm %>% filter(trt == chem) %>% select(c(1:11, ncol(htpp_well_norm),ncol(htpp_well_norm)-1, which(colnames(htpp_well_norm) == fname)))
   colnames(sub)[ncol(sub)] <- "d"
   sub$Feature <- fname
   htpp_feature_subset <- rbind(htpp_feature_subset, row)
