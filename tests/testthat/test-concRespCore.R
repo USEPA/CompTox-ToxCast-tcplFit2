@@ -23,8 +23,7 @@ test_that("HTPP global data internal check", {
   # load necessary data
   load(here::here("R", "sysdata.rda"))
 
-  ## Confirmed with Derik Haggard, for chemical C02,
-  ## concentrations above 2.98 uM are removed from curve-fitting
+  ## Confirmed with Derik, concentrations above 2.98 uM can be remove for C02
   ## because higher concentrations cause cytotoxicity above the standard threshold of 50%.
   ## (i.e. concentration that is below the fitted EC50 value for a chemical is removed.)
 
@@ -75,8 +74,7 @@ test_that("HTPP global data internal check", {
   ## Compare results
   ## Compare BMD, BMDU, BMDL, top_over_cutoff, hit-call, top, and AC50
 
-  ## vector operation, Order by chemical id to make sure we are comparing the same
-  ## chemical
+  ## vector operation, order by trt to make sure we are comparing the appropriate output
   my_global<- my_global[order(my_global$trt),]
   htpp_global_subset<- htpp_global_subset[order(htpp_global_subset$trt),]
 
