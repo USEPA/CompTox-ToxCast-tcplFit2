@@ -26,6 +26,8 @@
 #'   than 1/10th of the lowest concentration tested.
 #' @param bmd_up_bnd Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
 #'   than 10 times the highest concentration tested.
+#' @param poly2.biphasic If poly2.biphasic = TRUE, constraints are set to allow
+#'   for the polynomial 2 model fit to be bi-phasic (i.e. non-monotonic).
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:
@@ -66,7 +68,7 @@
 #'   }
 #' @export
 #'
-tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL) {
+tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL,poly2.biphasic = TRUE) {
   # initialize parameters to NA
   a <- b <- tp <- p <- q <- ga <- la <- er <- top <- ac50 <- ac50_loss <- ac5 <- ac10 <- ac20 <- acc <- ac1sd <- bmd <- NA_real_
   bmdl <- bmdu <- caikwt <- mll <- NA_real_
@@ -151,7 +153,13 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     ac20 <- acy(.2 * top, modpars, type = fit_method)
     acc <- acy(sign(top) * cutoff, c(modpars,top = top), type = fit_method)
     ac1sd <- acy(sign(top) * onesd, modpars, type = fit_method)
-    bmd <- acy(sign(top) * bmr, modpars, type = fit_method)
+    if(fit_method=="poly2" & poly2.biphasic){
+      bmd <- c(acy(-bmr,modpars,type = fit_method,poly2.biphasic),
+               acy(bmr,modpars,type = fit_method,poly2.biphasic))
+      bmd <- min(bmd)
+    }else{
+      bmd <- acy(sign(top) * bmr, modpars, type = fit_method)
+    }
 
     # get bmdl and bmdu
     bmdl <- bmdbounds(fit_method,
