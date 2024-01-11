@@ -156,20 +156,30 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     if(fit_method=="poly2" & poly2.biphasic){
       bmd <- c(acy(-bmr,modpars,type = fit_method,poly2.biphasic),
                acy(bmr,modpars,type = fit_method,poly2.biphasic))
-      bmd <- min(bmd)
+      bmr_dir <- c(-1,1)[which.min(bmd)]
+      bmd <- bmd[which.min(bmd)]
+
+      # get bmdl and bmdu
+      bmdl <- bmdbounds(fit_method,
+                        bmr = bmr_dir * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
+                        bmd = bmd, which.bound = "lower"
+      )
+      bmdu <- bmdbounds(fit_method,
+                        bmr = bmr_dir * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
+                        bmd = bmd, which.bound = "upper"
+      )
     }else{
       bmd <- acy(sign(top) * bmr, modpars, type = fit_method)
+      # get bmdl and bmdu
+      bmdl <- bmdbounds(fit_method,
+                        bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
+                        bmd = bmd, which.bound = "lower"
+      )
+      bmdu <- bmdbounds(fit_method,
+                        bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
+                        bmd = bmd, which.bound = "upper"
+      )
     }
-
-    # get bmdl and bmdu
-    bmdl <- bmdbounds(fit_method,
-      bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-      bmd = bmd, which.bound = "lower"
-    )
-    bmdu <- bmdbounds(fit_method,
-      bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-      bmd = bmd, which.bound = "upper"
-    )
 
     # apply bmd min
     if(!is.null(bmd_low_bnd) & !is.na(bmd)){
