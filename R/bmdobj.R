@@ -59,6 +59,8 @@ bmdobj= function(bmd, fname, bmr, conc, resp, ps, mll, onesp, partype = 2){
     if(partype == 1) ps["a"] = bmr/(bmd/ps["b"] + (bmd/ps["b"])^2 )
     if(partype == 2) ps["b"] = 2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1)
     if(partype == 3) ps["b"] = 2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1)
+    # if(partype == 2) ps["b"] = -2*bmd/(sqrt(1 + 4*bmr/ps["a"]) + 1)
+    # if(partype == 3) ps["b"] = -2*bmd/(sqrt(1 + 4*bmr/ps["a"]) + 1)
   } else if(fname == "pow"){
     if(partype == 1) ps["a"] = bmr/(bmd^ps["p"])
     if(partype == 2) ps["a"] = bmr/(bmd^ps["p"])
