@@ -11,6 +11,7 @@ load("~/CompTox-ToxCast-tcplFit2/data-raw/HTPP/htpp_tcplOutput_MASKED.RData", ve
 
 ## load necessary package
 library(dplyr)
+library(tibble)
 
 ## chemicals selected for global subset
 ## Try to include at least one response from each curve, and balance active and inactive responses
@@ -135,9 +136,9 @@ for (each in feature_chem_id) {
   chem <- strsplit(each, split="-")[[1]][1]
   fname <- strsplit(each, split="-")[[1]][2]
   row <- tcpl_feature[tcpl_feature$trt == chem & tcpl_feature$endpoint == fname,]
-  sub <- htpp_well_norm %>% filter(trt == chem) %>% select(c(1:11, ncol(htpp_well_norm),ncol(htpp_well_norm)-1, which(colnames(htpp_well_norm) == fname)))
-  colnames(sub)[ncol(sub)] <- "d"
-  sub$Feature <- fname
+  sub <- htpp_well_norm %>% filter(trt == chem) %>% select(c(1:11, which(colnames(htpp_well_norm) == fname),ncol(htpp_well_norm)-1,ncol(htpp_well_norm)))
+  colnames(sub)[which(colnames(sub) == fname)] <- "d"
+  sub <- add_column(sub, Feature = fname, .after = "rel_cell_count")
   htpp_feature_subset <- rbind(htpp_feature_subset, row)
   htpp_feature_input <- rbind(htpp_feature_input, sub)
 }

@@ -53,6 +53,9 @@ The following objects are masked from 'package:base':
 
 Warning message:
 package 'dplyr' was built under R version 4.2.3 
+> library(tibble)
+Warning message:
+package 'tibble' was built under R version 4.2.3 
 > 
 > ## chemicals selected for global subset
 > ## Try to include at least one response from each curve, and balance active and inactive responses
@@ -177,9 +180,9 @@ package 'dplyr' was built under R version 4.2.3
 +   chem <- strsplit(each, split="-")[[1]][1]
 +   fname <- strsplit(each, split="-")[[1]][2]
 +   row <- tcpl_feature[tcpl_feature$trt == chem & tcpl_feature$endpoint == fname,]
-+   sub <- htpp_well_norm %>% filter(trt == chem) %>% select(c(1:11, ncol(htpp_well_norm),ncol(htpp_well_norm)-1, which(colnames(htpp_well_norm) == fname)))
-+   colnames(sub)[ncol(sub)] <- "d"
-+   sub$Feature <- fname
++   sub <- htpp_well_norm %>% filter(trt == chem) %>% select(c(1:11, which(colnames(htpp_well_norm) == fname),ncol(htpp_well_norm)-1,ncol(htpp_well_norm)))
++   colnames(sub)[which(colnames(sub) == fname)] <- "d"
++   sub <- add_column(sub, Feature = fname, .after = "rel_cell_count")
 +   htpp_feature_subset <- rbind(htpp_feature_subset, row)
 +   htpp_feature_input <- rbind(htpp_feature_input, sub)
 + }
@@ -250,15 +253,14 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] dplyr_1.1.2
+[1] tibble_3.2.1 dplyr_1.1.2 
 
 loaded via a namespace (and not attached):
  [1] fansi_1.0.4       utf8_1.2.3        withr_2.5.0       R6_2.5.1         
  [5] lifecycle_1.0.3   magrittr_2.0.3    pillar_1.9.0      rlang_1.1.1      
  [9] cli_3.6.1         rstudioapi_0.15.0 vctrs_0.6.3       generics_0.1.3   
 [13] glue_1.6.2        compiler_4.2.2    pkgconfig_2.0.3   tidyselect_1.2.0 
-[17] tibble_3.2.1     
 > 
 > proc.time()
    user  system elapsed 
-  23.18    1.78   26.34 
+  23.35    2.09   27.68 
