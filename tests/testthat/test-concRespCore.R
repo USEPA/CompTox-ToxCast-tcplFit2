@@ -131,7 +131,10 @@ test_that("HTPP category data internal check", {
 
   skip_on_cran()
 
-  # load necessary data
+  ## load necessary data
+  ## Code below is commented out, not needed when running all tests in the package at once (such as with testthat::test_local().)
+  ## Do need to un-comment and run this code to load the data if one is running this test interactively in the console.
+
   #load(here::here("R", "sysdata.rda"))
 
   ## Confirmed with Derik, concentrations above 2.98 uM can be remove for C02
