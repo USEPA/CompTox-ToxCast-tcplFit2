@@ -125,3 +125,123 @@ test_that("HTPP global data internal check", {
   ac50_check <- all(abs(my_global$ac50 - htpp_global_subset$ac50) < 1e-5)
   expect_true(ac50_check)
 })
+
+
+test_that("HTPP category data internal check", {
+
+  skip_on_cran()
+
+  ## load necessary data
+  ## Code below is commented out, not needed when running all tests in the package at once (such as with testthat::test_local().)
+  ## Do need to un-comment and run this code to load the data if one is running this test interactively in the console.
+
+  #load(here::here("R", "sysdata.rda"))
+
+  ## Confirmed with Derik, concentrations above 2.98 uM can be remove for C02
+  ## because higher concentrations cause cytotoxicity above the standard threshold of 50%.
+  ## (i.e. concentration that is below the fitted EC50 value for a chemical is removed.)
+
+  ## dropping higher concentrations for C02
+  htpp_cat_input = subset(htpp_cat_input, htpp_cat_input$trt !=  "C02" |
+                            htpp_cat_input$conc <= 2.98 )
+
+  ## One can use the following code to verify that for curve fitting, C02 uses
+  ## 5 unique concentrations, with the highest concentration being 2.98.
+  ## htpp_cat_subset[htpp_cat_subset$trt == "C02",c("trt", "min_conc", "max_conc","n_conc", "conc")]
+  ## unique(htpp_cat_input[htpp_cat_input$trt == "C02","conc"])
+
+  my_category <- NULL
+  for (this.chem in unique(htpp_cat_subset$trt)){
+    temp <- htpp_cat_input[htpp_cat_input$trt == this.chem, ]
+    for (this.cat in unique(temp$category_name_r)) {
+      this.sub <- temp[temp$category_name_r == this.cat, ]
+      ## prepare "row" list object per Description
+      Metadata <- CONTROL_CMAH[CONTROL_CMAH$category_name_r == this.cat, ]
+      row <- list(
+        pg_id = unique(this.sub$pg_id),
+        stype = unique(this.sub$stype),
+        trt = this.chem,
+        min_conc = min(this.sub$conc),
+        max_conc = max(this.sub$conc),
+        n_conc = length(unique(this.sub$conc)),
+        ctr_mean = Metadata$BMED,
+        ctr_sd = Metadata$CUTOFF,
+        conc = this.sub$conc,
+        resp = this.sub$d,
+        bmed = Metadata$BMED,
+        cutoff = Metadata$CUTOFF,
+        onesd = Metadata$ONESD,
+        approach = "category",
+        endpoint = this.cat
+      )
+      ## run concRespCore on the ‘row’ list object
+      newLine <- try(concRespCore(row, fitmodels = c("cnst", "hill",  "poly1", "poly2", "pow", "exp2",
+                                                     "exp3","exp4", "exp5"), conthits = T, aicc = F,
+                                  force.fit = FALSE, bidirectional = FALSE, AUC = FALSE))
+      if(is.null(newLine) | class(newLine)=="try-error"){
+        newLine <- try(concRespCore(row, conthits = F, aicc = FALSE, force.fit = FALSE,
+                                    bidirectional = TRUE, fitmodels=c("cnst"), AUC = FALSE))
+      }else if(class(newLine) == "try-error"){
+        newLine <- row
+      }else{
+        rownames(newLine) <- ""
+      }
+
+      my_category <- rbind(my_category, newLine)
+    }
+  }
+
+  ## Compare results
+  ## Compare BMD, BMDU, BMDL, top_over_cutoff, hit-call, top, and AC50
+
+  ## Compare by vector operation, order by trt to make sure we are comparing the appropriate output
+  my_category<- my_category[order(my_category$trt),]
+  htpp_cat_subset<- htpp_cat_subset[order(htpp_cat_subset$trt),]
+
+  ## Differences in decimals places are normal rounding errors
+  ## check if the differences in the BMD estimates exceed a threshold value
+  ## BMD could be NA, replace NA with -1 so it wouldn't cause trouble with all()
+  my_category$bmd[is.na(my_category$bmd)] <- (-1)
+  htpp_cat_subset$bmd[is.na(htpp_cat_subset$bmd)] <- (-1)
+  ## Adjust the BMD values to 3 significant digits to be consistent with how they are being applied
+  my_category[, c("bmd", "bmdu", "bmdl")] <- signif(my_category[, c("bmd", "bmdu", "bmdl")], 3)
+  htpp_cat_subset[, c("bmd", "bmdu", "bmdl")] <- signif(htpp_cat_subset[, c("bmd", "bmdu", "bmdl")], 3)
+  bmd_check <- all(abs(my_category$bmd - htpp_cat_subset$bmd) < 1e-5)
+  expect_true(bmd_check)
+
+  ## Compare BMDU and BMDL with 3 significant digits
+  ## BMDU and BMDL could be NA. Replacing NA with -1.
+  my_category$bmdu[is.na(my_category$bmdu)] <- (-1)
+  htpp_cat_subset$bmdu[is.na(htpp_cat_subset$bmdu)] <- (-1)
+  bmdu_check <- all(abs(my_category$bmdu - htpp_cat_subset$bmdu) < 1e-5)
+  expect_true(bmdu_check)
+
+  my_category$bmdl[is.na(my_category$bmdl)] <- (-1)
+  htpp_cat_subset$bmdl[is.na(htpp_cat_subset$bmdl)] <- (-1)
+  bmdl_check <- all(abs(my_category$bmdl - htpp_cat_subset$bmdl) < 1e-5)
+  expect_true(bmdl_check)
+
+  # check if the differences in hit-calls exceed a threshold value
+  hitcall_check <- all(abs(my_category$hitcall - htpp_cat_subset$hitcall) < 1e-5)
+  expect_true(hitcall_check)
+
+  # check if the differences in top_over_cutoff exceed a threshold value
+  ## top_over_cutoff is NA when the model is none - replace NA with -1
+  my_category$top_over_cutoff[is.na(my_category$top_over_cutoff)] <- (-1)
+  htpp_cat_subset$top_over_cutoff[is.na(htpp_cat_subset$top_over_cutoff)] <- (-1)
+  top_cutoff_check <- all(abs(my_category$top_over_cutoff - htpp_cat_subset$top_over_cutoff) < 1e-5)
+  expect_true(hitcall_check)
+
+  ## check if the differences in top exceed a threshold value
+  my_category$top[is.na(my_category$top)] <- (-1)
+  htpp_cat_subset$top[is.na(htpp_cat_subset$top)] <- (-1)
+  top_check <- all(abs(my_category$top - htpp_cat_subset$top) < 1e-5)
+  expect_true(top_check)
+
+  ## check if the differences in AC50 exceed a threshold value
+  my_category$ac50[is.na(my_category$ac50)] <- (-1)
+  htpp_cat_subset$ac50[is.na(htpp_cat_subset$ac50)] <- (-1)
+  ac50_check <- all(abs(my_category$ac50 - htpp_cat_subset$ac50) < 1e-5)
+  expect_true(ac50_check)
+
+})
