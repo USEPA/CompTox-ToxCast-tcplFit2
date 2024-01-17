@@ -1,0 +1,94 @@
+---
+title: "Plotting Vignette"
+output: html_document
+date: "2024-01-17"
+---
+
+```{r setup, packages}
+library(tcplfit2)
+library(stringr)
+```
+
+# Introduction
+This vignette shows you how to generate a basic plot of the winning model with `concRespPlot2` and customize additional details to the plot, such as markings for cutoff, BMR, BMD, BMD CI, other curve fits, etc. with `ggplot2` add-on.
+
+Generate an example plot with `signature` data. 
+
+```{r}
+data("signatures")
+row = list(conc=as.numeric(str_split(signatures[1,"conc"],"\\|")[[1]]),
+           resp=as.numeric(str_split(signatures[1,"resp"],"\\|")[[1]]),
+           bmed=0,
+           cutoff=signatures[i,"cutoff"],
+           onesd=signatures[i,"onesd"],
+           name=signatures[i,"name"],
+           assay=signatures[i,"signature"])
+# run concentration-response modeling 
+out = concRespCore(row,conthits=F)
+basic_plot <- concRespPlot2(out)
+basic_plot
+```
+**Figure 1**: The basic plot displays the observed data points, winning fitted curve, and what the winning model is.
+
+# Customaization
+
+Add some basic things:
+
+```{r}
+cutoff <- out[, "cutoff"]
+basic_plot + 
+  # Cutoff Band
+  geom_rect(aes(xmin = 0,xmax = 30,ymin = -cutoff,ymax = cutoff),
+            alpha = 0.1,fill = "skyblue") +
+  # Titles and Labels
+  xlab(expression(paste(log[10],"(Concentration) ",mu,"M")))+
+  ggtitle(
+    label = paste("Best Model Fit",
+                  out[, "name"],
+                  sep = "\n"),
+    subtitle = paste("Assay Endpoint: ",
+                     out[, "assay"])) +
+  ## Add potency estimates such as BMD
+  geom_hline(
+    aes(yintercept = out[, "bmr"]),
+    col = "blue") +
+  geom_segment(
+    aes(x = out[, "bmd"], xend = out[, "bmd"], y = -0.5, yend = out[, "bmr"]),
+    col = "blue"
+  ) + geom_point(aes(x = out[, "bmd"], y = out[, "bmr"], fill = "BMD"), shape = 21, cex = 2.5)
+```
+
+Repeat the same code to add more markings of parameters returned from the fitting or add multiple ones at a time:
+
+```{r}
+# Get all potency estimates and the corresponding y value on the curve
+estimate_points <- out %>%
+  select(bmd, acc, ac50, ac10, ac5) %>%
+  tidyr::pivot_longer(everything(), names_to = "Potency Estimates") %>%
+  #mutate(x = log10(value)) %>%
+  mutate(`Potency Estimates` = toupper(`Potency Estimates`)) %>%
+  mutate(y = c(bmr, cutoff, rep(out[, "top"], 3))) %>%
+  mutate(y = y * c(1, 1, .5, .1, .05))
+
+# add Potency Estimate Points and set colors
+basic_plot + geom_point(
+  data = estimate_points,
+  aes(x = value, y = y, fill = `Potency Estimates`), shape = 21, cex = 2.5
+) #+ scale_x_log10()
+```
+
+Add another curve:
+
+```{r}
+# maybe want to extract and use the same x's in the base plot 
+# to calculate a smooth curve 
+conc_plot <- basic_plot[["layers"]][[2]][["data"]][["conc_plot"]]
+
+basic_plot +
+  # fitted parameter values of another cueve you want to add
+  geom_line(data=data.frame(x=conc_plot, y=tcplfit2::exp4(c(0.5, 10, 1.2), conc_plot)), aes(x,y,color = "exp5"))+
+  # add different colors for comparisons 
+  scale_colour_manual(values=c("#CC6666", "#9999CC")) +
+  labs(title = "Chemical X v.s. Chemical Y")
+```
+
