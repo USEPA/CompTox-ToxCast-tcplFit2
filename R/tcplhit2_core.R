@@ -154,30 +154,32 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     acc <- acy(sign(top) * cutoff, c(modpars,top = top), type = fit_method)
     ac1sd <- acy(sign(top) * onesd, modpars, type = fit_method)
     if(fit_method=="poly2" & poly2.biphasic){
-      bmd <- c(acy(-bmr,modpars,type = fit_method,poly2.biphasic),
-               acy(bmr,modpars,type = fit_method,poly2.biphasic))
+      bmd <- c(acy(-bmr,modpars,type = fit_method,poly2.biphasic = poly2.biphasic),
+               acy(bmr,modpars,type = fit_method,poly2.biphasic = poly2.biphasic))
       bmr_dir <- c(-1,1)[which.min(bmd)]
       bmd <- bmd[which.min(bmd)]
 
       # get bmdl and bmdu
       bmdl <- bmdbounds(fit_method,
                         bmr = bmr_dir * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                        bmd = bmd, which.bound = "lower"
+                        bmd = bmd, which.bound = "lower",poly2.biphasic = poly2.biphasic,
+                        top_dir = sign(top)
       )
       bmdu <- bmdbounds(fit_method,
                         bmr = bmr_dir * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                        bmd = bmd, which.bound = "upper"
+                        bmd = bmd, which.bound = "upper",poly2.biphasic = poly2.biphasic,
+                        top_dir = sign(top)
       )
     }else{
-      bmd <- acy(sign(top) * bmr, modpars, type = fit_method)
+      bmd <- acy(sign(top) * bmr, modpars, type = fit_method,poly2.biphasic = poly2.biphasic)
       # get bmdl and bmdu
       bmdl <- bmdbounds(fit_method,
                         bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                        bmd = bmd, which.bound = "lower"
+                        bmd = bmd, which.bound = "lower",poly2.biphasic = poly2.biphasic
       )
       bmdu <- bmdbounds(fit_method,
                         bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                        bmd = bmd, which.bound = "upper"
+                        bmd = bmd, which.bound = "upper",poly2.biphasic = poly2.biphasic
       )
     }
 
