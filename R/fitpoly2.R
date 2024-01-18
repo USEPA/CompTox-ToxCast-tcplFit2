@@ -72,12 +72,6 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F
          conc_max, # x scale (b); set to max conc
          er_est) # logSigma (er)
 
-  if(biphasic){
-    g <- c(a0/2, # y scale (a); set to run through the max resp at the max conc
-           -conc_max, # x scale (b); set to max conc
-           er_est) # logSigma (er)
-  }
-
   ## Generate the bound matrices to constrain the model.
   #                a   b    er
   Ui <- matrix(c( 1,   0,   0,
@@ -92,8 +86,19 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F
   } else {
     bnds <- c(-1e8*abs(a0), -1e8*abs(a0), # a bounds (positive or negative)
               1e-8*conc_max, -1e8*conc_max) # b bounds (always increasing or always decreasing)
+  }
 
-    if(biphasic){
+  ## Biphasic Option ##
+  if(biphasic){
+    ## Trend Test - Spearman Correlation Test ##
+    suppressWarnings(trend_test <- cor.test(conc,resp,method = "spearman"))
+    trend_pval <- trend_test$p.value
+
+    if(trend_pval >= 0.05){
+      g <- c(a0/2, # y scale (a); set to run through the max resp at the max conc
+             -conc_max, # x scale (b); set to max conc
+             er_est) # logSigma (er)
+
       bnds <- c(-1e8*abs(a0), -1e8*abs(a0), # a bounds (positive or negative)
                 -1e8*conc_max, -1e8*conc_max) # b bounds (always increasing or always decreasing)
     }
