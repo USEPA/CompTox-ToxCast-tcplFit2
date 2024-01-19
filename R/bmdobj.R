@@ -70,12 +70,20 @@ bmdobj= function(bmd, fname, bmr, conc, resp, ps, mll, onesp, partype = 2, poly2
     # in the case the 'top' - maximal change in response != the BMR direction
     # then you use the typical estimate as used in the monotonic case
     # however, when they are the same you need to use the other estimate
-    if(partype == 2) ps["b"] = ifelse(sign(bmr) != top_dir,
-                                      yes = 2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1),
-                                      no = -2*bmd/(sqrt(1 + 4*bmr/ps["a"]) + 1))
-    if(partype == 3) ps["b"] = ifelse(sign(bmr) != top_dir,
-                                      yes = 2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1),
-                                      no = -2*bmd/(sqrt(1 + 4*bmr/ps["a"]) + 1))
+    if(partype == 2){
+      b_est <- c(2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1),
+                 -2*bmd/(sqrt(1 + 4*bmr/ps["a"]) + 1))
+      ps["b"] = ifelse(sign(bmr) != top_dir,
+                       yes = b_est[which.min(b_est)],
+                       no = b_est[which.max(b_est)])
+    }
+    if(partype == 3){
+      b_est <- c(2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1),
+                 -2*bmd/(sqrt(1 + 4*bmr/ps["a"]) + 1))
+      ps["b"] = ifelse(sign(bmr) != top_dir,
+                       yes = b_est[which.min(b_est)],
+                       no = b_est[which.max(b_est)])
+    }
   } else if(fname == "pow"){
     if(partype == 1) ps["a"] = bmr/(bmd^ps["p"])
     if(partype == 2) ps["a"] = bmr/(bmd^ps["p"])
