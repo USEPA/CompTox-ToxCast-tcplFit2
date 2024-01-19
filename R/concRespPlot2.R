@@ -7,13 +7,16 @@
 #'
 #' @param row Output from `concRespCore` or `tcplhit2_core`, containing information
 #' about the winning curve fit of a compound.
-#' @param log_unit
+#' @param log_conc Logical argument. If `TRUE`, convert the x-axis into log-10 scale.
+#' Defaults to `FALSE`.
 #'
 #' @return A ggplot object, a scatter plot of the concentration response data
 #' overlaying the winning model curve.
 #'
+#' @export
+#'
 
-concRespPlot2 <- function(row, log_unit = FALSE) {
+concRespPlot2 <- function(row, log_conc = FALSE) {
 
   # name <- unlist(name)
   # assay <- unlist(assay)
@@ -44,15 +47,27 @@ concRespPlot2 <- function(row, log_unit = FALSE) {
     resp_plot <- do.call(fit_method,list(ps = unlist(modpars), x = conc_plot))
   }
 
-  basic <- ggplot(data.frame(conc, resp), aes(conc, resp)) +
-    # Observed data points
-    geom_point(pch = 1,size = 2) +
-    # Winning Curve
-    geom_line(data=data.frame(conc_plot, resp_plot), aes(x=conc_plot, y=resp_plot, color = fit_method)) +
-    # Labels
-    xlab("Concentration")+
-    ylab("Response") +
-    theme_bw()
+  if (!log_conc) {
+    basic <- ggplot(data.frame(conc, resp), aes(conc, resp)) +
+      # Observed data points
+      geom_point(pch = 1,size = 2) +
+      # Winning Curve
+      geom_line(data=data.frame(conc_plot, resp_plot), aes(x=conc_plot, y=resp_plot, color = fit_method)) +
+      # Labels
+      xlab("Concentration")+
+      ylab("Response") +
+      theme_bw()
+  } else {
+    basic <- ggplot(data.frame(logc, resp), aes(logc, resp)) +
+      # Observed data points
+      geom_point(pch = 1,size = 2) +
+      # Winning Curve
+      geom_line(data=data.frame(logc_plot, resp_plot), aes(x=logc_plot, y=resp_plot, color = fit_method)) +
+      # Labels
+      xlab(expression(paste(log[10],"(Concentration) ",mu,"M")))+
+      ylab("Response") +
+      theme_bw()
 
+}
   return(basic)
 }
