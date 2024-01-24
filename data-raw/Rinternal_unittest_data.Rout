@@ -24,13 +24,18 @@ Type 'q()' to quit R.
 > ## Pull in HTPP unit test data subsets
 > load("~/CompTox-ToxCast-tcplFit2/data-raw/HTPP/htpp_unittest.RData")
 > 
+> ## Pull in HTTr unit test data subsets
+> load("~/CompTox-ToxCast-tcplFit2/data-raw/HTTr/httr_unittest.RData")
 > 
 > ## Export internal sysdata.rda
 > usethis::use_data(htpp_global_subset, htpp_cat_subset, htpp_feature_subset,
 +                   htpp_global_input, htpp_cat_input, htpp_feature_input,
-+                   CONTROL_GMAH, CONTROL_CMAH, CONTROL_FMAH, internal = TRUE, overwrite = T)
++                   CONTROL_GMAH, CONTROL_CMAH, CONTROL_FMAH,
++                   signature_sub, gene_sub,
++                   signature_input, gene_input,
++                   internal = TRUE, overwrite = T)
 ✔ Setting active project to 'C:/Users/zzhao/OneDrive - Environmental Protection Agency (EPA)/Profile/Documents/CompTox-ToxCast-tcplFit2'
-✔ Saving 'htpp_global_subset', 'htpp_cat_subset', 'htpp_feature_subset', 'htpp_global_input', 'htpp_cat_input', 'htpp_feature_input', 'CONTROL_GMAH', 'CONTROL_CMAH', 'CONTROL_FMAH' to 'R/sysdata.rda'
+✔ Saving 'htpp_global_subset', 'htpp_cat_subset', 'htpp_feature_subset', 'htpp_global_input', 'htpp_cat_input', 'htpp_feature_input', 'CONTROL_GMAH', 'CONTROL_CMAH', 'CONTROL_FMAH', 'signature_sub', 'gene_sub', 'signature_input', 'gene_input' to 'R/sysdata.rda'
 > ## Include session info
 > utils::sessionInfo()
 R version 4.2.2 (2022-10-31 ucrt)
@@ -58,4 +63,4 @@ loaded via a namespace (and not attached):
 > 
 > proc.time()
    user  system elapsed 
-   2.06    0.39    2.89 
+  16.48    0.95   18.00 
