@@ -363,3 +363,84 @@ test_that("HTPP feature data internal check", {
   ac50_check <- all(abs(my_feature$ac50 - htpp_feature_subset$ac50) < 1e-5)
   expect_true(ac50_check)
 })
+
+
+test_that("HTTr signature data internal check", {
+
+  skip_on_cran()
+
+  ## load necessary data
+  ## Code below is commented out, not needed when running all tests in the package at once (such as with testthat::test_local().)
+  ## Do need to un-comment and run this code to load the data if one is running this test interactively in the console.
+
+  #load(here::here("R", "sysdata.rda"))
+
+  # turn signature_input into a list of rows for lapply to use
+  signature_input = as.list(as.data.frame(t(signature_input), stringsAsFactors = F))
+
+  # run curve-fitting - this is taking a little more than 1 minute to run
+  my_signature = lapply(X=signature_input, FUN =concRespCore,
+                        fitmodels = c("cnst", "hill", "poly1", "poly2", "pow", "exp2",
+                                      "exp3", "exp4", "exp5"),
+                        bmr_scale=1.349, aicc=F, conthits=T, bmd_low_bnd=0.1,
+                        bmd_up_bnd=10, verbose=F)
+  # turn the result lists into a data frame
+  my_signature = as.data.frame(data.table::rbindlist(my_signature))
+
+  ## Compare BMD, BMDU, BMDL, top_over_cutoff, hit-call, top, and AC50
+
+  ## Compare by vector operation, order by trt to make sure we are comparing the appropriate output
+  my_signature <- my_signature[order(my_signature$trt, my_signature$signature),]
+  signature_sub <- signature_sub[order(signature_sub$trt, signature_sub$signature),]
+
+  ## Differences in decimals places are normal rounding errors
+  ## check if the differences in the BMD estimates exceed a threshold value
+  ## BMD could be NA, replace NA with -1 so it wouldn't cause trouble with all()
+  my_signature$bmd[is.na(my_signature$bmd)] <- (-1)
+  signature_sub$bmd[is.na(signature_sub$bmd)] <- (-1)
+
+  ## Adjust the BMD values to 3 significant digits to be consistent with how they are being applied
+  my_signature[, c("bmd", "bmdu", "bmdl")] <- signif(my_signature[, c("bmd", "bmdu", "bmdl")], 3)
+  signature_sub[, c("bmd", "bmdu", "bmdl")] <- signif(signature_sub[, c("bmd", "bmdu", "bmdl")], 3)
+  bmd_check <- all(abs(my_signature$bmd - signature_sub$bmd) < 1e-5)
+  expect_true(bmd_check)
+
+  ## Compare BMDU and BMDL with 3 significant digits
+  ## BMDU and BMDL could be NA. Replacing NA with -1.
+  my_signature$bmdl[is.na(my_signature$bmdl)] <- (-1)
+  signature_sub$bmdl[is.na(signature_sub$bmdl)] <- (-1)
+  bmdl_check <- all(abs(my_signature$bmdl - signature_sub$bmdl) < 1e-5)
+  expect_true(bmdl_check)
+
+  my_signature$bmdu[is.na(my_signature$bmdu)] <- (-1)
+  signature_sub$bmdu[is.na(signature_sub$bmdu)] <- (-1)
+  bmdu_check <- all(abs(my_signature$bmdu - signature_sub$bmdu) < 1e-5)
+  expect_true(bmdu_check)
+
+  # check if the differences in hit-calls exceed a threshold value
+  hitcall_check <- all(abs(my_signature$hitcall - signature_sub$hitcall) < 1e-5)
+  expect_true(hitcall_check)
+
+  # check if the differences in top_over_cutoff exceed a threshold value
+  my_signature$top_over_cutoff[is.na(my_signature$top_over_cutoff)] <- (-1)
+  signature_sub$top_over_cutoff[is.na(signature_sub$top_over_cutoff)] <- (-1)
+  top_cutoff_check <- all(abs(my_signature$top_over_cutoff - signature_sub$top_over_cutoff) < 1e-5)
+  expect_true(hitcall_check)
+
+  ## check if the differences in top exceed a threshold value
+  my_signature$top[is.na(my_signature$top)] <- (-1)
+  signature_sub$top[is.na(signature_sub$top)] <- (-1)
+  top_check <- all(abs(my_signature$top - signature_sub$top) < 1e-5)
+  expect_true(top_check)
+
+  ## check if the differences in AC50 exceed a threshold value
+  my_signature$ac50[is.na(my_signature$ac50)] <- (-1)
+  signature_sub$ac50[is.na(signature_sub$ac50)] <- (-1)
+  ac50_check <- all(abs(my_signature$ac50 - signature_sub$ac50) < 1e-5)
+  expect_true(ac50_check)
+
+})
+
+
+
+
