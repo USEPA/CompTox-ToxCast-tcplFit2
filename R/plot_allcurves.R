@@ -1,7 +1,7 @@
-#' Plot All Fitted Curves
+#' Plot All Fitted Curves From tcplfit2_core
 #'
 #' This function takes in output from `tcplfit2_core` and plots
-#' the observed concentration response data along with all the model fits.
+#' the observed concentration response data with all fitted curves.
 #' The function returns a ggplot object that is capable of
 #' taking additional layers of ggplot add-ons.
 #'
@@ -12,8 +12,8 @@
 #'
 #' @param resp Vector of corresponding responses.
 #'
-#' @param log_conc Logical argument. If `TRUE`, convert the x-axis into log-10 scale.
-#' Defaults to `FALSE`.
+#' @param log_conc Logical argument. If `TRUE`, convert the concentration (x-axis)
+#' into log-10 scale. Defaults to `FALSE`.
 #'
 #' @return A ggplot plot of the observed concentration response data and
 #' all the fitted curves.

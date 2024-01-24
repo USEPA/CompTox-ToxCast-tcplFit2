@@ -2,28 +2,23 @@
 #'
 #' This function takes in `concRespCore` or `tcplhit2_core` output and
 #' generates a basic plot of the observed concentration response data with the
-#' winning model. The function returns a ggplot object that is capable of
+#' winning model curve. The function returns a ggplot object that is capable of
 #' taking additional layers of ggplot add-ons.
 #'
 #' @param row Output from `concRespCore` or `tcplhit2_core`, containing information
 #' about the winning curve fit of a compound.
-#' @param log_conc Logical argument. If `TRUE`, convert the x-axis into log-10 scale.
-#' Defaults to `FALSE`.
+#' @param log_conc Logical argument. If `TRUE`, convert the concentration (x-axis)
+#' into log-10 scale. Defaults to `FALSE`.
 #'
 #' @return A ggplot object, a scatter plot of the concentration response data
-#' overlaying the winning model curve.
+#' overlaid with the winning model curve.
 #'
 #' @export
 #'
 
 concRespPlot2 <- function(row, log_conc = FALSE) {
 
-  # name <- unlist(name)
-  # assay <- unlist(assay)
-  # if (!is.null(id_cols)) {
-  #   title <- paste(res[,id_cols], collapse = ",")
-  # }
-
+  # get the winning model curve
   fit_method <- row[,"fit_method"]
 
   #reformat conc and resp as vectors
