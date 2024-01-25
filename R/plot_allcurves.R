@@ -29,7 +29,17 @@ plot_allcurves <- function(output, conc, resp, log_conc = FALSE) {
   successes <- sapply(shortnames, function(x) {
     get(x)[["success"]]
   })
-  if (sum(successes, na.rm = T) == length(shortnames)) {
+
+  # If any of the models from the output failed,
+  # display the models that do fit and throw a warning message
+  # about the failed models and they are not included in the plot.
+  if (sum(successes, na.rm = T) != length(shortnames)) {
+    failed_fits <- names(which(successes != 1))
+    shortnames <- shortnames[! shortnames %in% failed_fits]
+    warning(paste0("The following model(s) failed to fit: ", paste(failed_fits, collapse = ', '),
+                  ", and will not be included in the plot."))
+    }
+
     X <- seq(min(conc), max(conc),
              length.out = 100)
     allresp <- NULL
@@ -71,9 +81,6 @@ plot_allcurves <- function(output, conc, resp, log_conc = FALSE) {
           ylab("Responses")+
           theme_bw()
     }
-  } else {
-    stop("At least one of the model failed to fit.")
-  }
 
   return(p)
 }
