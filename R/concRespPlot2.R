@@ -23,12 +23,11 @@ concRespPlot2 <- function(row, log_conc = FALSE) {
 
   #reformat conc and resp as vectors
   conc <- as.numeric(str_split(row[1,"conc"],"\\|")[[1]])
-  logc <- log10(conc)
   resp <- as.numeric(str_split(row[1,"resp"],"\\|")[[1]])
 
   #hard-code plotting points for curves
-  logc_plot <- seq(from=min(logc),to=max(logc),length=100)
-  conc_plot <- 10**logc_plot
+  conc_plot <- seq(from=min(conc),to=max(conc),length=100)
+  conc_plot <-  replace(conc_plot, conc_plot==0, 1e-10)
 
   #get model parameters
   parnames = c("a", "tp", "b", "ga", "p", "la", "q")
@@ -53,6 +52,8 @@ concRespPlot2 <- function(row, log_conc = FALSE) {
       ylab("Response") +
       theme_bw()
   } else {
+    logc <- log10(conc)
+    logc_plot <- log10(conc_plot)
     basic <- ggplot(data.frame(logc, resp), aes(logc, resp)) +
       # Observed data points
       geom_point(pch = 1,size = 2) +
