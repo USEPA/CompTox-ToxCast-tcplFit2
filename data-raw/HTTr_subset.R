@@ -43,33 +43,53 @@ init_sampler <- function(data, size) {
 set.seed(2233)
 signature_sub <- init_sampler(SIGNATURE_CR, 25)
 
-## Added some more samples for under-represented curve fit groups
+## It is suggested to include at least one confident active sample from each type of curve.
+## Thus, after the initial sampling, check the numbers of curve fits in selected active cases with
+## actives <- signature_sub %>% filter(hitcall > 0.9 & top_over_cutoff > 1.5)
+## table(actives$fit_method)
+
+## Found out that the subset actives do not have any exp2 or exp3 curves, and only has one power curve.
+## Need to add some more samples for under-represented curve fit groups
 all_active <- SIGNATURE_CR[SIGNATURE_CR$hitcall > 0.9 & SIGNATURE_CR$top_over_cutoff > 1.5,]
 exp2_addins <- all_active[all_active$fit_method == "exp2", ]
 pow_addins <- all_active[all_active$fit_method == "pow", ]
 
 ## Final signature subset
+## The number of active exp3 curves in the original signature data set is small (6 rows)
+## decided to add all of them into the subset.
+## Then, sample 3 exp2 and 3 power active curves to be added into the subset.
+## The final sample size is 137.
 set.seed(63)
 signature_sub <- rbind(signature_sub,
                        all_active[all_active$fit_method == "exp3",],
                        exp2_addins[sample(x=nrow(exp2_addins),size = 3),],
                        pow_addins[sample(x=nrow(pow_addins),size = 3),])
 
+## Make sure no duplicated sample
+sum(duplicated(signature_sub)) == 0
 
 ## Create gene-level subset
 set.seed(1233)
 gene_sub <- init_sampler(GENE_CR, 25)
 
-## Added some more samples for under-represented curve fit groups
+## After the initial sampling, check the numbers of curve fits in selected active cases
+## At this point the subset acitves do not have any exp3 or poly2 curves.
+## Need to add additional samples for under-represented curve fit groups.
 all_active <- GENE_CR[GENE_CR$hitcall > 0.9 & GENE_CR$top_over_cutoff > 1.5,]
 poly2_acitve <- all_active[all_active$fit_method == "poly2", ]
 exp3_active <- all_active[all_active$fit_method == "exp3", ]
 
 ## Final gene subset
+## Sample 3 poly2 and 3 exp2 active curves and add them to the gene subset.
+## The final sample size is 131.
 set.seed(1132)
 gene_sub <- rbind(gene_sub,
                   poly2_acitve[sample(x=nrow(poly2_acitve),size = 3),],
                   exp3_active[sample(x=nrow(exp3_active),size = 3),])
+
+## Make sure no duplicated sample
+sum(duplicated(gene_sub)) == 0
+
 
 ## Select the corresponding input data
 signature_input <- NULL
