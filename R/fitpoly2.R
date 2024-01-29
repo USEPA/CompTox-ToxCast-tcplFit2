@@ -22,7 +22,6 @@
 #' @importFrom methods is
 #' @importFrom numDeriv hessian
 #' @importFrom stats constrOptim median
-#' @importFrom trend mk.test pettitt.test
 #'
 #' @return Named list containing: success, aic (Akaike Information Criteria),
 #'   cov (success of covariance calculation), rme (root mean square error),
