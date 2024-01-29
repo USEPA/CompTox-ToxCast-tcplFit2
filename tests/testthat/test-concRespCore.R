@@ -441,6 +441,79 @@ test_that("HTTr signature data internal check", {
 
 })
 
+test_that("HTTr gene data internal check", {
 
+  skip_on_cran()
+
+  ## load necessary data
+  ## Code below is commented out, not needed when running all tests in the package at once (such as with testthat::test_local().)
+  ## Do need to un-comment and run this code to load the data if one is running this test interactively in the console.
+
+  #load(here::here("R", "sysdata.rda"))
+
+  # turn signature_input into a list of rows for lapply to use
+  gene_input = as.list(as.data.frame(t(gene_input), stringsAsFactors = F))
+
+  # run curve-fitting
+  my_gene = lapply(X=gene_input, FUN = concRespCore,
+                   fitmodels = c("cnst", "hill", "poly1", "poly2", "pow",
+                                 "exp2", "exp3", "exp4", "exp5"), aicc = F)
+
+  # turn the result lists into a data frame
+  my_gene = as.data.frame(data.table::rbindlist(my_gene))
+
+  ## Compare BMD, BMDU, BMDL, top_over_cutoff, hit-call, top, and AC50
+
+  ## Compare by vector operation, order by trt to make sure we are comparing the appropriate output
+  my_gene <- my_gene[order(my_gene$trt, my_gene$gene),]
+  gene_sub <- gene_sub[order(gene_sub$trt, gene_sub$gene),]
+
+  ## Differences in decimals places are normal rounding errors
+  ## check if the differences in the BMD estimates exceed a threshold value
+  ## BMD could be NA, replace NA with -1 so it wouldn't cause trouble with all()
+  my_gene$bmd[is.na(my_gene$bmd)] <- (-1)
+  gene_sub$bmd[is.na(gene_sub$bmd)] <- (-1)
+
+  ## Adjust the BMD values to 3 significant digits to be consistent with how they are being applied
+  my_gene[, c("bmd", "bmdu", "bmdl")] <- signif(my_gene[, c("bmd", "bmdu", "bmdl")], 3)
+  gene_sub[, c("bmd", "bmdu", "bmdl")] <- signif(gene_sub[, c("bmd", "bmdu", "bmdl")], 3)
+  bmd_check <- all(abs(my_gene$bmd - gene_sub$bmd) < 1e-5)
+  expect_true(bmd_check)
+
+  ## Compare BMDU and BMDL with 3 significant digits
+  ## BMDU and BMDL could be NA. Replacing NA with -1.
+  my_gene$bmdl[is.na(my_gene$bmdl)] <- (-1)
+  gene_sub$bmdl[is.na(gene_sub$bmdl)] <- (-1)
+  bmdl_check <- all(abs(my_gene$bmdl - gene_sub$bmdl) < 1e-5)
+  expect_true(bmdl_check)
+
+  my_gene$bmdu[is.na(my_gene$bmdu)] <- (-1)
+  gene_sub$bmdu[is.na(gene_sub$bmdu)] <- (-1)
+  bmdu_check <- all(abs(my_gene$bmdu - gene_sub$bmdu) < 1e-5)
+  expect_true(bmdu_check)
+
+  # check if the differences in hit-calls exceed a threshold value
+  hitcall_check <- all(abs(my_gene$hitcall - gene_sub$hitcall) < 1e-5)
+  expect_true(hitcall_check)
+
+  # check if the differences in top_over_cutoff exceed a threshold value
+  my_gene$top_over_cutoff[is.na(my_gene$top_over_cutoff)] <- (-1)
+  gene_sub$top_over_cutoff[is.na(gene_sub$top_over_cutoff)] <- (-1)
+  top_cutoff_check <- all(abs(my_gene$top_over_cutoff - gene_sub$top_over_cutoff) < 1e-5)
+  expect_true(hitcall_check)
+
+  ## check if the differences in top exceed a threshold value
+  my_gene$top[is.na(my_gene$top)] <- (-1)
+  gene_sub$top[is.na(gene_sub$top)] <- (-1)
+  top_check <- all(abs(my_gene$top - gene_sub$top) < 1e-5)
+  expect_true(top_check)
+
+  ## check if the differences in AC50 exceed a threshold value
+  my_gene$ac50[is.na(my_gene$ac50)] <- (-1)
+  gene_sub$ac50[is.na(gene_sub$ac50)] <- (-1)
+  ac50_check <- all(abs(my_gene$ac50 - gene_sub$ac50) < 1e-5)
+  expect_true(ac50_check)
+
+})
 
 
