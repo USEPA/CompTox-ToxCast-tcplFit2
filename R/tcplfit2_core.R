@@ -16,8 +16,8 @@
 #' @param do.plot If do.plot = TRUE, will generate a plot comparing model curves.
 #' @param fitmodels Vector of model names to try fitting. Missing models still
 #'   return a skeleton output filled with NAs.
-#' @param poly2.biphasic If poly2.biphasic = TRUE, constraints are set to allow
-#'   for the polynomial 2 model fit to be bi-phasic (i.e. non-monotonic).
+#' @param poly2.biphasic If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+#'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
 #' @param ... Other fitting parameters (deprecated).
 #'
 #' @import RColorBrewer
