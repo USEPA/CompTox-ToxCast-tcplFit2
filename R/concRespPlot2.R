@@ -25,6 +25,10 @@ concRespPlot2 <- function(row, log_conc = FALSE) {
   conc <- as.numeric(str_split(row[1,"conc"],"\\|")[[1]])
   resp <- as.numeric(str_split(row[1,"resp"],"\\|")[[1]])
 
+  if (log_conc) {
+    conc <- log10(conc)
+  }
+
   #hard-code plotting points for curves
   conc_plot <- seq(from=min(conc),to=max(conc),length=100)
   conc_plot <- replace(conc_plot, conc_plot==0, 1e-10)
@@ -40,11 +44,6 @@ concRespPlot2 <- function(row, log_conc = FALSE) {
   } else if(!fit_method %in% c("cnst","none") ){
     resp_plot <- do.call(fit_method,list(ps = unlist(modpars), x = conc_plot))
   }
-
-  if (log_conc) {
-    conc <- log10(conc)
-    conc_plot <- log10(conc_plot)
-    }
 
   basic <- ggplot(data.frame(conc, resp), aes(conc, resp)) +
     # Observed data points
