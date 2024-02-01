@@ -26,8 +26,8 @@
 #'   than 1/10th of the lowest concentration tested.
 #' @param bmd_up_bnd Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
 #'   than 10 times the highest concentration tested.
-#' @param poly2.biphasic If poly2.biphasic = TRUE, constraints are set to allow
-#'   for the polynomial 2 model fit to be bi-phasic (i.e. non-monotonic).
+#' @param poly2.biphasic If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+#'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:
@@ -158,17 +158,17 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
                acy(bmr,modpars,type = fit_method,poly2.biphasic = poly2.biphasic))
       bmr_dir <- c(-1,1)[which.min(bmd)]
       bmd <- bmd[which.min(bmd)]
+      # get the vertex of the parabola (x_v) - location where the bottom or top of the parabola is (x-axis)
+      x_v <- (-modpars$b/2) # x_v = -b/2
 
       # get bmdl and bmdu
       bmdl <- bmdbounds(fit_method,
                         bmr = bmr_dir * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                        bmd = bmd, which.bound = "lower",poly2.biphasic = poly2.biphasic,
-                        top_dir = sign(top)
+                        bmd = bmd, which.bound = "lower",poly2.biphasic = poly2.biphasic,x_v = x_v
       )
       bmdu <- bmdbounds(fit_method,
                         bmr = bmr_dir * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-                        bmd = bmd, which.bound = "upper",poly2.biphasic = poly2.biphasic,
-                        top_dir = sign(top)
+                        bmd = bmd, which.bound = "upper",poly2.biphasic = poly2.biphasic,x_v = x_v
       )
     }else{
       bmd <- acy(sign(top) * bmr, modpars, type = fit_method,poly2.biphasic = poly2.biphasic)

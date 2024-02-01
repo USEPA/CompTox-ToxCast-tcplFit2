@@ -18,15 +18,15 @@
 #'   types can also be vulnerable to underflow/overflow.
 #' @param poly2.biphasic If poly2.biphasic = TRUE, constraints are set to allow
 #'   for the polynomial 2 model fit to be bi-phasic (i.e. non-monotonic).
-#' @param top_dir Sign/Direction of the "top" (maximal change in response from
-#'   background). Only in use when estimating the BMDL and BMDU values for the
-#'   "poly2" model when poly2.biphasic = TRUE. No default is set.
+#' @param x_v The vertex of the quadratic/parabolic fit.
+#'   Only in use when estimating the BMDL and BMDU values for the "poly2" model
+#'   when poly2.biphasic = TRUE. No default is set.
 #'
 #' @importFrom stats qchisq
 #'
 #' @return Objective function value to find the zero of.
 #' @export
-bmdobj= function(bmd, fname, bmr, conc, resp, ps, mll, onesp, partype = 2, poly2.biphasic = TRUE,top_dir){
+bmdobj= function(bmd, fname, bmr, conc, resp, ps, mll, onesp, partype = 2, poly2.biphasic = TRUE,x_v){
 
   #implements the BMD substitutions in Appendix A of the Technical Report.
   #Changes one of the existing parameters to an explicit bmd parameter through
@@ -67,20 +67,19 @@ bmdobj= function(bmd, fname, bmr, conc, resp, ps, mll, onesp, partype = 2, poly2
   } else if(fname == "poly2" & poly2.biphasic == TRUE){
     if(partype == 1) ps["a"] = bmr/(bmd/ps["b"] + (bmd/ps["b"])^2 )
     # when you have biphasic curves there are 2 possible solutions
-    # in the case the 'top' - maximal change in response != the BMR direction
-    # then you use the typical estimate as used in the monotonic case
-    # however, when they are the same you need to use the other estimate
+    # in the case the 'vertex' - top or bottom of the parabola - is greater than
+    # the BMD then use the min of the "b" estimates, otherwise use the max
     if(partype == 2){
       b_est <- c(2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1),
                  -2*bmd/(sqrt(1 + 4*bmr/ps["a"]) + 1))
-      ps["b"] = ifelse(sign(bmr) != top_dir,
+      ps["b"] = ifelse(x_v > bmd,
                        yes = b_est[which.min(b_est)],
                        no = b_est[which.max(b_est)])
     }
     if(partype == 3){
       b_est <- c(2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1),
                  -2*bmd/(sqrt(1 + 4*bmr/ps["a"]) + 1))
-      ps["b"] = ifelse(sign(bmr) != top_dir,
+      ps["b"] = ifelse(x_v > bmd,
                        yes = b_est[which.min(b_est)],
                        no = b_est[which.max(b_est)])
     }
