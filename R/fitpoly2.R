@@ -1,21 +1,29 @@
 #' Polynomial 2 (Quadratic) Model Fit
 #'
-#' Function that fits to \eqn{f(x) = a*(\frac{x}{b} + \frac{x^2}{b^2})} and
+#' Function that fits to \eqn{f(x) = b1*x + b2*x^2} (biphasic), or
+#' \eqn{f(x) = a*(\frac{x}{b} + \frac{x^2}{b^2})} (monotonic only), and
 #' returns generic model outputs.
 #'
-#' Zero background and monotonically increasing absolute response are assumed.
+#' (Biphasic Poly2 Model) Zero background is assumed and responses may be
+#' biphasic (non-monotonic).  Parameters are "b1" (shift along x-axis),
+#' "b2" (rate of change, direction, and the shift along y-axis),
+#' and error term "er".
+#' (Monotonic Poly2 Model) Zero background and monotonically increasing
+#' absolute response are assumed.
 #' Parameters are "a" (y scale), "b" (x scale), and error term "er".
-#' success = 1 for a successful fit, 0 if optimization failed, and NA if
-#' nofit = TRUE. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
+#' (Biphasic or Monotonic Poly2 Fit) success = 1 for a successful fit, 0 if
+#' optimization failed, and NA if nofit = TRUE.
+#' cov = 1 for a successful hessian inversion, 0 if it fails, and NA
 #' if nofit = TRUE. aic, rme, modl, parameters, and parameter sds are set to
 #' NA in case of nofit or failure.
 #'
 #' @param conc Vector of concentration values NOT in log units.
 #' @param resp Vector of corresponding responses.
 #' @param bidirectional If TRUE, model can be positive or negative; if FALSE, it
-#'   will be positive only.
-#' @param biphasic If biphasic = TRUE, constraints are set to allow the
-#'   polynomial 2 model to fit bi-phasic (i.e. non-monotonic) curves.
+#'   will be positive only. (Only in use for monotonic poly2 fitting.)
+#' @param biphasic If biphasic = TRUE, allows for biphasic polynomial 2
+#'   model fits (i.e. both monotonic and non-monotonic curves).
+#'   (Note, if FALSE fits \eqn{f(x) = a*(\frac{x}{b} + \frac{x^2}{b^2})}.)
 #' @param verbose If TRUE, gives optimization and hessian inversion details.
 #' @param nofit If nofit = TRUE, returns formatted output filled with missing values.
 #'
@@ -93,7 +101,7 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE,biphasic = TRUE,
                 byrow = TRUE, nrow = 4, ncol = 3)
 
   if(biphasic){
-    warning("bidirectional argument is ignored when biphasic = TRUE")
+    if(!bidirectional){warning("The `bidirectional` argument is ignored when `biphasic = TRUE`.")}
 
     fname = "poly2bmds"
     bnds <- c(-1e8*abs(a0), -1e8*abs(a0), # b1 bounds (positive or negative)
@@ -133,6 +141,7 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE,biphasic = TRUE,
     success <- 1L
     aic <- 2*length(fit$par) - 2*fit$value # 2*length(fit$par) - 2*fit$value
 
+    # old parameter output assignment
     # mapply(assign,
     #        c(pars),
     #        fit$par,
@@ -157,12 +166,16 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE,biphasic = TRUE,
 
     ## Calculate rmse for gnls
     modl <- do.call(fname,list(fit$par,conc))
+    # alternative `modl` estimation option
     # if(biphasic){
     #   modl <- poly2bmds(fit$par,conc)
     # }else{
     #   modl <- poly2(fit$par,conc)
     # }
+    # old `modl` estimation
     # modl <- poly2(fit$par,conc)
+
+    ## Calculate the root mean square error
     rme <- sqrt(mean((modl - resp)^2, na.rm = TRUE))
 
     ## Calculate the sd for the gnls parameters
