@@ -17,7 +17,8 @@ concRespCore(
   return.details = FALSE,
   bmr_scale = 1.349,
   bmd_low_bnd = NULL,
-  bmd_up_bnd = NULL
+  bmd_up_bnd = NULL,
+  poly2.biphasic = TRUE
 )
 }
 \arguments{
@@ -58,6 +59,9 @@ than 1/10th of the lowest concentration tested.}
 
 \item{bmd_up_bnd}{Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
 than 10 times the highest concentration tested.}
+
+\item{poly2.biphasic}{If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)}
 }
 \value{
 A list of two elements. The first (summary) is the output from tcplhit2_core. The second, params is the

@@ -4,7 +4,14 @@
 \alias{fitpoly2}
 \title{Polynomial 2 (Quadratic) Model Fit}
 \usage{
-fitpoly2(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE)
+fitpoly2(
+  conc,
+  resp,
+  bidirectional = TRUE,
+  biphasic = TRUE,
+  verbose = FALSE,
+  nofit = FALSE
+)
 }
 \arguments{
 \item{conc}{Vector of concentration values NOT in log units.}
@@ -12,7 +19,11 @@ fitpoly2(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE)
 \item{resp}{Vector of corresponding responses.}
 
 \item{bidirectional}{If TRUE, model can be positive or negative; if FALSE, it
-will be positive only.}
+will be positive only. (Only in use for monotonic poly2 fitting.)}
+
+\item{biphasic}{If biphasic = TRUE, allows for biphasic polynomial 2
+model fits (i.e. both monotonic and non-monotonic curves).
+(Note, if FALSE fits \eqn{f(x) = a*(\frac{x}{b} + \frac{x^2}{b^2})}.)}
 
 \item{verbose}{If TRUE, gives optimization and hessian inversion details.}
 
@@ -26,14 +37,21 @@ Named list containing: success, aic (Akaike Information Criteria),
   (vector of parameter names), sds (vector of parameter sd names).
 }
 \description{
-Function that fits to \eqn{f(x) = a*(\frac{x}{b} + \frac{x^2}{b^2})} and
+Function that fits to \eqn{f(x) = b1*x + b2*x^2} (biphasic), or
+\eqn{f(x) = a*(\frac{x}{b} + \frac{x^2}{b^2})} (monotonic only), and
 returns generic model outputs.
 }
 \details{
-Zero background and monotonically increasing absolute response are assumed.
+(Biphasic Poly2 Model) Zero background is assumed and responses may be
+biphasic (non-monotonic).  Parameters are "b1" (shift along x-axis),
+"b2" (rate of change, direction, and the shift along y-axis),
+and error term "er".
+(Monotonic Poly2 Model) Zero background and monotonically increasing
+absolute response are assumed.
 Parameters are "a" (y scale), "b" (x scale), and error term "er".
-success = 1 for a successful fit, 0 if optimization failed, and NA if
-nofit = TRUE. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
+(Biphasic or Monotonic Poly2 Fit) success = 1 for a successful fit, 0 if
+optimization failed, and NA if nofit = TRUE.
+cov = 1 for a successful hessian inversion, 0 if it fails, and NA
 if nofit = TRUE. aic, rme, modl, parameters, and parameter sds are set to
 NA in case of nofit or failure.
 }

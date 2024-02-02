@@ -14,6 +14,7 @@ tcplfit2_core(
   do.plot = FALSE,
   fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
     "exp5"),
+  poly2.biphasic = TRUE,
   ...
 )
 }
@@ -35,6 +36,9 @@ force.fit = FALSE, will only fit constant model.}
 
 \item{fitmodels}{Vector of model names to try fitting. Missing models still
 return a skeleton output filled with NAs.}
+
+\item{poly2.biphasic}{If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)}
 
 \item{...}{Other fitting parameters (deprecated).}
 }
