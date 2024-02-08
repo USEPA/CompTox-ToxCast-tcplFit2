@@ -1,11 +1,12 @@
-#' Plot All Curves Fit with tcplfit2_core
+#' Plot All Curves Fit with tcplfit2_core - ggplot2
 #'
-#' This function takes in output from `tcplfit2_core` and plots
-#' the response data with all resulting curve fits. The resulting plot is a
-#' `ggplot` object, which users may customize with additional `ggplot` layers.
+#' This function takes output from `tcplfit2_core` and generates a basic plot of
+#' the observed concentration-response data with all resulting curve fits.
+#' A `ggplot` object, which users may customize with additional `ggplot` layers,
+#' is returned.
 #'
-#' @param modelfits Output from `tcplfit2_core`, containing modeling results
-#' of a compound.
+#' @param modelfits Output from `tcplfit2_core`, contains resulting fits for all
+#' models used to evaluate the observed concentration-response data.
 #'
 #' @param conc Vector of concentrations (NOT in log units).
 #'
@@ -14,13 +15,11 @@
 #' @param log_conc Logical argument. If `TRUE`, convert the concentrations (x-axis)
 #' into log-10 scale. Defaults to `FALSE`.
 #'
-#' @return A `ggplot` object of the observed concentration response data and
+#' @return A `ggplot` object of the observed concentration-response data and
 #' all resulting curve fits from `tcplfit2_core`. (Note: The constant model is
 #' not included, and only the successful fits will be displayed.)
 #'
 #' @export
-#'
-
 plot_allcurves <- function(modelfits, conc, resp, log_conc = FALSE) {
 
   list2env(modelfits, envir = environment())

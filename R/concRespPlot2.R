@@ -1,21 +1,19 @@
-#' Concentration Response Plot - New
+#' Concentration Response Plot - ggplot2
 #'
-#' This function takes output from `concRespCore` or `tcplhit2_core` output to
+#' This function takes output from `concRespCore` or `tcplhit2_core` to
 #' generate a basic plot of the observed concentration-response data and the
-#' best fit curve (winning model). The resulting plot is a
-#' `ggplot` object, which users may customize with additional `ggplot` layers.
+#' best fit curve (winning model). A `ggplot` object, which users may customize
+#' with additional `ggplot` layers, is returned.
 #'
 #' @param row Output from `concRespCore` or `tcplhit2_core`, containing information
-#' about the winning curve fit of a compound.
+#' about the best fit curve (winning model).
 #' @param log_conc Logical argument. If `TRUE`, convert the concentrations (x-axis)
 #' into log-10 scale. Defaults to `FALSE`.
 #'
-#' @return A `ggplot` object, a scatter plot of the concentration response data
-#' overlaid with the winning model curve.
+#' @return A `ggplot` object of the observed concentration-response data
+#' overlaid with the best fit curve (winning model).
 #'
 #' @export
-#'
-
 concRespPlot2 <- function(row, log_conc = FALSE) {
 
   # get the winning model curve
