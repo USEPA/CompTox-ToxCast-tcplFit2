@@ -23,13 +23,8 @@ concRespPlot2 <- function(row, log_conc = FALSE) {
   conc <- as.numeric(str_split(row[1,"conc"],"\\|")[[1]])
   resp <- as.numeric(str_split(row[1,"resp"],"\\|")[[1]])
 
-  if (log_conc) {
-    conc <- log10(conc)
-  }
-
-  #hard-code plotting points for curves
+  # Generate a series of X for plot
   conc_plot <- seq(from=min(conc),to=max(conc),length=100)
-  conc_plot <- replace(conc_plot, conc_plot==0, 1e-10)
 
   #get model parameters
   parnames = c("a", "tp", "b", "ga", "p", "la", "q")
@@ -41,6 +36,16 @@ concRespPlot2 <- function(row, log_conc = FALSE) {
     resp_plot <- do.call("hillfn",list(ps = unlist(modpars), x = conc_plot))
   } else if(!fit_method %in% c("cnst","none") ){
     resp_plot <- do.call(fit_method,list(ps = unlist(modpars), x = conc_plot))
+  }
+
+  if (log_conc) {
+    if (any(conc==0)) warning("Data contains untreated controls. A presudo value has been used for log-transform.")
+    conc <- log10(conc)
+    # replace the negative infinity with a number that is one log-10 unit
+    # less than the second lowest dose (in log).
+    conc <- replace(conc, conc==-Inf, sort(conc)[2]-1)
+    conc_plot <- log10(conc_plot)
+    conc_plot <- replace(conc_plot, conc_plot==-Inf, sort(conc)[2]-1)
   }
 
   basic <- ggplot(data.frame(conc, resp), aes(conc, resp)) +

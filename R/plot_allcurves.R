@@ -36,12 +36,9 @@ plot_allcurves <- function(modelfits, conc, resp, log_conc = FALSE) {
     failed_fits <- names(which(successes != 1))
     shortnames <- shortnames[! shortnames %in% failed_fits]
     warning(paste0("The following model(s) failed to fit: ", paste(failed_fits, collapse = ', '),
-                  ", and are excluded from the plot."))
+                  ", and are excluded from the plot.\n"))
   }
 
-  if (log_conc) {
-    conc <- log10(conc)
-  }
 
   X <- seq(min(conc), max(conc), length.out = 100)
   allresp <- NULL
@@ -58,10 +55,17 @@ plot_allcurves <- function(modelfits, conc, resp, log_conc = FALSE) {
 
   colnames(allresp) <- shortnames
 
+  if (log_conc) {
+    if (any(conc==0)) warning("Data contains untreated controls. A presudo value has been used for log-transform.")
+    conc <- log10(conc)
+    conc <- replace(conc, conc==-Inf, sort(conc)[2]-1)
+    X <- log10(X)
+    X <- replace(X, X==-Inf, sort(conc)[2]-1)
+  }
+
   # Format data into a data.frame for ease of plotting.
   estDR <- cbind.data.frame(X,allresp) %>%
     reshape2::melt(data = .,measure.vars = shortnames)
-
 
   ## Plot the Model Fits ##
   p <- ggplot(data.frame(conc, resp), aes(x = conc,y = resp)) +
