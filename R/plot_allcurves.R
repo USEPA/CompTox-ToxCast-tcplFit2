@@ -56,7 +56,7 @@ plot_allcurves <- function(modelfits, conc, resp, log_conc = FALSE) {
   colnames(allresp) <- shortnames
 
   if (log_conc) {
-    if (any(conc==0)) warning("Data contains untreated controls. A presudo value has been used for log-transform.")
+    if (any(conc==0)) warning("Data contains untreated controls (conc = 0). A pseudo value replaces -Inf after log-transform. The pseudo value is set to one log-unit below the lowest experimental `conc`.")
     conc <- log10(conc)
     conc <- replace(conc, conc==-Inf, sort(conc)[2]-1)
     X <- log10(X)
