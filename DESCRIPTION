@@ -24,7 +24,7 @@ Suggests:
     DT,
     data.table,
     tcpl,
-    prettydoc
+    prettydoc,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Imports: 
