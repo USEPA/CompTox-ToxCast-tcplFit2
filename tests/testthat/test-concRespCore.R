@@ -451,7 +451,7 @@ test_that("HTTr gene data internal check", {
 
   #load(here::here("R", "sysdata.rda"))
 
-  # turn signature_input into a list of rows for lapply to use
+  # turn gene input into a list of rows for lapply to use
   gene_input = as.list(as.data.frame(t(gene_input), stringsAsFactors = F))
 
   # run curve-fitting
