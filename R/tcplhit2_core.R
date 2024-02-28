@@ -80,7 +80,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
   # get error distribution
   errfun = params[["errfun"]]
   if (is.null(errfun))
-    warning("'errfun' is missing in the output from tcplfit2_core. 'errfun' tracks the error distribution assumed for the model fits and should be provided in 'params' list. -- see tcplfit2_core help for additional details.")
+    stop("'errfun' is missing in the output from tcplfit2_core. 'errfun' tracks the error distribution assumed for the model fits and should be provided in 'params' list. -- see tcplfit2_core help for additional details.")
 
   # get aics and degrees of freedom
   aics <- sapply(params$modelnames, function(x) {
