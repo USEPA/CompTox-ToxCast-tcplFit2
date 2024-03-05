@@ -24,7 +24,8 @@ Suggests:
     DT,
     data.table,
     tcpl,
-    prettydoc
+    prettydoc,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Imports: 
     stats,
@@ -34,3 +35,4 @@ Imports:
     stringr
 Depends: 
     R (>= 3.5.0)
+Config/testthat/edition: 3

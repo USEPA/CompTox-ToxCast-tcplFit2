@@ -18,6 +18,9 @@
 #'   return a skeleton output filled with NAs.
 #' @param poly2.biphasic If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 #'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #' @param ... Other fitting parameters (deprecated).
 #'
 #' @import RColorBrewer
@@ -25,8 +28,9 @@
 #' @importFrom stats median
 #'
 #' @return List of N(models) elements, one for each of the models run (up to 10),
-#' followed by a last element "modelnames", which is a  vector of model names so
-#' other functions can easily cycle through the output. For a full list, see the
+#' followed by a element "modelnames", which is a vector of model names so
+#' other functions can easily cycle through the output, and then the last element
+#' "errfun", which indicates what distribution was used for error. For a full list, see the
 #' documentation for the individual fitting method functions. For each model there
 #' is a sublist with elements including:
 #'   \itemize{
@@ -56,6 +60,7 @@
 tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional = TRUE, verbose = FALSE, do.plot = FALSE,
                           fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"),
                           poly2.biphasic = TRUE,
+                          errfun = "dt4",
                           ...) {
   logc <- log10(conc)
   rmds <- tapply(resp, logc, median)
@@ -81,7 +86,7 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
     if(fname != "fitpoly2"){
       assign(model, do.call(fname, list(
         conc = conc, resp = resp, bidirectional = bidirectional, verbose = verbose,
-        nofit = !to.fit
+        nofit = !to.fit, errfun = errfun
       )))
     }else{
       assign(model, do.call(fname, list(
@@ -154,7 +159,8 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
   # put all the model outputs into one list and return
   out <- c(
     mget(modelnames),
-    list(modelnames = modelnames, ...)
+    list(modelnames = modelnames, ...),
+    errfun = errfun
   )
 
   return(out)

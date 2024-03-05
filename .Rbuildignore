@@ -10,3 +10,4 @@ tcplfit2-vignette.md
 cran-comments.md
 ^CRAN-RELEASE$
 ^data-raw$
+^analyses$

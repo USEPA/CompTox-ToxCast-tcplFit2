@@ -26,6 +26,9 @@
 #'   (Note, if FALSE fits \eqn{f(x) = a*(\frac{x}{b} + \frac{x^2}{b^2})}.)
 #' @param verbose If TRUE, gives optimization and hessian inversion details.
 #' @param nofit If nofit = TRUE, returns formatted output filled with missing values.
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #'
 #' @importFrom methods is
 #' @importFrom numDeriv hessian
@@ -41,8 +44,7 @@
 #' @examples
 #' fitpoly2(c(.03,.1,.3,1,3,10,30,100), c(0,.01,.1, .1, .2, .5, 2, 8))
 fitpoly2 = function(conc, resp, bidirectional = TRUE,biphasic = TRUE,
-                    verbose = FALSE, nofit = FALSE){
-
+                    verbose = FALSE, nofit = FALSE,errfun = "dt4"){
   fenv <- environment()
   #initialize myparams
   pars <- paste0(c("a","b","b1","b2","er"))
@@ -131,7 +133,8 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE,biphasic = TRUE,
                                          maxit = 6000),
                           conc = conc,
                           resp = resp,
-                          fname = fname),
+                          fname = fname,
+                          errfun = errfun),
               silent = !verbose)
 
   ## Generate some summary statistics
@@ -183,7 +186,8 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE,biphasic = TRUE,
                                    fit$par,
                                    conc = conc,
                                    resp = resp,
-                                   fname = fname)),
+                                   fname = fname,
+                                   errfun = errfun)),
                     silent = !verbose)
 
     if (!is(fit$cov, "try-error")) { # Could invert gnls Hessian
