@@ -2,35 +2,38 @@
 % Please edit documentation in R/get_AUC.R
 \name{get_AUC}
 \alias{get_AUC}
-\title{Calculate AUC}
+\title{Calculate Area Under the Curve (AUC)}
 \usage{
-get_AUC(fit_method, lower, upper, ps)
+get_AUC(fit_method, lower, upper, ps, return.abs = FALSE)
 }
 \arguments{
-\item{fit_method}{name of the model}
+\item{fit_method}{Name of the model to calculate the area under the curve (AUC) for.}
 
-\item{lower}{lower bound for x}
+\item{lower}{Lower concentration bound, usually is the lowest concentration in the data.}
 
-\item{upper}{upper bound for x}
+\item{upper}{Upper concentration bound, usually is the highest concentration in the data.}
 
-\item{ps}{model parameter vector}
+\item{ps}{Numeric vector (or list) of model parameters for the specified model in `fit_method`.}
+
+\item{return.abs}{Logical argument, defaults to FALSE.
+If set to TRUE, the function will convert the negative AUC value and return a positive AUC.}
 }
 \value{
-AUC value
+AUC value (numeric)
 }
 \description{
-Function that calculates AUC for dose-response curves
+Function that calculates the area under the curve (AUC) for dose-response curves.
 }
 \details{
-This function takes in a type of model and a set of model parameters,
-and return the Area under the curve (AUC) between the lower and upper
-concentration bounds. AUC can be used to compute an efficacy/ potency
-metric for "active" does-response curves. The model parameters should be
-entered as a list or a vector. For models operate in log scale (hill and
-gain-loss), the lower and upper concentration bounds, "ga" (gain AC50)
-and "la" (loss AC50) will be converted to log-scale if applicable.
-This version hasn't taken consideration into how to appropriately work with
-decreasing curves. One of the future works to do.
+This function takes in a model name and the respective set of model parameters,
+and returns the area under the curve (AUC) between the specified lower and upper
+concentration bounds. The AUC can be used to compute an efficacy/potency
+metric for "active" dose-response curves. For decreasing curves, the AUC returned
+will be negative. However, users have the option to return a positive AUC in
+these cases. Model parameters should be entered as a numeric list or vector.
+Models optimized on the log10-scale (hill and gain-loss), the lower and upper
+concentration bounds, parameters "ga" (gain AC50) and "la" (loss AC50) will
+be converted to log10-scale.
 }
 \examples{
 conc <- c(.03,.1,.3,1,3,10,30,100)

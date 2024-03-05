@@ -10,7 +10,8 @@ fitgnls(
   bidirectional = TRUE,
   verbose = FALSE,
   nofit = FALSE,
-  minwidth = 1.5
+  minwidth = 1.5,
+  errfun = "dt4"
 )
 }
 \arguments{
@@ -27,6 +28,10 @@ will be positive only.}
 
 \item{minwidth}{Minimum allowed distance between gain ac50 and loss ac50 (in
 log10 units).}
+
+\item{errfun}{Which error distribution to assume for each point, defaults to
+"dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+supported distribution is "dnorm", the normal distribution.}
 }
 \value{
 Named list containing: success, aic (Akaike Information Criteria),

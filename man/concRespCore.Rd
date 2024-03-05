@@ -15,10 +15,12 @@ concRespCore(
   verbose = FALSE,
   do.plot = FALSE,
   return.details = FALSE,
+  errfun = "dt4",
   bmr_scale = 1.349,
   bmd_low_bnd = NULL,
   bmd_up_bnd = NULL,
-  poly2.biphasic = TRUE
+  poly2.biphasic = TRUE,
+  AUC = TRUE
 )
 }
 \arguments{
@@ -52,6 +54,8 @@ outside of the bounds (default FALSE)}
 
 \item{return.details}{If TRUE, return the hitcalling details and the summary, if FALSE (default), just return the summary}
 
+\item{errfun}{Which error distribution to assume for each point, defaults to "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another supported distribution is "dnorm", the normal distribution}
+
 \item{bmr_scale}{- bmr scaling factor (for bmd calculation) default = 1.349}
 
 \item{bmd_low_bnd}{Multiplier for bmd lower bound.  A value of .1 would require the bmd to be no lower
@@ -62,6 +66,8 @@ than 10 times the highest concentration tested.}
 
 \item{poly2.biphasic}{If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)}
+
+\item{AUC}{If TRUE, generate and return Area under the curve (AUC) for the winning model after hit-calling. Defaults to TRUE.}
 }
 \value{
 A list of two elements. The first (summary) is the output from tcplhit2_core. The second, params is the
@@ -71,7 +77,9 @@ a dataframe of one row containing
 \description{
 Core of concentration response curve fitting for pvalue based cutoff. This
 function calls tcplfit2_core to get curve fits, and then tcplhit2_core to
-perform the hitcalling.
+perform the hitcalling. Prior to model fitting, this function includes two
+data preparation steps (1) centering responses when bmed is not 0 or NULL and
+(2) removal of replicates with missing response values.
 }
 \examples{
 conc <- list(.03, .1, .3, 1, 3, 10, 30, 100)

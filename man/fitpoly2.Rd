@@ -10,7 +10,8 @@ fitpoly2(
   bidirectional = TRUE,
   biphasic = TRUE,
   verbose = FALSE,
-  nofit = FALSE
+  nofit = FALSE,
+  errfun = "dt4"
 )
 }
 \arguments{
@@ -28,6 +29,10 @@ model fits (i.e. both monotonic and non-monotonic curves).
 \item{verbose}{If TRUE, gives optimization and hessian inversion details.}
 
 \item{nofit}{If nofit = TRUE, returns formatted output filled with missing values.}
+
+\item{errfun}{Which error distribution to assume for each point, defaults to
+"dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+supported distribution is "dnorm", the normal distribution.}
 }
 \value{
 Named list containing: success, aic (Akaike Information Criteria),
