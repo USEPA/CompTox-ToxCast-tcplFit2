@@ -36,6 +36,8 @@
 #'   than 1/10th of the lowest concentration tested.
 #' @param bmd_up_bnd Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
 #'   than 10 times the highest concentration tested.
+#' @param poly2.biphasic If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+#'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
 #' @param AUC If TRUE, generate and return Area under the curve (AUC) for the winning model after hit-calling. Defaults to TRUE.
 #'
 #'
@@ -69,6 +71,7 @@ concRespCore <- function(row,
                          bmr_scale = 1.349,
                          bmd_low_bnd = NULL,
                          bmd_up_bnd = NULL,
+                         poly2.biphasic = TRUE,
                          AUC = TRUE) {
   # variable binding to pass cmd checks
   bmed <- cutoff <- onesd <- NULL
@@ -87,16 +90,18 @@ concRespCore <- function(row,
   # run the fits
   params <- tcplfit2_core(conc, resp, cutoff,
     force.fit = conthits, bidirectional = bidirectional, fitmodels = fitmodels,
-    verbose = verbose, do.plot = do.plot, errfun = errfun
+    verbose = verbose, do.plot = do.plot,poly2.biphasic = poly2.biphasic,
+    errfun = errfun
   )
 
   # calculate the hitcall
-  summary <- tcplhit2_core(params, conc, resp, cutoff, onesd, bmr_scale, bmed, conthits, aicc, identifiers,bmd_low_bnd, bmd_up_bnd)
-
+  summary <- tcplhit2_core(params, conc, resp, cutoff,
+                           onesd, bmr_scale, bmed, conthits, aicc,
+                           identifiers,bmd_low_bnd, bmd_up_bnd,
+                           poly2.biphasic = poly2.biphasic)
   if (AUC) {
     summary["AUC"] <- post_hit_AUC(summary)
   }
-
   if (return.details) {
     return(list(summary = summary, all.models = params))
   } else {

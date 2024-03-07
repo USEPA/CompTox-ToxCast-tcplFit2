@@ -4,7 +4,19 @@
 \alias{bmdobj}
 \title{BMD Objective Function}
 \usage{
-bmdobj(bmd, fname, bmr, conc, resp, ps, mll, onesp, partype = 2)
+bmdobj(
+  bmd,
+  fname,
+  bmr,
+  conc,
+  resp,
+  ps,
+  mll,
+  onesp,
+  partype = 2,
+  poly2.biphasic = TRUE,
+  x_v
+)
 }
 \arguments{
 \item{bmd}{Benchmark dose.}
@@ -29,6 +41,13 @@ Type 2 is x-scaling: b or ga, when available, a otherwise. Type 3 is
 power scaling: p when available, then b or ga, then a if no others.
 Since bmd is linked to the x-scale, type 2 should always be used. Other
 types can also be vulnerable to underflow/overflow.}
+
+\item{poly2.biphasic}{If poly2.biphasic = TRUE, constraints are set to allow
+for the polynomial 2 model fit to be bi-phasic (i.e. non-monotonic).}
+
+\item{x_v}{The vertex of the quadratic/parabolic fit.
+Only in use when estimating the BMDL and BMDU values for the "poly2" model
+when poly2.biphasic = TRUE. No default is set.}
 }
 \value{
 Objective function value to find the zero of.

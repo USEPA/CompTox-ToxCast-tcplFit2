@@ -2,22 +2,25 @@
 % Please edit documentation in R/post_hit_AUC.R
 \name{post_hit_AUC}
 \alias{post_hit_AUC}
-\title{Calculate AUC After Hit-calling}
+\title{Calculate Area Under the Curve After Hit-calling}
 \usage{
-post_hit_AUC(hit_results)
+post_hit_AUC(hit_results, ...)
 }
 \arguments{
-\item{hit_results}{output from tcplhit2_core}
+\item{hit_results}{output from `tcplhit2_core`}
 }
 \value{
-AUC value of the winning model
+AUC value of the winning model (numeric)
 }
 \description{
-Function that calculates AUC for dose-response curves after hit-calling
+Function that calculates the area under the curve (AUC) after hit-calling.
 }
 \details{
-This function calculates AUC value for the winning model selected after
-hit-calling.
+This function calculates the area under the curve (AUC) for the winning model
+selected during hit-calling. Wrapper function for `get_AUC`.
+Designed to take the one-row output from `tcplhit2_core`, parse the model
+details, and pass these values to `get_AUC` to estimate the AUC for the
+winning model.
 }
 \examples{
 
@@ -28,4 +31,7 @@ output <- tcplhit2_core(params, conc, resp, 0.8, 0.5)
 post_hit_AUC(output)
 
 
+}
+\seealso{
+get_AUC
 }

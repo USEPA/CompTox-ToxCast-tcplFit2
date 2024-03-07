@@ -4,7 +4,14 @@
 \alias{fitexp2}
 \title{Exponential 2 Model Fit}
 \usage{
-fitexp2(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE)
+fitexp2(
+  conc,
+  resp,
+  bidirectional = TRUE,
+  verbose = FALSE,
+  nofit = FALSE,
+  errfun = "dt4"
+)
 }
 \arguments{
 \item{conc}{Vector of concentration values NOT in log units.}
@@ -17,6 +24,10 @@ will be positive only.}
 \item{verbose}{If TRUE, gives optimization and hessian inversion details.}
 
 \item{nofit}{If nofit = TRUE, returns formatted output filled with missing values.}
+
+\item{errfun}{Which error distribution to assume for each point, defaults to
+"dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+supported distribution is "dnorm", the normal distribution.}
 }
 \value{
 Named list containing: success, aic (Akaike Information Criteria),

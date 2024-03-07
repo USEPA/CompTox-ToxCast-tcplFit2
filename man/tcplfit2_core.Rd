@@ -14,6 +14,8 @@ tcplfit2_core(
   do.plot = FALSE,
   fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4",
     "exp5"),
+  poly2.biphasic = TRUE,
+  errfun = "dt4",
   ...
 )
 }
@@ -36,12 +38,20 @@ force.fit = FALSE, will only fit constant model.}
 \item{fitmodels}{Vector of model names to try fitting. Missing models still
 return a skeleton output filled with NAs.}
 
+\item{poly2.biphasic}{If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)}
+
+\item{errfun}{Which error distribution to assume for each point, defaults to
+"dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+supported distribution is "dnorm", the normal distribution.}
+
 \item{...}{Other fitting parameters (deprecated).}
 }
 \value{
 List of N(models) elements, one for each of the models run (up to 10),
-followed by a last element "modelnames", which is a  vector of model names so
-other functions can easily cycle through the output. For a full list, see the
+followed by a element "modelnames", which is a vector of model names so
+other functions can easily cycle through the output, and then the last element
+"errfun", which indicates what distribution was used for error. For a full list, see the
 documentation for the individual fitting method functions. For each model there
 is a sublist with elements including:
   \itemize{

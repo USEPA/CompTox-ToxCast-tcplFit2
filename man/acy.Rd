@@ -11,6 +11,7 @@ acy(
   returntop = FALSE,
   returntoploc = FALSE,
   getloss = FALSE,
+  poly2.biphasic = TRUE,
   verbose = FALSE
 )
 }
@@ -35,6 +36,9 @@ NA is returned.}
 
 \item{getloss}{When TRUE, returns value on loss side of curve for gnls.
 Has no effect for other models.}
+
+\item{poly2.biphasic}{If poly2.biphasic = TRUE, constraints are set to allow
+for the polynomial 2 model fit to be bi-phasic (i.e. non-monotonic).}
 
 \item{verbose}{When TRUE, shows warnings.}
 }

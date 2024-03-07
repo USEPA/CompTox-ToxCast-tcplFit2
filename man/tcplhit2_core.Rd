@@ -16,7 +16,8 @@ tcplhit2_core(
   aicc = FALSE,
   identifiers = NULL,
   bmd_low_bnd = NULL,
-  bmd_up_bnd = NULL
+  bmd_up_bnd = NULL,
+  poly2.biphasic = TRUE
 )
 }
 \arguments{
@@ -45,11 +46,20 @@ such as the chemical name or other identifiers, and any assay identifiers. The c
 identify the type of value. This can be NULL. The values will be included in the output
 summary data frame}
 
-\item{bmd_low_bnd}{Multiplier for bmd lower bound.  A value of .1 would require the bmd to be no lower
-than 1/10th of the lowest concentration tested.}
+\item{bmd_low_bnd}{Multiplier for bmd lower bound, must be between 0 and 1
+(excluding 0). A value of 0.1 would require the bmd is no lower than a
+of 1/10th of the lowest tested concentration (i.e. lower threshold).
+If the bmd is less than the threshold, the bmd and its confidence
+interval will be censored and shifted right.}
 
-\item{bmd_up_bnd}{Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
-than 10 times the highest concentration tested.}
+\item{bmd_up_bnd}{Multiplier for the bmd upper bound, must be greater than
+or equal to 1. A value of 10 would require the bmd is no larger than 10
+times the highest tested concentration (i.e. upper threshold). If the bmd
+is greater than the threshold, the bmd and its confidence interval will be
+censored and shifted left.}
+
+\item{poly2.biphasic}{If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)}
 }
 \value{
 A list of with the detailed results from all of the different model fits.

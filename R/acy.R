@@ -25,6 +25,8 @@
 #'   NA is returned.
 #' @param getloss When TRUE, returns value on loss side of curve for gnls.
 #'   Has no effect for other models.
+#' @param poly2.biphasic If poly2.biphasic = TRUE, constraints are set to allow
+#'   for the polynomial 2 model fit to be bi-phasic (i.e. non-monotonic).
 #' @param verbose When TRUE, shows warnings.
 #'
 #' @return Ouputs concentration at activity y, or gnls top or top concentration,
@@ -42,7 +44,7 @@
 #' acy(1, list(ga = .1, tp = 2, p = 3, q = 3,la = 10), type = "gnls", returntop = TRUE)
 #' acy(1, list(ga = .1, tp = 2, p = 3, q = 3,la = 10), type = "gnls", returntoploc = TRUE)
 #'
-acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FALSE, getloss =FALSE, verbose = FALSE) {
+acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FALSE, getloss =FALSE, poly2.biphasic = TRUE,verbose = FALSE) {
   #variable binding to pass cmd checks
   a <- b <- tp <- ga <- p <- q <- la <- success <- top <- NULL
   #Put model parameters in environment: a,b,tp,ga,p,q,la,er
@@ -72,8 +74,15 @@ acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FAL
   #Invert most models analytically, gnls numerically.
   if(type == "poly1"){
     return(y/a)
-  } else if(type == "poly2"){
-    return( b*(-1 + sqrt(1 + 4*y/a))/2)
+  } else if(type == "poly2" & poly2.biphasic){
+    est <- c(
+      b/2*(-1 - sqrt(1+4*y/a)),
+      b/2*(-1 + sqrt(1+4*y/a))
+    )
+    if(all(is.na(est))){est <- NA}else{est <- min(est[which(est>=0)])}
+    return(est)
+  } else if(type == "poly2" & !poly2.biphasic){
+    return( b/2*(-1 + sqrt(1 + 4*y/a)))
   } else if(type == "pow"){
     return((y/a)^(1/p))
   } else if(type == "exp2"){

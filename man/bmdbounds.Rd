@@ -12,7 +12,9 @@ bmdbounds(
   resp,
   onesidedp = 0.05,
   bmd = NULL,
-  which.bound = "lower"
+  which.bound = "lower",
+  poly2.biphasic = TRUE,
+  x_v
 )
 }
 \arguments{
@@ -36,6 +38,13 @@ unnecessary calculation.}
 
 \item{which.bound}{Returns BMDU if which.bound = "upper"; returns BMDL if
 which.bound = "lower".}
+
+\item{poly2.biphasic}{If poly2.biphasic = TRUE, constraints are set to allow
+for the polynomial 2 model fit to be bi-phasic (i.e. non-monotonic).}
+
+\item{x_v}{The vertex of the quadratic/parabolic fit.
+Only in use when estimating the BMDL and BMDU values for the "poly2" model
+when poly2.biphasic = TRUE. No default is set.}
 }
 \value{
 Returns either the BMDU or BMDL.
