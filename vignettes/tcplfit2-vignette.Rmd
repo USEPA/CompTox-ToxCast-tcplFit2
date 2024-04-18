@@ -226,7 +226,7 @@ To run standalone `tcplfit2` fitting without the need for a MySQL database conne
  
 The first step is to establish the concentration index. This is consider level-1 in `tcpl`. The concentration indices are integer values ranking N distinct concentrations from 1, for being the lowest, to N, the highest. This index can be used to calculate the baseline median absolute deviation for an assay.
 
-```{r example4_cndx, fig.height = 6, fig.width = 7}
+```{r example4_cndx, fig.height = 6, fig.width = 7, warning=FALSE}
 library(tcpl)
 # Order by the following columns
 setkeyv(dat, c('acid', 'srcf', 'apid', 'coli', 'rowi', 'spid', 'conc'))
@@ -257,6 +257,10 @@ dat[, rpid := paste0(rpid,"_rep",dat_rpid)]
 indexfunc <- function(x) as.integer(rank(unique(x))[match(x, unique(x))])
 dat[ , cndx := indexfunc(conc), by = list(rpid)]
 ```
+```{r, echo=FALSE}
+tcplConf(user="_dataminer", pass="pass", db="invitrodb", drvr="MySQL", host="ccte-mysql-res.epa.gov")
+```
+
 
 ### Adjustments
 Next is to do data adjustment. This is consider level-2 in `tcpl`. Generally if the response values (`rval`) need to be logged or transformed in some way from their original values this is where that adjustment would occur. Transformed response values are referred to as corrected values and are stored in the `cval` field/variable. However, in this case, the corrected values (`cval`) are identical to the original response values (`rval`). Meanwhile, data with poor well quality (`wllq = 0`) and missing response values are removed.
@@ -275,11 +279,11 @@ dat <- dat[!is.na(cval),]
 ### Normalization
 The data need to be normalized and zero-centered before model fitting.
 
-Since neutral control and negative control are available in the example data, this example will show to normalize responses to a control. Calculate the normalized response (`resp`) as a percent of control, i.e. the ratio of the difference between the corrected (`cval`) and baseline (`bval`) values divided the difference between the positive/negative control (`pval`) and baseline (`bval`).
+Since neutral control and negative control are available in the example data, this example will show how to normalize responses to a control. The normalized response (`resp`) is calculated as a percent of control, i.e. the ratio of the difference between the corrected (`cval`) and baseline (`bval`) values divided the difference between the positive/negative control (`pval`) and baseline (`bval`).
 
-The baseline values are calculated as the medians of all data in neutral control wells by plate and, in this example, the negative control is calculated as the plate-wise minimum, by assay plate ID (`apid`), of the medians of corrected value (`cval`) of negative control wells.
+The baseline (`bval`) values are calculated as the medians of all data in neutral control wells by plate and, in this example, the negative control (`pval`) value is calculated as the plate-wise minimum, by assay plate ID (`apid`), of the medians of corrected value (`cval`) of negative control wells.
 
-If positive/negative control is not available, `pval` is assumed 0. In cases where neutral control is not available, the baseline value (`bval`) can be calculated as the median of the test well responses from the two lowest concentration (concentration index is 1 or 2), and calculate the normalized response as the ratio of the difference between the corrected (`cval`) and baseline (`bval`) values divided the baseline (`bval`).
+`tcplfit2` assumes no effect is happening in the two lowest concentrations. With this assumption, in cases where neutral control is not available, the baseline value (`bval`) can be calculated as the median of the test well responses where concentration index is 1 or 2. The normalized responses can be calculated as the ratio of the difference between the corrected (`cval`) and baseline (`bval`) values divided the baseline (`bval`).
 
 ```{r example4_mthdlist, fig.height = 6, fig.width = 7, warning = FALSE}
 ## Check out all level-3 methods for normalization in tcpl
@@ -297,17 +301,17 @@ dat[, pval := min(pval, na.rm = TRUE), by = list(apid)]
 dat[, resp := ((cval - bval)/(pval - bval) * 100)]
 ```
 
-Before model fitting, we need to determine the median absolute deviation (BMAD) around baseline and one standard deviation (onesd) of the noise around the baseline, which will later be used for cutoff and benchmark response (BMR) calculations. This is consider part of level-4 in `tcpl`. Here we calculate BMAD and onesd as the median absolute deviation and standard deviation of the data from the two lowest concentrations of the test wells.
+Before model fitting, we need to determine the median absolute deviation (`BMAD`) around baseline and one standard deviation (`onesd`) of the noise around the baseline, which will later be used for cutoff and benchmark response (`BMR`) calculations. This is consider part of level-4 in `tcpl`. Here we calculate `BMAD` and `onesd` as the median absolute deviation and standard deviation of the data from the two lowest concentrations of the test wells.
 
-BMD can be calculated as the median absolute deviation of the data in control wells too. Check out
-other methods of determining BMAD and onesd used in `tcpl`.
+`BMD` can be calculated as the median absolute deviation of the data in control wells too. Check out
+other methods of determining `BMAD` and `onesd` used in `tcpl`.
 
 ```{r example4_mthdlist_l4, fig.height = 6, fig.width = 7}
 # Check out all level-4 methods for normalization in tcpl
 DT::datatable(tcpl::tcplMthdList(4), rownames= FALSE, options = list(scrollX = T))
 ```
 
-BMAD and onesd should be calculated on the assay level. The example data set only contains one assay compound, so only need to calcuate once.
+`BMAD` and `onesd` should be calculated on the assay level. The example data set only contains one assay compound, so here we only need to calculate once.
 
 ```{r}
 bmad <- mad(dat[cndx %in% c(1, 2) & wllt == "t", resp])
