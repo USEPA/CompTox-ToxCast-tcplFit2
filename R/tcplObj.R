@@ -243,6 +243,23 @@ poly2 = function(ps,x){
   return(ps[1]*(x0 + x0*x0))
 }
 
+#' Polynomial 2 Model (BMDS)
+#'
+#' \eqn{f(x) = b1*x + b2*x^{2}}
+#'
+#' @param ps Vector of parameters: b1,b2,er
+#' @param x Vector of concentrations (regular units)
+#'
+#' @return Vector of model responses
+#' @export
+#' @examples
+#' poly2bmds(c(1,2),1)
+#'
+poly2bmds = function(ps,x){
+  #b1 = ps[1], b2 = ps[2]
+  return(ps[1]*x + ps[2]*(x)^2)
+}
+
 #' Power Model
 #'
 #' \eqn{f(x) = a*x^p}

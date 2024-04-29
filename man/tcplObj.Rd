@@ -17,9 +17,9 @@ regular units otherwise.}
 
 \item{fname}{Name of model function.}
 
-\item{errfun}{Which error distribution to assume for each point. "dt4" is the
-original 4 degrees of freedom t-distribution. "dnorm" is the normal
-distribution.}
+\item{errfun}{Which error distribution to assume for each point, defaults to
+"dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+supported distribution is "dnorm", the normal distribution.}
 
 \item{err}{An optional estimation of error for the given fit.}
 }

@@ -4,7 +4,7 @@
 \alias{fitcnst}
 \title{Constant Model Fit}
 \usage{
-fitcnst(conc, resp, nofit = FALSE, ...)
+fitcnst(conc, resp, nofit = FALSE, errfun = "dt4", ...)
 }
 \arguments{
 \item{conc}{Vector of concentration values NOT in log units.}
@@ -12,6 +12,10 @@ fitcnst(conc, resp, nofit = FALSE, ...)
 \item{resp}{Vector of corresponding responses.}
 
 \item{nofit}{If nofit = TRUE, returns formatted output filled with missing values.}
+
+\item{errfun}{Which error distribution to assume for each point, defaults to
+"dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+supported distribution is "dnorm", the normal distribution.}
 
 \item{...}{Space for parameters so fitcnst can be called similar to other fitting functions (currently unused)}
 }

@@ -4,7 +4,7 @@
 \alias{toplikelihood}
 \title{Top Likelihood}
 \usage{
-toplikelihood(fname, cutoff, conc, resp, ps, top, mll)
+toplikelihood(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4")
 }
 \arguments{
 \item{fname}{Model function name (equal to model name except hill which
@@ -21,6 +21,10 @@ uses "hillfn")}
 \item{top}{Model top.}
 
 \item{mll}{Winning model maximum log-likelihood.}
+
+\item{errfun}{Which error distribution to assume for each point, defaults to
+"dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+supported distribution is "dnorm", the normal distribution.}
 }
 \value{
 Probability of top being above cutoff.
