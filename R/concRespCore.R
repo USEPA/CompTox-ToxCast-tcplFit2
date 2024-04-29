@@ -39,6 +39,9 @@
 #' @param poly2.biphasic If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 #'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
 #' @param AUC If TRUE, generate and return Area under the curve (AUC) for the winning model after hit-calling. Defaults to FALSE.
+#' @param use.log.auc Logical argument, defaults to FALSE. By default, estimates AUC with
+#' concentrations in normal unit. If set to TRUE, will use concentration in log10-scale for
+#' estimating AUC.
 #'
 #'
 #' @export
@@ -72,7 +75,8 @@ concRespCore <- function(row,
                          bmd_low_bnd = NULL,
                          bmd_up_bnd = NULL,
                          poly2.biphasic = TRUE,
-                         AUC = FALSE, ...) {
+                         AUC = FALSE,
+                         use.log.auc = FALSE) {
   # variable binding to pass cmd checks
   bmed <- cutoff <- onesd <- NULL
   # row needs to include cutoff and bmed
@@ -100,7 +104,7 @@ concRespCore <- function(row,
                            identifiers,bmd_low_bnd, bmd_up_bnd,
                            poly2.biphasic = poly2.biphasic)
   if (AUC) {
-    summary["AUC"] <- post_hit_AUC(summary, ...)
+    summary["AUC"] <- post_hit_AUC(summary, use.log = use.log.auc)
   }
   if (return.details) {
     return(list(summary = summary, all.models = params))
