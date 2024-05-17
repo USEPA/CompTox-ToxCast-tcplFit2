@@ -44,83 +44,96 @@ library(gridExtra)
 
 The package `tcplfit2` contains the core concentration-response functionality of the package `tcpl` (The ToxCast Pipeline) built to process all of the ToxCast high-throughput screen (HTS) data at the US EPA. Much of the rest of the code in `tcpl` is used to do data processing, normalization, and database storage. We wanted to reuse the core concentration-response code for other projects, and add extensions to it, which was the origin of the current package `tcplfit2`. The main set of extensions was to include all of the concentration-response models that are contained in the program [BMDExpress](https://www.sciome.com/bmdexpress/). These include exponential, polynomial (1 & 2), and power functions in addition to the original Hill, gain-loss and constant models. Additionally, we wanted to include BMD (Benchmark Dose Modeling) outputs, which is simply defining a Benchmark Response (BMR) level and setting the BMD to the concentration where the curve crosses the BMR level. One final addition was to let the hitcall value be a continuous number ranging from 0 to 1. Continuous hitcall in `tcplfit2` are defined as the product of three proportional weights: 1) the AIC of the winning model is better than the constant model (i.e. winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff, and 3) the top from the winning model exceeds the cutoff. This vignette describes some functionality of the `tcplfit2` package with a few simple examples.
 
-## Example 1: Running a single concentration-response calculation
+## Example 1: Concentration-response modeling on a single response with `concRespCore` {#ex1}
 
-`concRespCore` is the main wrapper function that utilizes two other utility functions, `tcplfit2_core` and `tcplhit2_core`, to perform curve-fitting, hit-calling and potency estimate calculations. This example will show the use of `concRespCore` and next section will show the use of `tcplfit2_core` and `tcplhit2_core` separately. The first argument to the `concRespCore` function is a named list called 'row' which should contains the following key inputs:
+`concRespCore` is the main wrapper function utilizing two other utility functions, `tcplfit2_core` and `tcplhit2_core`, to perform curve-fitting, hit-calling and potency estimation. This example shows how to use the `concRespCore` function, refer to [Example 2](#ex2) to see how `tcplfit2_core` and `tcplhit2_core` may be used separately. The first argument for `concRespCore` is a named list called 'row' containing the following inputs:
 
--   `conc` - a vector of concentrations (not log concentrations).
--   `resp` - a vector of responses, of the same length as `conc`. Note that replicates are allowed, i.e. there can be multiple pairs of `conc` and `resp` with the same concentration value.
--   `cutoff`- this is the value that the response must exceed before a a curve can be called a hit. For ToxCast, this is usually some multiple (typically 3) of the median absolute deviation (BMAD) around baseline for the lowest two concentration. The user is free to make other choices.
--   `bmed` - this is the median of the baseline. The entire response series will be shifted by this amount. Set to zero if the data is zero-centered.\
--   `onesd`- This is one standard deviation of the noise around the baseline. The BMR value = `onesd`\*`bmr_scale`. The default `bmr_scale` is 1.349.
+-   `conc` - a numeric vector of concentrations (not log concentrations).
+-   `resp` - a numeric vector of responses, of the same length as `conc`. Note that replicates are allowed, i.e. there may be multiple response values (`resp`) for one concentration dose group.  These should be input as pairs of `conc` and `resp` values.
+-   `cutoff`- a single numeric value indicating the response at which a relevant level of biological activity occurs. This value is typically used to determine if a curve is classified as a "hit". In ToxCast, this is usually some multiple (typically 3) of the median absolute deviation around the baseline (BMAD), where the baseline is defined as the two lowest concentrations. However, users are free to make other choices more appropriate for their given assay and data.
+-   `bmed` - a single numeric value giving the baseline median response. If set to zero then the data is already zero-centered.  Otherwise, this value is used to zero-center the data by shifting the entire response series by the specified amount.\
+-   `onesd`- a single numeric value giving one standard deviation around the baseline. This value is used to calculate the benchmark response (BMR), where $BMR = \frac{\text{`onesd`}}{\text{bmr_scale}}$. The `bmr_scale` defaults to 1.349.
 
-The `row` object can have other optional elements which will be included in the function output. These can be, for instance, the name of the chemical (or other identifiers) or the name of the assay being modeled. These are couple other parameters might be used:
+The `row` object may include other elements which provide annotation which will be included as part of the `concRespCore` function output -- for example, chemical names (or other identifiers), assay name, name of the response being modeled, etc.
+
+A user may also need to include other arguments in the `concRespCore` function, which internally control the execution of curve-fitting, hit-calling, and potency estimation:
 
 -   `conthits` - Boolean argument. If TRUE (the default, and recommended usage), the hitcall returned will be a continuous value between 0 and 1.
 -   `errfun` - Allows user to specify the distribution of errors. The default is "dt4", models are fitted assuming the errors follow a Student's t-distribution with a degree of freedom of 4. Can assume normal distributed errors by changing it to "dnorm".
 -   `poly2.biphasic` - If TRUE (the default, and recommended usage), the polynomial 2 model will attempt fit a biphasic curve to the response (i.e. increase then decrease or vice versa). Can force monotonic fitting with FALSE (parabola with the vertex centers at 0).
 -   `do.plot` - If this is set to TRUE (default is FALSE), a plot of all fitted curves will be generated. This plotting functionality is outdated by another plotting function in this package, `plot_allcurves`. More on this can be found in the [Appendix](#appendix) and the plotting vignette.
+-   `fitmodels` - a character vector indicating which models to fit the concentration-response data with. If the `fitmodels` parameter is specified, the constant model (`cnst`) model must be included since it is used for comparison in the hitcalling process. However, all other models may be omitted by the user, for example the gain-loss (`gnls`) model is excluded in some applications.
 
-If the `fitmodels` parameter is specified, then it must always include the constant model (`cnst`) since this provides one basis for comparison during hitcalling. However, some models may be excluded, for example the gain-loss (`gnls`) model is excluded in some applications.
+For a full list of potential arguments we refer readers to the function documentation (`?concRespCore`).
 
-To run a simple example, use the following code ...
+The following code provides a simple example for setting up the input and executing the modeling with `concRespCore`.
 
 ```{r example1, warning=FALSE}
+# tested concentrations
   conc <- list(.03,.1,.3,1,3,10,30,100)
+# observed responses at respective concentrations
   resp <- list(0,.2,.1,.4,.7,.9,.6, 1.2)
+# row object with relevant parameters
   row = list(conc = conc, resp = resp, bmed = 0, cutoff = 1, onesd = .5,name="some chemical")
-  res <- concRespCore(row,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3",
-                                        "exp4", "exp5"),conthits = T)
+# execute concentration-response modeling through potency estimation
+  res <- concRespCore(row,
+                      fitmodels = c("cnst", "hill", "gnls",
+                                    "poly1", "poly2", "pow", "exp2", "exp3",
+                                        "exp4", "exp5"),
+                      conthits = T)
 ```
 
-The output of this run will be a data frame with one row, summarizing the results for the winning model.
+The output of this run will be a data frame, with one row, summarizing the results for the winning model.
 
 ```{r example1 result, warning=FALSE, echo=FALSE}
 DT::datatable(res,rownames = FALSE,options = list(scrollX = T))
 ```
 
-The output can be passed into `concRespPlot2` to get a plot of the winning curve. This function returns a basic `ggplot`, and the intention is to take the advantage of the flexibility and allow users to add their own customized layers of detail. For more refer to the plotting vignette.
+One can plot winning curve by passing the output (`res`) to the function `concRespPlot2`. This function returns a basic `ggplot` object, which is meant to leverage the flexibility and modularity of `ggplot2` object to allow users the ability to customize the plot by adding layers of detail. For more information on customizing plotts we refer users to the plotting vignette.
 
 ```{r example1 plot, fig.height = 4.55, fig.width = 8}
 # plot the winning curve from example 1, add a title
-concRespPlot2(res, log_conc = TRUE) + ggtitle("Example 1 some chemical")
+concRespPlot2(res, log_conc = TRUE) + ggtitle("Example 1: Chemical A")
 ```
 
-**Figure 1:** This figure shows the winning curve for a single concentration-responses calculation. The concentrations (x-axis) are in $log_{10}$ units.
+**Figure 1:** The winning model fit for a single concentration-response series. The concentrations (x-axis) are in $log_{10}$ units.
 
-## Example 2: Running a series of concentration-response models for a single assay
+## Example 2: Concentration-response modeling for a set of responses in a single assay with `tcplfit2_core` and `tcplhit2_core` {#ex2}
 
-This example shows fitting a series of concentration-response models for a single assay using `tcplifit2_core` and `tcplhit2_core` sequentially. Using them sequentially allows the users to exam the output from `tcplifit2_core` which contain all model fits for a response. The output from `tcplifit2_core` can be passed into `plot_allcurves` to plot all curves fitted for a chemical.
+This example shows fitting a series of concentration-response series in a single assay using the `tcplifit2_core` and `tcplhit2_core` functions sequentially. Using the functions sequentially allows users greater flexibility to exam the intermediate output. For example, the output from `tcplifit2_core` contains model parameters for all model fit to concentration-response series provided. Furthermore, `tcplifit2_core` results may be passed to `plot_allcurves` to generate a comparative plot of all curves fit to a concentration-response series.
 
-The input data for this example is taken from one of the Tox21 HTS assays, for estrogen receptor (ER) agonist activity. The data is from the mc3 table in the database `invitrodb`, which is the back end for `tcpl`. The input data for this example have already been through the pre-processing steps (prior to `tcpl`), and processed through several steps in the ToxCast pipeline (including normalization of concentration data and transformation of response values - Levels 0 - 3). This example will run 6 chemicals out of the 100 that are included in the data set, and will create plots for these.
+Here, we use data from one of the Tox21 high-throughput screening (HTS) assays, for estrogen receptor (ER) agonist activity. The data is from the `mc3` table in the database `invitrodb`, where data processed by the ToxCast pipeline (`tcpl`) is stored. Data in this example have already undergone the pre-processing steps (prior to `tcpl`), and processed through to level-3 (including concentration normalization and transformation of response values - Levels 0 - 3). Here, we run 6 out of 100 available samples included in the `mc3` data set and generate a plot for each concentration-response series.
 
-To run this example, use the following code ...
+The following code demonstrates how to set up the input data and execute curve-fitting and hitcalling with the `tcplfit2_core` and `tcplhit2_core` functions.
 
 ```{r example2, warning=FALSE}
-  # read in the data
-  # Loading in the level 3 example data set from invitrodb
+# read in the data
+# Loading in the level 3 example data set from invitrodb
   data("mc3")
 
-  # determine the background variation
+# determine the background variation
   temp <- mc3[mc3$logc<= -2,"resp"]
   bmad <- mad(temp)
   onesd <- sd(temp)
   cutoff <- 3*bmad
 
-  # select six samples. Note that there may be more than one sample processed for a given chemical
+# select six samples. Note that there may be more than one sample processed for a given chemical
   spid.list <- unique(mc3$spid)
   spid.list <- spid.list[1:6]
   
-  # create empty objects to store results and plots
+# create empty objects to store results and plots
   model_fits <- NULL
   result_table <- NULL
   plt_lst <- NULL
+
+# loop over the samples to perform concentration-response modeling & hitcalling
   for(spid in spid.list) {
     # select the data for just this sample
     temp <- mc3[is.element(mc3$spid,spid),]
 
-    # The data file has stored concentration in log10 form, so fix that
+    # The data file stores concentrations in log10 units, so back-transform
     conc <- 10**temp$logc
+    # Save the response values
     resp <- temp$resp
 
     # pull out all of the chemical identifiers and the name of the assay
@@ -129,6 +142,7 @@ To run this example, use the following code ...
     name <- temp[1,"name"]
     assay <- temp[1,"assay"]
     
+    # Execute curve-fitting
     # Input concentrations and response, cutoff, and a list of models
     model_fits[[spid]] <- tcplfit2_core(conc, resp, cutoff, force.fit = TRUE, 
                                         fitmodels = c("cnst", "hill", "gnls", 
@@ -139,27 +153,27 @@ To run this example, use the following code ...
     plt_lst[[spid]] <- plot_allcurves(model_fits[[spid]], 
                                       conc = conc, resp = resp, log_conc = TRUE)
     
-    # Pass the output from tcplfit2_core into tcplhit2_core along with cutoff, onesd,
-    # and any identifiers
+    # Pass the output from 'tcplfit2_core' to 'tcplhit2_core' along with
+    # cutoff, onesd, and any identifiers
     out <- tcplhit2_core(model_fits[[spid]], conc, resp, bmed = 0,
                          cutoff = cutoff, onesd = onesd, 
                          identifiers = c(dtxsid = dtxsid, casrn = casrn, 
                                          name = name, assay = assay))
-    # store all result in one table
+    # store all results in one table
     result_table <- rbind(result_table,out)
   }
 
 ```
 
-Show all the plots generated in the loop:
+Display all the plots generated in the loop:
 
 ```{r example2 plot1, fig.height = 8, fig.width = 7}
 grid.arrange(grobs=plt_lst,ncol=2)
 ```
 
-**Figure 2:** These figures are example plots generated using the `plot_allcurves` function. Each plot depicts all the concentration-response model fits to an example chemical. In the plots, each model is represented with a different color and the concentrations (x-axis) are in `log10` units.
+**Figure 2:** Example plots generated from `plot_allcurves`. Each plot depicts all model fits for a given sample. In the plots, each model is represented with a different color and line type, and the concentrations (x-axis) are in $log_{10}$ units.
 
-One would typically save the result rows in a data frame and export these for further analysis, as shown in the loop. One could also use `concRespPlot2` to plot selected rows/results (e.g. those with significant responses) like how it was demonstrated in Example 1.
+One would typically save the result rows in a data frame and export these for further analysis, as shown in the loop above. One can also use `concRespPlot2` to plot selected rows/results (e.g. those with significant responses) similar to what is shown in [Example 1](#ex1).
 
 ```{r example2 result, warning=FALSE, echo=FALSE}
 DT::datatable(result_table,rownames = FALSE,options = list(scrollX = T))
@@ -171,9 +185,9 @@ concRespPlot2(result_table[1,],log_conc = TRUE) +
   ggtitle(paste(result_table[1,"dtxsid"], result_table[1,"name"]))
 ```
 
-**Figure 3:** This figure depicts the concentration-response data and the winning curve for Bisphenol A.
+**Figure 3:** Concentration-response data and the winning curve for Bisphenol A using the `concRespPlot2` function. The concentrations (x-axis) are in $log_{10}$ units.
 
-## Example 3: Running tcpl-like multi-concentration response data without a database connection
+## Example 3: Running tcpl-like multi-concentration response data without a database connection {#ex3}
 
 The ToxCast pipeline `tcpl` is an R package that manages, curve-fits, plots, and stores ToxCast data to populate its linked MySQL database, InvitroDB. The original `tcplFit()` function within `tcpl` performed basic concentration response curve fitting. Processing with tcpl_v3 and beyond depends on `tcplfit2` to allow a wider variety of concentration-response models when using `invitrodb` in the 4.0 schema and beyond. `tcplLite` was deprecated with the updates to `tcpl` and development of `tcplfit2`, since `tcplfit2` allows one to perform curve-fitting and hit-calling independent of a database. The example below demonstrates how to perform an analogous `tcplLite` analysis with `tcplfit2`. For additional information, please consult the [Data Processing vignette](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html) for `library(tcpl)`.
 
