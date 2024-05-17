@@ -100,7 +100,7 @@ concRespPlot2(res, log_conc = TRUE) + ggtitle("Example 1: Chemical A")
 
 ## Example 2: Concentration-response modeling for a set of responses in a single assay with `tcplfit2_core` and `tcplhit2_core` {#ex2}
 
-This example shows fitting a series of concentration-response series in a single assay using the `tcplifit2_core` and `tcplhit2_core` functions sequentially. Using the functions sequentially allows users greater flexibility to exam the intermediate output. For example, the output from `tcplifit2_core` contains model parameters for all model fit to concentration-response series provided. Furthermore, `tcplifit2_core` results may be passed to `plot_allcurves` to generate a comparative plot of all curves fit to a concentration-response series.
+This example shows fitting a series of concentration-response series in a single assay using the `tcplifit2_core` and `tcplhit2_core` functions sequentially. Using the functions sequentially allows users greater flexibility to examine the intermediate output. For example, the output from `tcplifit2_core` contains model parameters for all model fit to concentration-response series provided. Furthermore, `tcplifit2_core` results may be passed to `plot_allcurves` to generate a comparative plot of all curves fit to a concentration-response series.
 
 Here, we use data from one of the Tox21 high-throughput screening (HTS) assays, for estrogen receptor (ER) agonist activity. The data is from the `mc3` table in the database `invitrodb`, where data processed by the ToxCast pipeline (`tcpl`) is stored. Data in this example have already undergone the pre-processing steps (prior to `tcpl`), and processed through to level-3 (including concentration normalization and transformation of response values - Levels 0 - 3). Here, we run 6 out of 100 available samples included in the `mc3` data set and generate a plot for each concentration-response series.
 
@@ -163,6 +163,18 @@ The following code demonstrates how to set up the input data and execute curve-f
     result_table <- rbind(result_table,out)
   }
 
+```
+
+The output from `tcplifit2_core` is a list that contains: nested lists named by the models, `modelnames` which is vector of the fitted model names, and `errfun` which tracks what distribution was assumed for errors. Each nested list contains details of the fitted model in its name. 
+```{r example 2 fit results}
+# shows the structure of the output object from tcplifit2_core
+summary(model_fits[[1]])
+```
+Look into what is inside the "hill" list for example: 
+`success`, an indicator which 1 indicates the fit was successful; `COV`, an indicator which 1 indicates the inverted hessian was successfully found; fitted parameter values and parameter standard deviations; `modl` which are the model fitted values; AIC, root mean square error (RME), top and AC50. 
+All of these details are provided for other models too except for the constant model. For constant model, only the `success`, AIC, RME and fitted `er` value will be provided. 
+```{r}
+summary(model_fits[[1]][["hill"]])
 ```
 
 Display all the plots generated in the loop:
