@@ -9,6 +9,7 @@
 #' winning model.
 #'
 #' @param hit_results output from `tcplhit2_core`.
+#' @param return.abs Logical argument, if TRUE, returns the absolute value of the AUC. Defaults to FALSE.
 #' @param use.log Logical argument, defaults to FALSE. By default, the function estimates AUC with
 #' concentrations in normal unit. If set to TRUE, will use concentration in log10-scale for
 #' estimating AUC.
@@ -29,7 +30,7 @@
 #' post_hit_AUC(output)
 #'
 #'
-post_hit_AUC <- function(hit_results, use.log = FALSE) {
+post_hit_AUC <- function(hit_results, return.abs = FALSE, use.log = FALSE) {
 
   # parameter list
   param <- c("a","tp","b","ga","p", "la", "q", "er")
@@ -41,7 +42,9 @@ post_hit_AUC <- function(hit_results, use.log = FALSE) {
   modpars <- modpars[!is.na(modpars)]
   # get the winning model name
   fit_method <- hit_results[["fit_method"]]
-  out <- get_AUC(fit_method, min(conc), max(conc), ps = modpars, use.log = use.log)
+  out <- get_AUC(fit_method, min(conc), max(conc), ps = modpars,
+                 return.abs = return.abs,
+                 use.log = use.log)
 
   # return AUC
   return(out)

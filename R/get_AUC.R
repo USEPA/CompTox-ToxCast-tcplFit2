@@ -17,8 +17,7 @@
 #' @param lower Lower concentration bound, usually is the lowest concentration in the data.
 #' @param upper Upper concentration bound, usually is the highest concentration in the data.
 #' @param ps Numeric vector (or list) of model parameters for the specified model in `fit_method`.
-#' @param return.abs Logical argument, defaults to FALSE.
-#' If set to TRUE, the function will convert the negative AUC value and return a positive AUC.
+#' @param return.abs Logical argument, if TRUE, returns the absolute value of the AUC. Defaults to FALSE.
 #' @param use.log Logical argument, defaults to FALSE. By default, the function estimates AUC with
 #' concentrations in normal unit. If set to TRUE, will use concentration in log10-scale for
 #' estimating AUC.
@@ -76,40 +75,52 @@ get_AUC <- function(fit_method, lower, upper, ps, return.abs = FALSE, use.log = 
 
 # re-parameterization of functions other than hill and gnls with x on log10 scale
 
+# poly1 in normal/raw scale
+# f(x) = a*x
 logpoly1 <- function(ps, x) {
   return(ps[1]*(10^x))
 }
 
-logexp2 = function(ps,x){
-  #a = ps[1], b = ps[2]
-  return(ps[1]*(exp((10^x)/ps[2]) - 1)  )
-}
-
-logexp3 = function(ps,x){
-  #a = ps[1], b = ps[2], p = ps[3]
-  return(ps[1]*(exp((10^x/ps[2])^ps[3]) - 1)  )
-}
-
-# for computational convenience, ga is also in log-10 scale
-logexp4 = function(ps,x){
-  # both x and ga are converted to log10-scale
-  #tp = ps[1], ga = ps[2]
-  return(ps[1]*(1-2^(-10^(x-ps[2])))  )
-}
-
-# for computational convenience, ga is also in log-10 scale
-logexp5 = function(ps,x){
-  #tp = ps[1], ga = ps[2], p = ps[3]
-  return(ps[1]*(1-2^(-10^((x-ps[2])*ps[3])))  )
-}
-
+# poly2 in normal/raw scale
+# f(x) = a*(x/b + x^2/b^2)
 logpoly2 <- function(ps, x) {
   x0 = (10^x)/ps[2]
   return(ps[1]*(x0 + x0*x0))
 }
 
+# power in normal/raw scale
+# f(x) = a*x^p
 logpow = function(ps,x){
   #a = ps[1], p = ps[2]
   return(ps[1]*10^(x*ps[2])  )
 }
 
+# exp2 in normal/raw scale
+# f(x) = a*(e^{(x/b)}- 1)
+logexp2 = function(ps,x){
+  #a = ps[1], b = ps[2]
+  return(ps[1]*(exp((10^x)/ps[2]) - 1)  )
+}
+
+# exp3 in normal/raw scale
+# f(x) = a*(e^{(x/b)^p} - 1)
+logexp3 = function(ps,x){
+  #a = ps[1], b = ps[2], p = ps[3]
+  return(ps[1]*(exp((10^x/ps[2])^ps[3]) - 1)  )
+}
+
+# exp4 in normal/raw scale
+# f(x) = tp*(1-2^{(-x/ga)})
+logexp4 = function(ps,x){
+  # for computational convenience, both x and ga are converted to log10-scale
+  #tp = ps[1], ga = ps[2]
+  return(ps[1]*(1-2^(-10^(x-ps[2])))  )
+}
+
+# exp5 in normal/raw scale
+# f(x) = tp*(1-2^{(-(x/ga)^p)})
+logexp5 = function(ps,x){
+  # for computational convenience, both x and ga are converted to log10-scale
+  #tp = ps[1], ga = ps[2], p = ps[3]
+  return(ps[1]*(1-2^(-10^((x-ps[2])*ps[3])))  )
+}
