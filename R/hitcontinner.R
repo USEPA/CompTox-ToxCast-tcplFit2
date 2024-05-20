@@ -63,7 +63,7 @@ hitcontinner = function(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll
   # P3 = pnorm((top-cutoff)/topsd) #odds of top above cutoff
   #assume ps may have nas in them
   ps = ps[!is.na(ps)]
-  P3 = toplikelihood(fname, cutoff, med_resp$conc, med_resp$resp, ps, top, mll, errfun = errfun) #odds of top above cutoff
+  P3 = toplikelihood(fname, cutoff, conc, resp, ps, top, mll, errfun = errfun) #odds of top above cutoff
 
   #multiply three probabilities
   return(P1*P2*P3)
