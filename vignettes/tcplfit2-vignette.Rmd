@@ -446,9 +446,11 @@ res_low <- concRespCore(row_low,fitmodels = c("cnst", "hill", "gnls", "poly1", "
                         conthits = T, aicc = F, bidirectional=F)
 
 concRespPlot2(res_low, log_conc = T) + 
-  geom_rect(aes(xmin = res_low[1, "bmdl"],xmax = res_low[1, "bmdu"],ymin = 0,ymax = 30),
+  geom_rect(aes(xmin = log10(res_low[1, "bmdl"]),
+                xmax = log10(res_low[1, "bmdu"]),ymin = 0,ymax = 30),
             alpha = 0.05,fill = "skyblue") + 
-  geom_segment(aes(x = res_low[, "bmd"], xend = res_low[, "bmd"], y = 0, 
+  geom_segment(aes(x = log10(res_low[, "bmd"]),
+                   xend = log10(res_low[, "bmd"]), y = 0, 
                    yend = 30),col = "blue")
 ```
 
@@ -559,7 +561,7 @@ DT::datatable(res_up[1, c('Name','Max Conc.', "bmd", "bmdl", "bmdu")],rownames =
 
 The estimated BMD `r round(res_up$bmd, 3)` is greater than the maximum tested concentration (i.e. reference dose), which is `r max(conc)`. As with the `bmd_low_bnd`, users may allow the BMD to be greater than the maximum tested concentration but no greater than a threshold dose set using `bmd_up_bnd`.
 
-Suppose, we do not want the estimated BMD to be larger than 2 times the maximum tested concentration. Here, we can set `bmd_up_bnd = 2` to set the upper threshold dose to $160$. If the estimated BMD is greter than the upper threshold dose (like in this example), it will be "censored" to the threshold dose, and its confidence interval will be shifted left. Figure 9 provides a visual representation of upper boundary censoring. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$).
+Suppose, we do not want the estimated BMD to be larger than 2 times the maximum tested concentration. Here, we can set `bmd_up_bnd = 2` to set the upper threshold dose to $160$. If the estimated BMD is greater than the upper threshold dose (like in this example), it will be "censored" to the threshold dose, and its confidence interval will be shifted left. Figure 9 provides a visual representation of upper boundary censoring. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$).
 
 ```{r example upper-demo}
 # using bmd_up_bnd = 2
@@ -682,7 +684,7 @@ legend(1e-3, 60, legend=c("Reference Dose", "Threshold Dose", "BMD-before", "BMD
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-**Figure 8**: This plot shows the estimated BMD and the confidence interval before and after "censoring". The dashed dark violet line represents the threshold dose and the solid brown line represents the minimum tested concentration, which are at 0.24 and 0.6, respectively. The estimated BMD of 0.302 falls between the threshold and reference doses, which leaves the BMD and confidence intervals unchanged. Here, the estimated BMD and "censored" BMD are the same. Thus, the green and blue lines and "X"s representing the estimated BMD before and after "censoring", respectively, as well as their confidence intervals indicated by the shaded regions completely overlap.
+**Figure 8**: This plot shows the estimated BMD and the confidence interval before and after "censoring". The dashed dark violet line represents the threshold dose and the solid brown line represents the minimum tested concentration, which are at `r 0.4*min(conc2)` and `r min(conc2)`, respectively. The estimated BMD of `r res_low3[, "bmd"]` falls between the threshold and reference doses, which leaves the BMD and confidence intervals unchanged. Here, the estimated BMD and "censored" BMD are the same. Thus, the green and blue lines and "X"s representing the estimated BMD before and after "censoring", respectively, as well as their confidence intervals indicated by the shaded regions completely overlap.
 
 # Appendix {#appendix}
 Example 1 and 2 illustrated two plotting functions available in `tcplifit2` that are `ggplot` based. This appendix will show two other based R plotting functionalities available in `tcplfit2`: the `do.plot` argument in `concRespCore` and `concRespPlot`.
