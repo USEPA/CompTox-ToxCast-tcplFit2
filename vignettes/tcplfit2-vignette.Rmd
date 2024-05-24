@@ -313,8 +313,7 @@ That being said, for this example, the normalized responses (`resp`) are calcula
 $$
 \% \space control = \frac{cval - bval}{pval - bval}
 $$
-
-The baseline (`bval`) values are calculated as the medians of all data in neutral control wells by plate and the negative control (`pval`) value is calculated as the plate-wise minimum, by assay plate ID (`apid`), of the medians of corrected value (`cval`) of negative control wells.
+The table blow provides methods for calculating `bval` and `pval`. For more on the data normalization step, refer to the [Data Normalization](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html#data-normalization) section of `tcpl`'s Data Processing Vignette. 
 
 ```{r example3_mthdlist, fig.height = 6, fig.width = 7, warning = FALSE}
 ## Check out all level-3 methods for normalization in tcpl
@@ -334,14 +333,14 @@ dat[, resp := ((cval - bval)/(pval - bval) * 100)]
 
 Before model fitting, we need to determine the median absolute deviation around baseline (`BMAD`) and baseline variability (`onesd`), which are later used for cutoff and benchmark response (`BMR`) calculations, respectively. This is part of level-4 processing in `tcpl`. `tcplfit2` assumes no effect occurs in the two lowest concentrations. Thus, we consider test wells in the two lowest concentrations as our baseline to calculate `BMAD` and `onesd`.
 
-`BMD` can be calculated as the median absolute deviation of the data in control wells too. Check out other methods of determining `BMAD` and `onesd` used in `tcpl`.
+`BMAD` can be calculated as the median absolute deviation of the data in control wells too. Check out other methods of determining `BMAD` and `onesd` used in `tcpl`.
 
 ```{r example3_mthdlist_l4, fig.height = 6, fig.width = 7}
 # Check out all level-4 methods for normalization in tcpl
 DT::datatable(tcpl::tcplMthdList(4), rownames= FALSE, options = list(scrollX = T))
 ```
 
-`BMAD` and `onesd` should be calculated on the assay level. The example data set only contains one assay compound, so here we only need to calculate once.
+If the user's dataset contains data from multiple assays (`aeid`), `BMAD` and `onesd` should be calculated per assay/ID. The example data set only contains data from one assay, so we can calculate `BMAD` and `onesd` on the whole dataset.
 
 ```{r example3_get_bmad.and.onesd}
 bmad <- mad(dat[cndx %in% c(1, 2) & wllt == "t", resp])
