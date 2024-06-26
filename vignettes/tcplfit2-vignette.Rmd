@@ -1,13 +1,13 @@
 ---
-title: "tcplfit2 Vignette"
-author: "Center for Computational Toxicology and Exposure"
+title: "Introduction to tcplfit2"
+author: "Center for Computational Toxicology and Exposure, US EPA"
 output:
    prettydoc::html_pretty:
     theme: architect
     toc: yes
     toc_depth: 4
 vignette: >
-  %\VignetteIndexEntry{tcplfit2_vignette}
+  %\VignetteIndexEntry{1. Introduction to tcplfit2}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -669,7 +669,7 @@ output_low <- rbind(output_low,
 DT::datatable(output_low,rownames = FALSE)
 ```
 
-### Impacts if BMD falls between the "threshold value" and the "reference dose"
+### Impacts if BMD is between the "Threshold Value" and "Reference Dose"
 
 If the estimated BMD falls between the reference dose and the threshold dose, e.g. lowest tested dose and lower threshold, the estimated BMD will remain unchanged. For demonstration purposes, the lower bound example is used, but the same principle applies to the upper bound case.
 
