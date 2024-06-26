@@ -39,8 +39,20 @@ plot_allcurves <- function(modelfits, conc, resp, log_conc = FALSE) {
                   ", and are excluded from the plot.\n"))
   }
 
+  # Generate a series of X for plotting the curve
+  if (log_conc) {
+    if (any(conc==0)) warning("Data contains untreated controls (conc = 0). A pseudo value replaces -Inf after log-transform. The pseudo value is set to one log-unit below the lowest experimental `conc`.")
+    conc <- log10(conc)
+    conc <- replace(conc, conc==-Inf, sort(conc)[2]-1)
+    X <- seq(min(conc), max(conc), length.out = 100)
+    X <- replace(X, X==-Inf, sort(conc)[2]-1)
+    # what will be passed into the object function to calculate responses for the curve
+    calc.x <- 10**X
+  } else {
+    X <- seq(min(conc), max(conc), length.out = 100)
+    calc.x <- X
+  }
 
-  X <- seq(min(conc), max(conc), length.out = 100)
   allresp <- NULL
   pars_lists <- sapply(shortnames, function(x) {get(x)[["pars"]]})
 
@@ -49,19 +61,11 @@ plot_allcurves <- function(modelfits, conc, resp, log_conc = FALSE) {
     values <- sapply(pars_lists[[model]], function(x) {
       get(model)[[x]]})
     if (model == "hill") model <- paste0(model,"fn")
-    y <- do.call(model, list(values, X))
+    y <- do.call(model, list(values, calc.x))
     allresp <- cbind(allresp, y)
   }
 
   colnames(allresp) <- shortnames
-
-  if (log_conc) {
-    if (any(conc==0)) warning("Data contains untreated controls (conc = 0). A pseudo value replaces -Inf after log-transform. The pseudo value is set to one log-unit below the lowest experimental `conc`.")
-    conc <- log10(conc)
-    conc <- replace(conc, conc==-Inf, sort(conc)[2]-1)
-    X <- log10(X)
-    X <- replace(X, X==-Inf, sort(conc)[2]-1)
-  }
 
   # Format data into a data.frame for ease of plotting.
   estDR <- cbind.data.frame(X,allresp) %>%
