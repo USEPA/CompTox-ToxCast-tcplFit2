@@ -6,6 +6,7 @@
 <!-- badges: start -->
 
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/tcplfit2)](https://cran.r-project.org/package=tcplfit2)
+[![Active](http://img.shields.io/badge/Status-Active-green.svg)](https://cran.r-project.org/package=tcplfit2)
 [![Monthly
 Downloads](https://cranlogs.r-pkg.org/badges/last-month/tcplfit2?color=7BAFD4)](https://cranlogs.r-pkg.org/badges/last-month/tcplfit2?color=7BAFD4)
 [![DOI](https://zenodo.org/badge/doi/10.32614/CRAN.package.tcplfit2.svg)](http://dx.doi.org/10.32614/CRAN.package.tcplfit2)
