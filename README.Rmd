@@ -4,16 +4,15 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, include = FALSE}
+```{r, echo = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
+  fig.path = "man/figures/README-"
 )
 ```
 
-<img style="float: right; margin-left: 10px; margin-bottom: 10px;" src="vignettes/img/tcplfit2_hex.png" width="200">
+<a href="https://cran.r-project.org/web/packages/tcplfit2/index.html"><img src="vignettes/img/tcplfit2_hex.png" width="200" align="right" /></a>
 
 # tcplfit2: A Concentration-Response Modeling Utility
 
@@ -27,7 +26,7 @@ knitr::opts_chunk$set(
 
 ## Welcome to the GitHub repository for the tcplfit2 package.
 
-The tcplfit2 R package performs basic concentration-response curve fitting. The original tcplFit() function in the [ToxCast Pipeline (tcpl) package](https://cran.r-project.org/web/packages/tcpl/index.html) performed basic concentration-response curvefitting to 3 models. With tcplfit2, the core tcpl concentration-response functionality has been expanded to process diverse high-throughput screen (HTS) data generated at the US Environmental Protection Agency, including targeted ToxCast, high-throughput transcriptomics (HTTr) and high-throughput phenotypic profiling (HTPP). tcplfit2 can be used independently to support analysis for diverse chemical screening efforts.
+The tcplfit2 R package performs basic concentration-response curve fitting. The original tcplFit() function in the [ToxCast Pipeline (tcpl) R package](https://cran.r-project.org/web/packages/tcpl/index.html) performed basic concentration-response curvefitting to 3 models. With tcplfit2, the core tcpl concentration-response functionality has been expanded to process diverse high-throughput screen (HTS) data generated at the US Environmental Protection Agency, including targeted ToxCast, high-throughput transcriptomics (HTTr) and high-throughput phenotypic profiling (HTPP). tcplfit2 can be used independently to support analysis for diverse chemical screening efforts.
 
 If you are interested in contributing or want to report a bug, please submit a issue or start a discussion. 
 

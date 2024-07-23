@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-<img style="float: right; margin-left: 10px; margin-bottom: 10px;" src="vignettes/img/tcplfit2_hex.png" width="200">
+<a href="https://cran.r-project.org/web/packages/tcplfit2/index.html"><img src="vignettes/img/tcplfit2_hex.png" width="200" align="right" /></a>
 
 # tcplfit2: A Concentration-Response Modeling Utility
 
@@ -18,7 +18,7 @@ Downloads](https://cranlogs.r-pkg.org/badges/last-month/tcplfit2?color=7BAFD4)](
 
 The tcplfit2 R package performs basic concentration-response curve
 fitting. The original tcplFit() function in the [ToxCast Pipeline (tcpl)
-package](https://cran.r-project.org/web/packages/tcpl/index.html)
+R package](https://cran.r-project.org/web/packages/tcpl/index.html)
 performed basic concentration-response curvefitting to 3 models. With
 tcplfit2, the core tcpl concentration-response functionality has been
 expanded to process diverse high-throughput screen (HTS) data generated
