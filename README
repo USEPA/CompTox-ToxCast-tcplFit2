@@ -1,24 +1,13 @@
-Introduction
+### tcplfit2: A Concentration-Response Modeling Utility
 
-tcplfit2 package provides functions for basic concentration-response curve fitting used in the ‘tcpl’ package. It is a substitute for the original tcplFit() function (and sub-functions) in previous versions of tcpl and allows a wider variety of concentration-response models. This package includes models from the ‘BMDExpress’ software and the output includes a calculation of the bmd (Benchmark Dose or Concentration) value.
+Welcome to the GitHub repository for the tcplfit2 package.
 
-Requirements:
+The R package tcplfit2 is used to perform basic concentration response curve fitting. The original tcplFit() functions in the ToxCast Pipeline (tcpl) package performed basic concentration response curve fitting to 3 models. With tcplfit2, the core concentration-response functionality of the package tcpl has been expanded built to process high-throughput screen (HTS) data generated at the US Environmental Protection Agency, including targeted ToxCast, high-throughput transcriptomics (HTTr) and high-throughput phenotypic profiling (HTPP) screening results.
 
-R (>= 3.5.0)
-R packages required: stats, methods, numDeriv, RColorBrewer, stringr
-R packages suggested: knitr, rmarkdown, stringi
+If you are interested in contributing or want to report a bug, please submit a issue or start a discussion. 
 
-Installation
+To install the current development version, run the following command: 
 
-You may install this package from GitHub or CRAN. GitHub has access to a more recent development version of this package that might includes features that are not officially included in the version on CRAN.
+    devtools::install_github("USEPA/CompTox-ToxCast-tcplfit2")
 
-1. Install from GitHub (need “devtools” package)
-devtools::install_git("https://github.com/USEPA/CompTox-ToxCast-tcplFit2.git")
-
-2. Install from CRAN, version 0.1.5 released 2023-04-06
-install.packages("tcplfit2")
-
-Credits:
-Author: Thomas Sheffield
-Contributors: Richard Judson (package creator), Jason Brown, Sarah E. Davidson, Zhihui Zhao
 
