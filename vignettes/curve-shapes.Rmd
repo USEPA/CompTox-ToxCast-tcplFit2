@@ -1,16 +1,18 @@
 ---
-title: "Details for Available Models in tcplfit2"
-author: "Center for Computational Toxicology and Exposure"
+title: "tcplfit2: Details for Available Models"
+author: "US EPA's Center for Computational Toxicology and Exposure ccte@epa.gov"
 output:
-   prettydoc::html_pretty:
-    theme: architect
-    toc: yes
-    toc_depth: 4
+  rmdformats::readthedown:
+params:
+  my_css: css/rmdformats.css
 vignette: >
-  %\VignetteIndexEntry{Details_for_Available_Models_in_tcplfit2}
+  %\VignetteIndexEntry{4. Additional Model Details}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+```{css, code = readLines(params$my_css), hide=TRUE, echo = FALSE}
+```
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -19,36 +21,36 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{css, echo=FALSE}
-.scroll-100 {
-  max-height: 100px;
-  overflow-y: auto;
-}
-```
+<img style="float: right; margin-left: 10px; margin-bottom: 10px;" src="img/tcplfit2_hex.png" width="200">
 
 # Introduction
 
 This vignette contains details for all models available in `tcplfit2`, with parameter explanations and illustrative plots. Users should note that the implementation of all the models in `tcplfit2` assume the baseline response is always 0. 
 
-The code chunk below sets up the necessary R packages for this vignette and prepares two concentration ranges.  Use of the concentration range depends upon particular models ability to show full range of impact of parameter values on curve shape.
+The following code chunk prepares two concentration ranges. Use of the concentration range depends upon particular models ability to show full range of impact of parameter values on curve shape.
 
-```{r setup, warning=FALSE}
+```{r setup, warning=FALSE, echo=FALSE}
 # r packages
 library(tcplfit2)
 library(ggplot2)
 library(gridExtra)
 library(htmlTable)
+```
 
+```{r setup-2, warning=FALSE}
 # prepare concentration data for demonstration
 ex_conc <- seq(0, 100, length.out = 100)
 ex2_conc <- seq(0, 3, length.out = 100)
 ```
 
-# Continuous Response Model
+# Polynomial 1 (Poly1)
+Poly1 is a simple linear model. 
 
-## Polynomial 1
+Model: $y = ax$
 
-Polynomial 1 is a simple linear model, $y = ax$, where `a` is the slope of the line (i.e. rate of change for the response across the dose range). If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \ge 0$ (i.e. non-negative).
+Parameters include:
+
+* `a` : slope of the line (i.e. rate of change for the response across the dose range). If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \ge 0$ (i.e. non-negative).
 
 ```{r poly 1, class.source="scroll-100", fig.width=5, fig.height=5}
 poly1_plot <- ggplot(mapping=aes(ex_conc)) +  
@@ -67,18 +69,17 @@ poly1_plot
 
 **Figure 1:** This plot illustrates how the change in `a` (slope parameter) affects the resulting curve-fits.
 
-## Polynomial 2
+# Polynomial 2 (Poly2)
+Poly2 is a quadratic model. The version implemented in `tcplfit2` has been re-parameterized to assume the baseline response is always zero, and such that the `a` and `b` parameters are interpreted in terms of their impact on the the x- and y-scales, respectively. Poly2 is defined by the following equation, which is slightly different in contrast to a typical quadratic function:
 
-Polynomial 2 is a quadratic model. Note, the version implemented in `tcplfit2` is re-parameterized to assume the baseline response is always zero, and such that the `a` and `b` parameters are interpreted in terms of their impact on the the x- and y-scales, respectively.
+Model: $f(x) = a(\frac{x}{b} + \frac{x^2}{b^2})$. 
 
-* `tcplfit2`: $f(x) = a(\frac{x}{b} + \frac{x^2}{b^2})$. 
-* typical polynomial 2: $f(x) = ax^2+bx+c$. 
+* Typical quadratic function: $f(x) = ax^2+bx+c$. 
 
-Parameters: 
+Parameters include: 
 
 * `a` : The y-scalar. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \ge 0$ (i.e. non-negative).
-
-* `b` : The x-scalar. If `b` increase, the curve is shrunk horizontally. Optimization of the Polynomial 2 model in `tcplfit2` makes it such that $b > 0$ (i.e. monotonic increasing or decreasing curves only).
+* `b` : The x-scalar. If `b` increase, the curve is shrunk horizontally. Optimization of the poly2 model in `tcplfit2` makes it such that $b > 0$ (i.e. monotonic increasing or decreasing curves only).
 
 ```{r poly 2, class.source="scroll-100", fig.width=8, fig.height=5}
 fits_poly <- data.frame(
@@ -124,10 +125,11 @@ grid.arrange(poly2_plot1, poly2_plot2, ncol = 2)
 
 **Figure 2:** The left plot illustrates how changes in `a` (y-scalar) affect the resulting polynomial 2 curves, while holding `b` constant. The right  plot illustrates how changes in `b` (x-scalar) affect the resulting polynomial 2 curves, while holding `a` constant.
 
-## Power 
+# Power (Pow)
+
 Model: $f(x) = a*x^b$
 
-Parameters: 
+Parameters include: 
 
 * `a` : Scaling factor. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \gt 0$.
 * `p` : Power, or the rate of growth. A measure of how steep the curve is. The larger `p` is, the steeper the curve is. `p` is restricted to $0.3 \le p \le 20$. 
@@ -174,10 +176,11 @@ grid.arrange(pow_plot1, pow_plot2, ncol = 2)
 
 **Figure 3:** The left plot illustrates how changes in `a` (scaling factor) affect the resulting power curves, while holding `p` constant. The right plot illustrates how changes in `p` (power) affect the shapes of resulting power curves, while holding `a` constant. Note: These plots use a smaller concentration range from 0 to 3 to better show the impact of `p` on resulting curves.
 
-## Hill {#hill}
+# Hill {#hill}
+
 Model: $f(x) = \frac{tp}{(1 + (ga/x)^p )}$
 
-Parameters: 
+Parameters include: 
 
 * `tp` : Top, the highest (or lowest - if a decreasing curve) response achieved at saturation, that is the horizontal asymptote. If bi-directional fitting is allowed, then $-\infty < tp <\infty$. Otherwise $0 \le tp < \infty$.
 * `ga` : AC50, concentration at 50% of maximal activity. It provides useful information about the "apparent affinity" of the protein under study (enzyme, transporter, etc.) for the substrate. The parameter constraint on `ga` is $0 \le ga < \infty$. 
@@ -244,13 +247,14 @@ grid.arrange(hill_plot1, hill_plot2, hill_plot3, ncol = 2, nrow = 2)
 
 **Figure 4:** The top left plot illustrates how changes in `tp` (maximal change in response) affect the shape of resulting hill curves, while holding all other parameters constant. The top right plot illustrates how changes `ga` (slope) affect the shape of resulting hill curves, while holding all other parameters constant. The bottom left plot illustrates how changes in `p` (power) affect the shape of resulting hill curves, while holding all other parameters constant. Note: The x-axes are in $log_{10}$ scale to reflect the scale the model is optimized in, i.e. log hill model $f(x) = \frac{tp}{1 + 10^{(p*(ga-x))}}$.
 
-## Gain-Loss
+# Gain-Loss (Gnls)
+The Gain-Loss model is the product of two hill models.  One hill model fits the response going up and one fits the responses going down. A gain-loss curve can occur either in a gain first then lose, or vice-versa.
+
 Model: $f(x) = \frac{tp}{[(1 + (ga/x)^p )(1 + (x/la)^q )]}$
 
-The Gain-Loss model is the product of two hill models.  One hill model fits the response going up and one fits the responses going down. A gain-loss curve can occur either in a gain first then lose, or vice-versa. 
+Parameters include:
 
-The definitions of `tp`, `ga`, and `p` are the same as in [hill model](#hill), and the `la` and `q` parameters are counterparts to the `ga` and `p` parameters, respectively, in the loss direction of the curve. 
-
+* `tp`, `ga`, and `p` are the same as in [hill model](#hill), and the `la` and `q` parameters are counterparts to the `ga` and `p` parameters, respectively, in the loss direction of the curve. 
 * `la` : Loss AC50. The larger it gets the slower the curve starts to decrease (if it increase first). The parameter constrains on `la` are $0 \le la < \infty$ and $la-ga\ge 1.5$.
 * `q` : Loss power or the rate of loss. The larger it is, the faster the curve decreases (if it increase first). `q` is restricted such that $0.3 \le p \le 8$. 
 
@@ -296,10 +300,11 @@ grid.arrange(gnls_plot1, gnls_plot2, ncol = 2)
 
 **Figure 5:** The left plot illustrates how changes in `la` (loss slope) affect the shape of resulting gain-loss curves, while holding all other parameters constant. The right plot illustrates how changes in `q` (loss power) affect the shape of resulting gain-loss curves, while holding all other parameters constant. Note: The x-axes are in $log_{10}$ scale to reflect the scale the model is optimized in, i.e. log gain-loss model $f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))})] }$.
 
-## Exponential 2 {#expoential2}
+# Exponential 2 (Exp2) {#exponential2}
+
 Model: $f(x) = a*(e^{\frac{x}{b}}-1)$
 
-Parameters: 
+Parameters include: 
 
 * `a` : The y-scalar. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a < \infty$. Otherwise, $0 < a <\infty$.
 * `b` : The x-scalar. If `b` increases, the curve is shrunk horizontally. `b` is restricted to be $b > 0$ (i.e. positive). 
@@ -347,13 +352,13 @@ grid.arrange(exp2_plot1, exp2_plot2, ncol = 2)
 
 **Figure 6:** The left plot illustrates how changes in `a` (y-scalar) affect the shape of resulting exponential 2 curves, while holding `b` constant. The right plot illustrates how changes in `b` (x-scalar) affect the shape of resulting exponential 2 curves, while holding `a` constant. Note: These plots use a smaller concentration range from 0 to 3 to better show the impact of `b` on resulting curves.
 
-## Exponential 3
+# Exponential 3 (Exp3)
+
 Model: $f(x) = a*(e^{(x/b)^p} - 1)$
 
-The definitions of `a` and `b` are similar to those in Exponential 2, for details and plots please refer back to [Exponential 2](#expoential2). 
+Parameters include:
 
-Exponential 3 has one additional parameter `p`.
-
+* `a` and `b` are similar to those in Exponential 2. For details and plots, refer back to [Exponential 2](#exponential2). 
 * `p` : Power. A measure of how steep the curve is. The larger `p` is the steeper the curve is. `p` is restricted to be $0.3 \le p \le 8$. 
 
 ```{r exp3, class.source="scroll-100", fig.width=5, fig.height=5}
@@ -382,10 +387,11 @@ exp3_plot
 
 **Figure 7:** This plot illustrates how changes in `p` (power) affect the shape of resulting exponential 3 curves, while holding all other parameters constant. Note: This plot uses a smaller concentration range from 0 to 3 to better show the impact of `p` on resulting curves.
 
-## Exponential 4 {#expoential4}
+# Exponential 4 (Exp4) {#exponential4}
+
 Model: $f(x) = tp*(1-2^{(-\frac{x}{ga})})$
 
-Parameters: 
+Parameters include: 
 
 * `tp` : Top. The horizontal asymptote the curve is approaching (can also be negative); it is the maximum or minimum of the predicted responses. If bi-directional fitting is allowed, then $-\infty <tp < \infty$. Otherwise, $0 \le tp < \infty$.
 * `ga` : AC50, concentration at 50% of maximal activity. It acts as slope controlling rate the response (curve) approaches the top. If `ga` increases, the curve is shrunk horizontally. `ga` is restricted to be $0 \le ga < \infty$ (e.g. non-negative). 
@@ -433,13 +439,13 @@ grid.arrange(exp4_plot1, exp4_plot2, ncol = 2)
 
 **Figure 8:** The left plot illustrates how changes in `tp` (maximal change in response) affect the shape of resulting exponential 4 curves, while holding `ga` constant. The right plot illustrates how changes in `ga` (slope) affect the shapes of exponential 4 curves, while holding `tp` constant.
 
-## Exponential 5
+# Exponential 5 (Exp5)
+
 Model: $f(x) = tp*(1-2^{(-(x/ga)^p)})$
 
-The definitions of `tp` and `ga` are similar to those in Exponential 4, for details and plots please refer back to [Exponential 4](#expoential4). 
+Parameters include:
 
-Exponential 5 has one additional parameter `p`. 
-
+* `tp` and `ga` are similar to those in Exponential 4. For details and plots, refer back to [Exponential 4](#exponential4). 
 * `p` : Power. A measure of how steep the curve is. The larger `p` is, the steeper the curve is. `p` is restricted to be $0.3 \le p \le 8$.
 
 ```{r exp5, class.source="scroll-100", fig.width=5, fig.height=5}
@@ -468,7 +474,9 @@ exp5_plot
 
 **Figure 9:** This plot illustrates how changes in `p` (power) affect the shape of resulting exponential 5 curves, while holding all other parameters constant.
 
-# Appendix 
+# Appendix
+
+This table provides a summary of model details for all available `tcplfit2` models. This table is taken from the [Data Processing vignette](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html#concentration-response-modeling-details) in the `tcpl` package.
 
 ```{r appendix-table, echo=FALSE, warning=FALSE}
 # First column - tcplfit2 available models.
@@ -498,14 +506,14 @@ Equations <- c(
 OutputParameters <- c(
   "", # constant
   "a (y-scale)", # linear,
-  "a (y-scale), b (x-scale)", # quadratic
-  "a (y-scale), p (power)", # power
-  "tp (top), ga (gain AC50), p (gain-power)", # hill
-  "tp (top), ga (gain AC50), p (gain power), la (loss AC50), q (loss power)", # gain-loss
-  "a (y-scale), b (x-scale)", # exp2
-  "a (y-scale), b (x-scale), p (power)", # exp3
-  "tp (top), ga (AC50)", # exp4
-  "tp (top), ga (AC50), p (power)" # exp5
+  "a (y-scale) </br> b (x-scale)", # quadratic
+  "a (y-scale) </br> p (power)", # power
+  "tp (top) </br> ga (gain AC50) </br> p (gain-power)", # hill
+  "tp (top) </br> ga (gain AC50) </br> p (gain power) </br> la (loss AC50) </br> q (loss power)", # gain-loss
+  "a (y-scale) </br> b (x-scale)", # exp2
+  "a (y-scale) </br> b (x-scale) </br> p (power)", # exp3
+  "tp (top) </br> ga (AC50)", # exp4
+  "tp (top) </br> ga (AC50) </br> p (power)" # exp5
 )
 # Fifth column - additional model details.
 Details <- c(
@@ -533,6 +541,3 @@ htmlTable(output,
         tfoot = "Model descriptions are pulled from tcplFit2 manual at <https://cran.r-project.org/package=tcplfit2/tcplfit2.pdf>."
 )
 ```
-
-*This table provides a summary of `tcplfit2` model details. This table is taken from the [Data Processing vignette](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html#concentration-response-modeling-details) in the `tcpl` package.*
-

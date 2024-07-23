@@ -1,16 +1,18 @@
 ---
-title: "Plotting with tcplfit2"
-author: "Center for Computational Toxicology and Exposure, US EPA"
+title: "tcplfit2: Plotting"
+author: "US EPA's Center for Computational Toxicology and Exposure ccte@epa.gov"
 output:
-   prettydoc::html_pretty:
-    theme: architect
-    toc: yes
-    toc_depth: 4
+  rmdformats::readthedown:
+params:
+  my_css: css/rmdformats.css
 vignette: >
   %\VignetteIndexEntry{2. Plotting with tcplfit2}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+```{css, code = readLines(params$my_css), hide=TRUE, echo = FALSE}
+```
 
 ```{r setup, packages, warning=FALSE, message=FALSE, , include=FALSE}
 # Primary Packages #
@@ -22,6 +24,8 @@ library(stringr)
 library(ggplot2)
 library(gridExtra)
 ```
+
+<img style="float: right; margin-left: 10px; margin-bottom: 10px;" src="img/tcplfit2_hex.png" width="200">
 
 # Introduction
 The `tcplfit2` package performs concentration-response modeling and includes several functionalities for visualizing the results. These `ggplot`-based visualization functions are `plot_allcurves` and `concRespPlot2`. The following sections will demonstrate how to utilize the `tcplfit2`'s `ggplot`-based functions as well as further customize plots with additional `ggplot2`-layers.
