@@ -33,7 +33,7 @@ library(ggplot2)
 library(gridExtra)
 ```
 
-<img style="float: right; margin-left: 10px; margin-bottom: 10px;" src="img/tcplfit2_hex.png" width="200">
+<a href="https://cran.r-project.org/web/packages/tcplfit2/index.html"><img src="img/tcplfit2_hex.png" width="200" align="right" style="float: right; margin-left: 10px; margin-bottom: 10px;"/></a>
 
 # Introduction
 
