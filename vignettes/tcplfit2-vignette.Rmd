@@ -3,6 +3,7 @@ title: "tcplfit2: A Concentration-Response Modeling Utility"
 author: "US EPA's Center for Computational Toxicology and Exposure ccte@epa.gov"
 output:
   rmdformats::readthedown:
+    fig_retina: false
 params:
   my_css: css/rmdformats.css
 vignette: >
