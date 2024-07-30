@@ -961,6 +961,12 @@ Plots like Figure 6 typically have similar concentrations and response ranges. I
 
 # Area Under the Curve (AUC)
 
+Please note, this AUC calculation in `tcplfit2` is a beta functionality still under development and review, and as such, we welcome your feedback.
+
+This section explores how to estimate the area under the curve (AUC) for concentration-response curves with `tcplfit2` using the parameters from curve fitting in the integration to estimate an AUC. The AUC can be interpreted as a measure of overall efficacy and potency, which users may want to include as part of their analyses, such as analyses that aim to rank or prioritize chemical by activity.
+
+A consideration in applying this function get_AUC() is whether the model bounds are on a log10-scale or arithmetic scale. The use of log10-scale or arithmethic scale may change interpretation of the AUC value. In lines 76-126 of the get_AUC.R function, the methods for converting curve fit model parameters to the log10 scale are provided and in the get_AUC() function, use.log is a logical option that is FALSE by default.
+
 ## Area Under the Curve (AUC) with `concRespCore` 
 
 The `concRespCore` function has a logical argument `AUC` controlling whether the area under the curve (AUC) is calculated for the winning model and returned alongside the other modeling results (e.g. model parameters and hit-call details). This argument defaults to `FALSE`, such that the AUC will only be included in the output when the users requested it (i.e. `AUC=TRUE`).
@@ -1091,9 +1097,7 @@ get_AUC(fit_method, min(conc), max(conc), modpars, return.abs = TRUE)
 
 ## - Bi-phasic Responses
 
-Polynomial 2 model in `tcplfit2` is capable of fitting bi-phasic curves. This section demonstrates what happens if the user want to estimate the AUC for a bi-phasic curve.  
-
-The following chunk simulates a polynomial 2 curve that has area below and above the x-axis. Please note, the polynomial 2 model implemented in this package is re-parameterized such that the baseline response is always assumed to be 0. 
+Currently, the polynomial 2 model in `tcplfit2` is capable of fitting bi-phasic curves, but these polynomial 2 curve fits (as implemented in the `tcplfit2` package) are bounded such that the baseline response is always assumed to be 0. This section demonstrates what happens if a user did want to estimate the AUC for a simulated bi-phasic curve that has area below and above the x-axis. 
 
 The Polynomial 2 model in `tcplfit2` is implemented as $a*(\frac{x}{b} + \frac{x^2}{b^2})$. Here, $a = 1$ and $b = (-2)$ is used to simulate a bi-phasic curve, which can be represented in the typical form as $\frac{1}{4} x^2 - \frac{1}{2}x$.
 
