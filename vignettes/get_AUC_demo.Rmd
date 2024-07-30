@@ -170,9 +170,7 @@ get_AUC(fit_method, min(conc), max(conc), modpars, return.abs = TRUE)
 
 ## Bi-phasic Responses
 
-Currently, none of the models in `tcplfit2` are capable of fitting bi-phasic curves. However, this section demonstrates what happens if a user did want to estimate the AUC for a bi-phasic curve.  
-
-The following chunk simulates a polynomial 2 curve that has area below and above the x-axis. Please note, the polynomial 2 model implemented in this package is re-parameterized such that the baseline response is always assumed to be 0. 
+Currently, the polynomial 2 model in `tcplfit2` is capable of fitting bi-phasic curves, but these polynomial 2 curve fits (as implemented in the `tcplfit2` package) are bounded such that the baseline response is always assumed to be 0. This section demonstrates what happens if a user did want to estimate the AUC for a simulated bi-phasic curve that has area below and above the x-axis. 
 
 The Polynomial 2 model in `tcplfit2` is implemented as $a*(\frac{x}{b} + \frac{x^2}{b^2})$. Here, $a = 1$ and $b = (-2)$ is used to simulate a bi-phasic curve, which can be represented in the typical form as $\frac{1}{4} x^2 - \frac{1}{2}x$.
 
