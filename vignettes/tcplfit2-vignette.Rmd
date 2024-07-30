@@ -41,7 +41,7 @@ library(gridExtra)
 
 # Introduction
 
-The package `tcplfit2` is used to perform basic concentration response curve fitting. The original tcplFit() functions in the [ToxCast Pipeline (tcpl)](https://cran.r-project.org/web/packages/tcpl/index.html) package performed basic concentration response curve fitting to 3 models: Hill, gain-loss [a modified Hill], and constant. With `tcplfit2`, the concentration-response functionality of the package `tcpl` has been expanded and is being used to process high-throughput screen (HTS) data generated at the US Environmental Protection Agency, including targeted assay data in ToxCast, high-throughput transcriptomics (HTTr), and high-throughput phenotypic profiling (HTPP) screening results. The `tcpl` R package continues to be used to manage, curve-fit, plot, and populate its linked MySQL database, invitrodb. Processing with  `tcpl` version 3.0 and beyond depends on the stand-alone tcplfit2 package to allow a wider variety of concentration-response models (when using invitrodb in the 4.0 schema and beyond).
+The package `tcplfit2` is used to perform basic concentration response curve fitting. The original tcplFit() functions in the [ToxCast Data Analysis Pipeline (tcpl)](https://cran.r-project.org/web/packages/tcpl/index.html) package performed basic concentration response curve fitting to 3 models: Hill, gain-loss [a modified Hill], and constant. With `tcplfit2`, the concentration-response functionality of the package `tcpl` has been expanded and is being used to process high-throughput screen (HTS) data generated at the US Environmental Protection Agency, including targeted assay data in ToxCast, high-throughput transcriptomics (HTTr), and high-throughput phenotypic profiling (HTPP) screening results. The `tcpl` R package continues to be used to manage, curve-fit, plot, and populate its linked MySQL database, invitrodb. Processing with  `tcpl` version 3.0 and beyond depends on the stand-alone tcplfit2 package to allow a wider variety of concentration-response models (when using invitrodb in the 4.0 schema and beyond).
 
 The main set of extensions includes additional concentration-response models like those contained in the program [BMDExpress2](https://www.sciome.com/bmdexpress/). These include exponential, polynomial (1 & 2), and power functions in addition to the original Hill, gain-loss and constant models. Similar to the program BMDExpress, a defined Benchmark Response (BMR) level is used to estimate a benchmark dose (BMD), which is the concentration where the curve-fit intersects with this BMR threshold. One final addition was to let the hit call value be a continuous number ranging from 0 to 1 (in contrast to binary hit call values from tcplFit()). Continuous hit call in `tcplfit2` are defined as the product of three proportional weights: 1) the AIC of the winning model is better than the constant model (i.e. winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff, and 3) the top from the winning model exceeds the cutoff. 
  
@@ -91,8 +91,12 @@ The following code provides a simple example for setting up the input and execut
 
 The output of this run will be a data frame, with one row, summarizing the results for the winning model.
 
-```{r example1 result, warning=FALSE, echo=FALSE}
-DT::datatable(res,rownames = FALSE,options = list(scrollX = T))
+```{r, echo=FALSE}
+htmlTable::htmlTable(head(res),
+        align = 'l',
+        align.header = 'l',
+        rnames = FALSE  ,
+        css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
 One can plot winning curve by passing the output (`res`) to the function `concRespPlot2`. This function returns a basic `ggplot` object, which is meant to leverage the flexibility and modularity of `ggplot2` object to allow users the ability to customize the plot by adding layers of detail. For more information on customizing plotts we refer users to the tcplfit2 plotting vignette.
@@ -214,8 +218,12 @@ grid.arrange(grobs=plt_lst,ncol=2)
 
 When running the fitting and hit calling functions sequentially, one can save the result rows from `tcplhit2_core` in a data frame structure and export it for further analysis, see for loop above.
 
-```{r example2 result, warning=FALSE, echo=FALSE}
-DT::datatable(result_table,rownames = FALSE,options = list(scrollX = T))
+```{r, echo=FALSE}
+htmlTable::htmlTable(head(result_table),
+        align = 'l',
+        align.header = 'l',
+        rnames = FALSE  ,
+        css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
 One can also pass output from `tcplhit2_core` directly to `concRespPlot2` to plot the best model fit, as shown in [Concentration-response Modeling for a Single Series with concRespCore](#ex1).  The code below demonstrates how to select a single row/result (e.g. one with a significant concentration-responses) and plot the winning model with `concRespPlot2`, along with a minor customization using `ggplot2` layers.
@@ -252,12 +260,19 @@ To run standalone `tcplfit2` fitting, without the need for a MySQL database conn
 -   clowder_uid = Clowder unique id for source files
 -   git_hash = Hash key for pre-processing scripts
 
-```{r example3_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE,echo=-4}
+```{r example3_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE,echo=FALSE}
 # Loading in the Level 0 example data set from invitrodb
 data("mc0")
 data.table::setDTthreads(2)
 dat <- mc0
-DT::datatable(head(dat[wllt=='t',]),rownames= FALSE, options = list(scrollX = T))
+```
+
+```{r, echo=FALSE}
+htmlTable::htmlTable(head(dat[wllt=='t',]),
+        align = 'l',
+        align.header = 'l',
+        rnames = FALSE  ,
+        css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
 The first step is to establish the concentration index, and corresponds to Level 1 in `tcpl`. Concentration indices are integer values ranking N distinct concentrations from 1 to N, which correspond to the lowest and highest concentration groups, respectively. This index can be used to calculate the baseline median absolute deviation (BMAD) for an assay.
@@ -321,11 +336,14 @@ For this example, the normalized responses (`resp`) are calculated as a percent 
 $$
 \% \space control = \frac{cval - bval}{pval - bval}
 $$
-The table below provides methods for calculating `bval` and `pval`. For more on the data normalization step, refer to the [Data Normalization](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html#data-normalization) section of `tcpl`'s Data Processing Vignette. 
+The table below provides a few methods for calculating `bval` and `pval` in tcpl. For more on the data normalization step, refer to the [Data Normalization](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html#data-normalization) section of `tcpl`'s Data Processing Vignette. 
 
-```{r example3_mthdlist, fig.height = 6, fig.width = 7, warning = FALSE}
-## Check out all Level 3 methods for normalization in tcpl
-DT::datatable(tcpl::tcplMthdList(3),rownames= FALSE, options = list(scrollX = T))
+```{r, echo=FALSE}
+htmlTable::htmlTable(head(tcpl::tcplMthdList(3)),
+        align = 'l',
+        align.header = 'l',
+        rnames = FALSE  ,
+        css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
 ```{r example3 normalize}
@@ -343,9 +361,12 @@ Before model fitting, we need to determine the median absolute deviation around 
 
 `BMAD` can be calculated as the median absolute deviation of the data in control wells too. Check out other methods of determining `BMAD` and `onesd` used in `tcpl`.
 
-```{r example3_mthdlist_l4, fig.height = 6, fig.width = 7}
-# Check out all Level 4 methods for normalization in tcpl
-DT::datatable(tcpl::tcplMthdList(4), rownames= FALSE, options = list(scrollX = T))
+```{r, echo=FALSE}
+htmlTable::htmlTable(head(tcpl::tcplMthdList(4)),
+        align = 'l',
+        align.header = 'l',
+        rnames = FALSE  ,
+        css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
 If the user's dataset contains data from multiple assays (`aeid`), `BMAD` and `onesd` should be calculated per assay/ID. The example data set only contains data from one assay, so we can calculate `BMAD` and `onesd` on the whole dataset.
@@ -411,7 +432,14 @@ res <- subdat[wllt == 't', myfun2(.SD), by = .(spid)]
 # pivot wider
 res_wide <- rbindlist(Map(cbind, spid = res$spid, res$V1))
 
-DT::datatable(res_wide,options = list(scrollX = T))
+```
+
+```{r, echo=FALSE}
+htmlTable::htmlTable(head(res_wide),
+        align = 'l',
+        align.header = 'l',
+        rnames = FALSE  ,
+        css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
 *Please note, hitcalling can also be done with the full data set, `dat`, but here we only demonstrate hitcalling with the example dataset model fitting was performed on.*
@@ -969,7 +997,7 @@ grid.arrange(plot_allcurves(output_ex2, conc_ex2, resp_ex2),
           plot_allcurves(output_ex2, conc_ex2, resp_ex2, log_conc = TRUE), ncol = 2)
 ```
 
-***Figure 1:** This figure depicts all fit concentration-response curves. The models are polynomial 1 and 2, power, hill, gain-loss, and exponential 2 to exponential 5.*
+***Figure 17:** This figure depicts all fit concentration-response curves. The models are polynomial 1 and 2, power, hill, gain-loss, and exponential 2 to exponential 5.*
 
 The `get_AUC` function can be used to calculate the AUC for a single model. Inputs to this function are: the name of the model, lower and upper concentration bounds (usually the lowest and the highest concentrations in the data, respectively), and the estimated model parameters. The code chunk below demonstrates how to calculate AUC for the hill model, starting by extracting information from the `tcplfit2_core` output then inputting this information into the `get_AUC` function. After estimating the AUC, the hill curve is plot and corresponding region under the curve is shaded.
 
@@ -993,7 +1021,7 @@ lines(conc_ex2, pred_resp)
 polygon(c(conc_ex2, max(conc_ex2)), c(pred_resp, min(pred_resp)), col=rgb(1, 0, 0,0.5))
 ```
 
-***Figure 2:** The red shaded region is the area under the fitted hill curve. The AUC estimated with `get_AUC` is `r round(estimated_auc1,5)`. This estimate seems to align with the area of the shaded region. *
+***Figure 18:** The red shaded region is the area under the fitted hill curve. The AUC estimated with `get_AUC` is `r round(estimated_auc1,5)`. This estimate seems to align with the area of the shaded region. *
 
 AUC can be calculated for other models with exception of the constant model.
 
@@ -1017,7 +1045,6 @@ data.frame(mylist,row.names = "AUC")
 
 ## - Negative Responses
 
-
 This section demonstrates the behavior of the `get_AUC` function with negative response curves. Here, example data is pulled from example 3 in the [tcplfit2 Introduction Vignette](https://cran.r-project.org/web/packages/tcplfit2/vignettes/tcplfit2-vignette.html). 
 
 ```{r example 3, fig.height = 4.55, fig.width = 8}
@@ -1035,7 +1062,7 @@ output_negative <- tcplfit2_core(conc, resp, cutoff)
 grid.arrange(plot_allcurves(output_negative, conc, resp),
           plot_allcurves(output_negative, conc, resp, log_conc = TRUE), ncol = 2)
 ```
-***Figure 3:** This plot depicts all fitted concentration-response curves. All curves show decreasing responses starting from 0 and below x-axis. *
+***Figure 19:** This plot depicts all fitted concentration-response curves. All curves show decreasing responses starting from 0 and below x-axis. *
 
 ```{r example 3 cont., fig.height = 6, fig.width = 6}
 fit_method <- "exp3"
@@ -1054,7 +1081,7 @@ lines(conc[order(conc)], pred_resp)
 polygon(c(conc[order(conc)], max(conc)), c(pred_resp, max(pred_resp)), col=rgb(1, 0, 0,0.5))
 ```
 
-***Figure 4:** Notice the function returns a negative AUC value, `r round(estimated_auc2, 5)`. The absolute value, `r abs(round(estimated_auc2,5))`, seems to align with the area between the curve and x-axis. Note: The x-axis in this plot is in the original units, so it looks different from the curve in figure 3, which has the x-axis in $log_{10}$ units.*
+***Figure 20:** Notice the function returns a negative AUC value, `r round(estimated_auc2, 5)`. The absolute value, `r abs(round(estimated_auc2,5))`, seems to align with the area between the curve and x-axis. Note: The x-axis in this plot is in the original units, so it looks different from the curve in figure 3, which has the x-axis in $log_{10}$ units.*
 
 As demonstrated, when integrating over a curve in the negative direction, the function will return a negative AUC value. However, some users may want to consider all "areas" as positive values. For this reason, the `return.abs = TRUE` argument in `get_AUC` converts negative AUC values to positive values when returned. This argument is by default `FALSE`.
 
@@ -1067,7 +1094,6 @@ get_AUC(fit_method, min(conc), max(conc), modpars, return.abs = TRUE)
 Polynomial 2 model in `tcplfit2` is capable of fitting bi-phasic curves. This section demonstrates what happens if the user want to estimate the AUC for a bi-phasic curve.  
 
 The following chunk simulates a polynomial 2 curve that has area below and above the x-axis. Please note, the polynomial 2 model implemented in this package is re-parameterized such that the baseline response is always assumed to be 0. 
-
 
 The Polynomial 2 model in `tcplfit2` is implemented as $a*(\frac{x}{b} + \frac{x^2}{b^2})$. Here, $a = 1$ and $b = (-2)$ is used to simulate a bi-phasic curve, which can be represented in the typical form as $\frac{1}{4} x^2 - \frac{1}{2}x$.
 
@@ -1087,7 +1113,7 @@ plot(conc_sim, resp_sim)
 abline(h = 0)
 ```
 
-***Figure 5:** This plot illustrates the simulated bi-phasic polynomial 2 curve. The curve initially decreases, then increases and crosses the x-axis at `x = 2` (x-intercept).*
+***Figure 21:** This plot illustrates the simulated bi-phasic polynomial 2 curve. The curve initially decreases, then increases and crosses the x-axis at `x = 2` (x-intercept).*
 
 ```{r, example 4 cont.}
 # get AUC for the simulated Polynomial 2 curve 
