@@ -4,7 +4,7 @@
 \alias{get_AUC}
 \title{Calculate Area Under the Curve (AUC)}
 \usage{
-get_AUC(fit_method, lower, upper, ps, return.abs = FALSE)
+get_AUC(fit_method, lower, upper, ps, return.abs = FALSE, use.log = FALSE)
 }
 \arguments{
 \item{fit_method}{Name of the model to calculate the area under the curve (AUC) for.}
@@ -15,8 +15,11 @@ get_AUC(fit_method, lower, upper, ps, return.abs = FALSE)
 
 \item{ps}{Numeric vector (or list) of model parameters for the specified model in `fit_method`.}
 
-\item{return.abs}{Logical argument, defaults to FALSE.
-If set to TRUE, the function will convert the negative AUC value and return a positive AUC.}
+\item{return.abs}{Logical argument, if TRUE, returns the absolute value of the AUC. Defaults to FALSE.}
+
+\item{use.log}{Logical argument, defaults to FALSE. By default, the function estimates AUC with
+concentrations in normal unit. If set to TRUE, will use concentration in log10-scale for
+estimating AUC.}
 }
 \value{
 AUC value (numeric)

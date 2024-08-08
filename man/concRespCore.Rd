@@ -20,7 +20,9 @@ concRespCore(
   bmd_low_bnd = NULL,
   bmd_up_bnd = NULL,
   poly2.biphasic = TRUE,
-  AUC = TRUE
+  AUC = FALSE,
+  use.abs.auc = FALSE,
+  use.log.auc = FALSE
 )
 }
 \arguments{
@@ -67,7 +69,13 @@ than 10 times the highest concentration tested.}
 \item{poly2.biphasic}{If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)}
 
-\item{AUC}{If TRUE, generate and return Area under the curve (AUC) for the winning model after hit-calling. Defaults to TRUE.}
+\item{AUC}{If TRUE, generate and return Area under the curve (AUC) for the winning model after hit-calling. Defaults to FALSE.}
+
+\item{use.abs.auc}{Logical argument, if TRUE, returns the absolute value of the AUC. Defaults to FALSE.}
+
+\item{use.log.auc}{Logical argument, defaults to FALSE. By default, estimates AUC with
+concentrations in normal unit. If set to TRUE, will use concentration in log10-scale for
+estimating AUC.}
 }
 \value{
 A list of two elements. The first (summary) is the output from tcplhit2_core. The second, params is the

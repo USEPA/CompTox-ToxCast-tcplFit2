@@ -4,10 +4,16 @@
 \alias{post_hit_AUC}
 \title{Calculate Area Under the Curve After Hit-calling}
 \usage{
-post_hit_AUC(hit_results, ...)
+post_hit_AUC(hit_results, return.abs = FALSE, use.log = FALSE)
 }
 \arguments{
-\item{hit_results}{output from `tcplhit2_core`}
+\item{hit_results}{output from `tcplhit2_core`.}
+
+\item{return.abs}{Logical argument, if TRUE, returns the absolute value of the AUC. Defaults to FALSE.}
+
+\item{use.log}{Logical argument, defaults to FALSE. By default, the function estimates AUC with
+concentrations in normal unit. If set to TRUE, will use concentration in log10-scale for
+estimating AUC.}
 }
 \value{
 AUC value of the winning model (numeric)
