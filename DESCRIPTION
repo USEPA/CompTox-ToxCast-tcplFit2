@@ -23,7 +23,8 @@ Suggests:
     data.table,
     tcpl,
     prettydoc,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    here
 VignetteBuilder: knitr
 Imports: 
     stats,
