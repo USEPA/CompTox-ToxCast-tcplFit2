@@ -24,7 +24,9 @@ Suggests:
     tcpl,
     prettydoc,
     testthat (>= 3.0.0),
-    here
+    here,
+    htmlTable,
+    tidyr
 VignetteBuilder: knitr
 Imports: 
     stats,
