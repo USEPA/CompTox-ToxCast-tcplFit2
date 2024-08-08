@@ -30,7 +30,8 @@ Imports:
     methods,
     numDeriv,
     RColorBrewer,
-    stringr
+    stringr,
+    reshape2
 Depends: 
     R (>= 3.5.0)
 Config/testthat/edition: 3
