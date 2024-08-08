@@ -20,6 +20,7 @@
 #' not included, and only the successful fits will be displayed.)
 #'
 #' @import reshape2
+#' @import ggplot2
 #'
 #' @export
 plot_allcurves <- function(modelfits, conc, resp, log_conc = FALSE) {
