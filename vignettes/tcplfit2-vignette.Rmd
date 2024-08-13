@@ -31,7 +31,7 @@ The package `tcplfit2` is used to perform basic concentration-response curve fit
 
 The main set of extensions includes additional concentration-response models like those contained in the program [BMDExpress2](https://www.sciome.com/bmdexpress/). These include exponential, polynomial (1 & 2), and power functions in addition to the original Hill, gain-loss and constant models. Similar to the program BMDExpress, a defined benchmark response (BMR) level is used to estimate a benchmark dose (BMD), which is the concentration where the curve-fit intersects with this BMR threshold. One final addition was to let the hitcall value be a  number ranging from 0 to 1 (in contrast to binary hitcall values from tcplFit()). Continuous hitcall in `tcplfit2` is defined as the product of three proportional weights: 1) the AIC of the winning model is better than the constant model (i.e. winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff, and 3) the top from the winning model exceeds the cutoff. 
  
-While developed primarily to for bioactivity data curve fitting in the Center for Computational Toxicology and Exposure, the `tcplfit2` package is written to be generally applicable to the chemical-screening community for standalone applications.
+Although developed primarily for bioactivity data curve fitting in the Center for Computational Toxicology and Exposure, the `tcplfit2` package is written to be generally applicable to the chemical-screening community for standalone applications.
 
 This vignette describes some functionality of the `tcplfit2` package with a few simple standalone examples.
 
