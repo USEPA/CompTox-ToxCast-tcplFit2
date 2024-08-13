@@ -31,7 +31,7 @@ The package `tcplfit2` is used to perform basic concentration-response curve fit
 
 The main set of extensions includes additional concentration-response models like those contained in the program [BMDExpress2](https://www.sciome.com/bmdexpress/). These include exponential, polynomial (1 & 2), and power functions in addition to the original Hill, gain-loss and constant models. Similar to the program BMDExpress, a defined Benchmark Response (BMR) level is used to estimate a benchmark dose (BMD), which is the concentration where the curve-fit intersects with this BMR threshold. One final addition was to let the hit call value be a continuous number ranging from 0 to 1 (in contrast to binary hit call values from tcplFit()). Continuous hit call in `tcplfit2` are defined as the product of three proportional weights: 1) the AIC of the winning model is better than the constant model (i.e. winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff, and 3) the top from the winning model exceeds the cutoff. 
  
-While developed primarily to for bioactivity data curve-fitting in the Center for Computational Toxicology and Exposure, the tcplfit2 package is written to be generally applicable to the chemical-screening community for standalone applications.
+While developed primarily to for bioactivity data curve fitting in the Center for Computational Toxicology and Exposure, the tcplfit2 package is written to be generally applicable to the chemical-screening community for standalone applications.
 
 This vignette describes some functionality of the `tcplfit2` package with a few simple standalone examples.
 
@@ -56,7 +56,7 @@ library(gridExtra)
 
 ## Concentration-response Modeling for a Single Series with `concRespCore` {#ex1}
 
-`concRespCore` is the main wrapper function utilizing two other utility functions, `tcplfit2_core` and `tcplhit2_core`, to perform curve-fitting, hit-calling and potency estimation. This example shows how to use the `concRespCore` function, refer to the [Concentration-response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2) section to see how `tcplfit2_core` and `tcplhit2_core` may be used separately. The first argument for `concRespCore` is a named list, called 'row', containing the following inputs:
+`concRespCore` is the main wrapper function utilizing two other utility functions, `tcplfit2_core` and `tcplhit2_core`, to perform curve fitting, hit-calling and potency estimation. This example shows how to use the `concRespCore` function, refer to the [Concentration-response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2) section to see how `tcplfit2_core` and `tcplhit2_core` may be used separately. The first argument for `concRespCore` is a named list, called 'row', containing the following inputs:
 
 -   `conc` - a numeric vector of concentrations (not log concentrations).
 -   `resp` - a numeric vector of responses, of the same length as `conc`. Note that replicates are allowed, i.e. there may be multiple response values (`resp`) for one concentration dose group.  These should be input as pairs of `conc` and `resp` values.
@@ -66,7 +66,7 @@ library(gridExtra)
 
 The `row` object may include other elements which provide annotation which will be included as part of the `concRespCore` function output -- for example, chemical names (or other identifiers), assay name, name of the response being modeled, etc.
 
-A user may also need to include other arguments in the `concRespCore` function, which internally control the execution of curve-fitting, hit calling, and potency estimation:
+A user may also need to include other arguments in the `concRespCore` function, which internally control the execution of curve fitting, hit calling, and potency estimation:
 
 -   `conthits` - Boolean argument. If TRUE (the default, and recommended usage), the hit call returned will be a continuous value between 0 and 1.
 -   `errfun` - Allows user to specify the distribution of errors. The default is "dt4", models are fitted assuming the errors follow a Student's t-distribution with a degree of freedom of 4. Can assume normal distributed errors by changing it to "dnorm".
@@ -117,7 +117,7 @@ This example shows fitting a set of concentration-response series from a single 
 
 Here, data from a Tox21 high-throughput screening (HTS) assay measuring estrogen receptor (ER) agonist activity are examined. The data were processed by the ToxCast pipeline (`tcpl`), stored, and retrieved from the Level 3 (mc3) table in the database `invitrodb`. At Level 3, data have already undergone pre-processing steps (prior to `tcpl`) and been processed through to Level 3, including transformation of response values and concentration normalization. For this example, 6 out of 100 available from samples from `mc3` are selected. [Concentration-response Modeling for tcpl-like data without a database connection](#ex3) highlights how to process from source data. 
 
-The following code demonstrates how to set up the input data and execute curve-fitting and hitcalling with the `tcplfit2_core` and `tcplhit2_core` functions, respectively.
+The following code demonstrates how to set up the input data and execute curve fitting and hitcalling with the `tcplfit2_core` and `tcplhit2_core` functions, respectively.
 
 ```{r example2, class.source="scroll-100", warning=FALSE}
 # read in the data
@@ -155,7 +155,7 @@ The following code demonstrates how to set up the input data and execute curve-f
     name <- temp[1,"name"]
     assay <- temp[1,"assay"]
     
-    # Execute curve-fitting
+    # Execute curve fitting
     # Input concentrations, responses, cutoff, a list of models to fit, and other model fitting requirements
     model_fits[[spid]] <- tcplfit2_core(conc, resp, cutoff, force.fit = TRUE, 
                                         fitmodels = c("cnst", "hill", "gnls", 
@@ -241,9 +241,9 @@ concRespPlot2(result_table[1,],log_conc = TRUE) +
 
 ## Concentration-response Modeling for `tcpl`-like data without a database connection {#ex3}
 
-The `tcplLite` functionality was deprecated with the updates to `tcpl` and development of `tcplfit2`, since `tcplfit2` allows one to perform curve-fitting and hit-calling independent of a database connection. This example demonstrates how to perform an analysis analogous to `tcplLite` with `tcplfit2`. More information on the ToxCast program can be found at https://www.epa.gov/chemical-research/toxicity-forecasting. A detailed explanation of processing levels can be found within `tcpl`'s [Data Processing vignette](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html).
+The `tcplLite` functionality was deprecated with the updates to `tcpl` and development of `tcplfit2`, since `tcplfit2` allows one to perform curve fitting and hit-calling independent of a database connection. This example demonstrates how to perform an analysis analogous to `tcplLite` with `tcplfit2`. More information on the ToxCast program can be found at https://www.epa.gov/chemical-research/toxicity-forecasting. A detailed explanation of processing levels can be found within `tcpl`'s [Data Processing vignette](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html).
 
-In this example, the example input data comes from the ACEA_AR assay. Data from the assay component ACEA_AR_agonist_80hr assumes the response changes in the positive direction relative to DMSO (neutral control & baseline activity) for this curve-fitting analysis. Using an electrical impedance as a cell growth reporter, increased activity can be used to infer increased signaling at the pathway-level for the androgen receptor (as encoded by the AR gene). Given the heterogeneity in assay data reporting, source data often must go through pre-processing steps to transform into a uniform data format, namely Level 0 data. 
+In this example, the example input data comes from the ACEA_AR assay. Data from the assay component ACEA_AR_agonist_80hr assumes the response changes in the positive direction relative to DMSO (neutral control & baseline activity) for this curve fitting analysis. Using an electrical impedance as a cell growth reporter, increased activity can be used to infer increased signaling at the pathway-level for the androgen receptor (as encoded by the AR gene). Given the heterogeneity in assay data reporting, source data often must go through pre-processing steps to transform into a uniform data format, namely Level 0 data. 
 
 ## - Source Data Formatting
 
@@ -819,7 +819,7 @@ signatures[1,]
 ## Plotting All Models From `tcplfit2_core`
 Users performing concentration-response modeling may want to compare the resulting fits from all models.  The `plot_allcurves` function enables users to automatically generate this visualization with the output from the `tcplfit2_core` function. Note, to utilize `plot_allcurves`, `tcplfit2_core` must be run separately to obtain the necessary input. The resulting figure allows one to evaluate general behaviors and qualities of the resulting curve fits. Furthermore, some curves may fail to fit the observed data.  In these cases, failed models are excluded from the plot, and a warning message is provided, such that the user will know which models reasonably describe the data. Lastly, if a user wants to visualize their data with the concentrations on the `log-10` scale they can set the `log_conc` argument to `TRUE`.  
 
-The following code demonstrates how to obtain the curve-fitting results with `tcplfi2_core` and generate a visualization with `plot_allcurves`:
+The following code demonstrates how to obtain the curve fitting results with `tcplfi2_core` and generate a visualization with `plot_allcurves`:
 ```{r}
 # using the first row of signature as an example 
 conc=as.numeric(str_split(signatures[1,"conc"],"\\|")[[1]])
