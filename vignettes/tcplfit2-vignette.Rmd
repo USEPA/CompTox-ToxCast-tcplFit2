@@ -309,7 +309,7 @@ dat[ , cndx := indexfunc(conc), by = list(rpid)]
 ```
 
 ```{r, echo=FALSE}
-tcplConf(user="_dataminer", pass="pass", db="invitrodb", drvr="MySQL", host="ccte-mysql-res.epa.gov")
+# tcplConf(user="_dataminer", pass="pass", db="invitrodb", drvr="MySQL", host="ccte-mysql-res.epa.gov")
 ```
 
 ## - Adjustments

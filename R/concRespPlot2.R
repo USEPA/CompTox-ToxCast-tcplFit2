@@ -12,6 +12,7 @@
 #'
 #' @return A `ggplot` object of the observed concentration-response data
 #' overlaid with the best fit curve (winning model).
+#' @import ggplot2
 #'
 #' @export
 concRespPlot2 <- function(row, log_conc = FALSE) {

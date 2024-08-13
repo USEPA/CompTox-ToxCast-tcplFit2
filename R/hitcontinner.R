@@ -21,6 +21,7 @@
 #'
 #' @importFrom stats pt
 #' @importFrom stats aggregate
+#' @importFrom stats pnorm
 #'
 #' @return Continuous hitcall between 0 and 1.
 #' @export

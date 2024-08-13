@@ -19,8 +19,14 @@
 #' all resulting curve fits from `tcplfit2_core`. (Note: The constant model is
 #' not included, and only the successful fits will be displayed.)
 #'
+#' @import reshape2
+#' @import ggplot2
+#'
 #' @export
 plot_allcurves <- function(modelfits, conc, resp, log_conc = FALSE) {
+
+  #variable binding for cran checks
+  modelnames <- value <- variable <- NULL
 
   list2env(modelfits, envir = environment())
 
@@ -68,8 +74,7 @@ plot_allcurves <- function(modelfits, conc, resp, log_conc = FALSE) {
   colnames(allresp) <- shortnames
 
   # Format data into a data.frame for ease of plotting.
-  estDR <- cbind.data.frame(X,allresp) %>%
-    reshape2::melt(data = .,measure.vars = shortnames)
+  estDR <-  reshape2::melt(data = cbind.data.frame(X,allresp),measure.vars = shortnames)
 
   ## Plot the Model Fits ##
   p <- ggplot(data.frame(conc, resp), aes(x = conc,y = resp)) +

@@ -8,5 +8,6 @@
 
 library(testthat)
 library(tcplfit2)
+library(here)
 
 test_check("tcplfit2")
