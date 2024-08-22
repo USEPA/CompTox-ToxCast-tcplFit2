@@ -56,7 +56,7 @@ library(gridExtra)
 
 ## Concentration-Response Modeling for a Single Series with `concRespCore` {#ex1}
 
-`concRespCore` is the main wrapper function utilizing two other utility functions, `tcplfit2_core` and `tcplhit2_core`, to perform curve fitting, hitcalling and potency estimation. This example shows how to use the `concRespCore` function, refer to the [Concentration-Response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2) section to see how `tcplfit2_core` and `tcplhit2_core` may be used separately. The first argument for `concRespCore` is a named list, called 'row', containing the following inputs:
+`concRespCore` is the main wrapper function utilizing two other utility functions, `tcplfit2_core` and `tcplhit2_core`, to perform curve fitting, hitcalling and potency estimation. This example shows how to use the `concRespCore` function; refer to the [Concentration-Response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2) section to see how `tcplfit2_core` and `tcplhit2_core` may be used separately. The first argument for `concRespCore` is a named list, called 'row', containing the following inputs:
 
 -   `conc` - a numeric vector of concentrations (not log concentrations).
 -   `resp` - a numeric vector of responses, of the same length as `conc`. Note that replicates are allowed, i.e. there may be multiple response values (`resp`) for one concentration dose group.  These should be input as pairs of `conc` and `resp` values.
