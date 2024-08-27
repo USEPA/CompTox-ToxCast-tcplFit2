@@ -115,22 +115,27 @@ concRespPlot2(res, log_conc = TRUE) + ggtitle("Example 1: Chemical A")
 
 This example shows how to fit a set of concentration-response series from a single assay using the `tcplfit2_core` and `tcplhit2_core` functions sequentially. Using the functions sequentially allows users greater flexibility to examine the intermediate output. For example, the output from `tcplfit2_core` contains model parameters for all models fit to the concentration-response series provided. Furthermore, `tcplfit2_core` results may be passed to `plot_allcurves`, which generates a comparative plot of all curves fit to a concentration-response series.
 
-Here, data from a Tox21 high-throughput screening (HTS) assay measuring estrogen receptor (ER) agonist activity are examined. The data were processed by the ToxCast pipeline (`tcpl`), stored, and retrieved from the Level 3 (mc3) table in the database `invitrodb`. At Level 3, data have already undergone pre-processing steps (prior to `tcpl`) and been processed through to Level 3, including transformation of response values and concentration normalization. For this example, 6 out of 100 available from samples from `mc3` are selected. [Concentration-response Modeling for tcpl-like data without a database connection](#ex3) highlights how to process from source data. 
+Here, data from a Tox21 high-throughput screening (HTS) assay measuring estrogen receptor (ER) agonist activity are examined. The data were processed by the ToxCast pipeline (`tcpl`), stored, and retrieved from the Level 3 (mc3) table in the database `invitrodb`. At Level 3, data have already undergone pre-processing steps (prior to `tcpl`) and been processed through to Level 3, including transformation of response values (including zero centering) and concentration normalization. For this example, 6 out of the 100 available chemical samples (spids) from `mc3` are selected. [Concentration-response Modeling for tcpl-like data without a database connection](#ex3) highlights how to process from source data. 
 
 The following code demonstrates how to set up the input data and execute curve fitting and hitcalling with the `tcplfit2_core` and `tcplhit2_core` functions, respectively.
 
-```{r example2, class.source="scroll-100", warning=FALSE}
+```{r example2_load, warning=FALSE}
 # read in the data
 # Loading in the level 3 example data set from invitrodb
   data("mc3")
+  head(mc3)
+```
 
+
+```{r example2, warning=FALSE}
 # determine the background variation
+# chosen as logc <= -2 in this example but will be assay/application specific
   temp <- mc3[mc3$logc<= -2,"resp"]
   bmad <- mad(temp)
   onesd <- sd(temp)
   cutoff <- 3*bmad
 
-# select six samples. Note that there may be more than one sample processed for a given chemical
+# select six chemical samples. Note that there may be more than one sample processed for a given chemical
   spid.list <- unique(mc3$spid)
   spid.list <- spid.list[1:6]
   
@@ -157,6 +162,9 @@ The following code demonstrates how to set up the input data and execute curve f
     
     # Execute curve fitting
     # Input concentrations, responses, cutoff, a list of models to fit, and other model fitting requirements
+    # force.fit is set to true so that all models will be fit regardless of cutoff
+    # bidirectional = FALSE indicates only fit models in the positive direction.
+    # if using bidirectional = TRUE the coff only needs to be specified in the positive direction.
     model_fits[[spid]] <- tcplfit2_core(conc, resp, cutoff, force.fit = TRUE, 
                                         fitmodels = c("cnst", "hill", "gnls", 
                                                       "poly1", "poly2", "pow", 
@@ -221,7 +229,7 @@ grid.arrange(grobs=plt_lst,ncol=2)
 
 When running the fitting and hitcalling functions sequentially, one can save the result rows from `tcplhit2_core` in a data frame structure and export it for further analysis, see for loop above.
 
-```{r, echo=FALSE}
+```{r}
 htmlTable::htmlTable(head(result_table),
         align = 'l',
         align.header = 'l',
@@ -229,7 +237,7 @@ htmlTable::htmlTable(head(result_table),
         css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
-One can also pass output from `tcplhit2_core` directly to `concRespPlot2` to plot the best model fit, as shown in [Concentration-Response Modeling for a Single Series with concRespCore](#ex1).  The code below demonstrates how to select a single row/result (e.g. one with a significant concentration-responses) and plot the winning model with `concRespPlot2`, along with a minor customization using `ggplot2` layers.
+One can also pass output from `tcplhit2_core` directly to `concRespPlot2` to plot the best model fit, as shown in [Concentration-Response Modeling for a Single Series with concRespCore](#ex1).  The code below demonstrates how to select a single row/result and plot the winning model with `concRespPlot2`, along with a minor customization using `ggplot2` layers.
 
 ```{r example2 plot2}
 # plot the first row
