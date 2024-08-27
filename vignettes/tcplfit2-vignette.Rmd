@@ -249,7 +249,7 @@ concRespPlot2(result_table[1,],log_conc = TRUE) +
 
 ## Concentration-response Modeling for `tcpl`-like data without a database connection {#ex3}
 
-The `tcplLite` functionality was deprecated with the updates to `tcpl` and development of `tcplfit2`, since `tcplfit2` allows one to perform curve fitting and hitcalling independent of a database connection. This example demonstrates how to perform an analysis analogous to `tcplLite` with `tcplfit2`. More information on the ToxCast program can be found at https://www.epa.gov/chemical-research/toxicity-forecasting. A detailed explanation of processing levels can be found within `tcpl`'s [Data Processing vignette](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html).
+The `tcplLite` functionality was deprecated with the updates to `tcpl` and development of `tcplfit2`, because `tcplfit2` allows one to perform curve fitting and hitcalling independent of a database connection. This example demonstrates how to perform an analysis analogous to `tcplLite` with `tcplfit2`. More information on the ToxCast program can be found at https://www.epa.gov/chemical-research/toxicity-forecasting. A detailed explanation of processing levels can be found within `tcpl`'s [Data Processing vignette](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html).
 
 In this example, the example input data comes from the ACEA_AR assay. Data from the assay component ACEA_AR_agonist_80hr assumes the response changes in the positive direction relative to DMSO (neutral control & baseline activity) for this curve fitting analysis. Using an electrical impedance as a cell growth reporter, increased activity can be used to infer increased signaling at the pathway-level for the androgen receptor (as encoded by the AR gene). Given the heterogeneity in assay data reporting, source data often must go through pre-processing steps to transform into a uniform data format, namely Level 0 data. 
 
@@ -271,7 +271,7 @@ To run standalone `tcplfit2` fitting, without the need for a MySQL database conn
 -   clowder_uid = Clowder unique id for source files
 -   git_hash = Hash key for pre-processing scripts
 
-```{r example3_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE,echo=FALSE}
+```{r example3_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE}
 # Loading in the Level 0 example data set from invitrodb
 data("mc0")
 data.table::setDTthreads(2)
@@ -316,6 +316,7 @@ dat[, rpid := paste0(rpid,"_rep",dat_rpid)]
 # For each replicate, define concentration index
 # by ranking the unique concentrations
 indexfunc <- function(x) as.integer(rank(unique(x))[match(x, unique(x))])
+# the := operator is a data.table function to add/update rows
 dat[ , cndx := indexfunc(conc), by = list(rpid)]
 ```
 
@@ -358,10 +359,11 @@ htmlTable::htmlTable(head(tcpl::tcplMthdList(3)),
 ```
 
 ```{r example3 normalize}
-# calculate bval
+# calculate bval of the median of all the wells that have a type of n
 dat[, bval := median(cval[wllt == "n"]), by = list(apid)]
-# calculate pval
+# calculate pval based on the wells that have type of m or o excluding any NA wells
 dat[, pval := median(cval[wllt %in% c("m","o")], na.rm = TRUE), by = list(apid, wllt, conc)]
+# take pval as the minimum per assay plate (apid)
 dat[, pval := min(pval, na.rm = TRUE), by = list(apid)]
 
 # Calculate normalized responses
@@ -410,7 +412,7 @@ myfun <- function(y) {
 
 The following code performs dose-response modeling for all spids in the dataset. **Warning: The fitting step on the full data set, `dat`, can take 7-10 minutes to run.** Hence the following code chunk provides an example subset of data to demonstrate curve fitting. The example subset data only contains records of six samples.
 
-```{r example3_fitting_full, eval=FALSE}
+```{r example3_fitting_full, eval=FALSE, echo = FALSE}
 # only want to run tcplfit2 for test wells in this case
 # this chunk doesn't run, fit the curves on the subset below
 dat[wllt == 't',params:= myfun(.SD), by = .(spid)]
