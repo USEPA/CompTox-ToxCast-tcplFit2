@@ -102,7 +102,7 @@ htmlTable::htmlTable(head(res),
         css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
-One can plot winning curve by passing the output (`res`) to the function `concRespPlot2`. This function returns a basic `ggplot` object, which is meant to leverage the flexibility and modularity of `ggplot2` object to allow users the ability to customize the plot by adding layers of detail. For more information on customizing plotts we refer users to the `tcplfit2` plotting vignette.
+One can plot winning curve by passing the output (`res`) to the function `concRespPlot2`. This function returns a basic `ggplot` object, which is meant to leverage the flexibility and modularity of `ggplot2` object to allow users the ability to customize the plot by adding layers of detail. For more information on customizing plots we refer users to the `tcplfit2` plotting vignette.
 
 ```{r example1 plot, fig.height = 4.55, fig.width = 8}
 # plot the winning curve from example 1, add a title
