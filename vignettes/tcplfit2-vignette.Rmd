@@ -546,7 +546,7 @@ DT::datatable(res_low[1, c("Name","Min. Conc.", "bmd", "bmdl", "bmdu")],rownames
 
 Herein, The lowest tested concentration in the data is `r min(conc2)` but the estimated BMD from the hitcalling results is `r round(res_low$bmd, 3)`, which is lower. Users may allow the estimated BMD to be lower than the lowest concentration screened while restricting it to be no lower than a boundary set by using the argument `bmd_low_bnd`.
 
-If BMD should be no lower than 80% of the lowest tested concentration, then `bmd_low_bnd = 0.8` can be used to set a boundary. This results in a computed boundary of $0.48$. If the estimated BMD is less than the computed boundary (like in this example), it will be "bounded" to the threshold set in bmd_low_bnd. Similarly, the confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the computed boundary. Figure 7 provides a visual representation of the lower boundary censoring. The valid input range for `bmd_low_bnd` is between 0 and 1, excluding 0, ($0 < \text{bmd_low_bnd} \leq 1$).
+If BMD should be no lower than 80% of the lowest tested concentration, then `bmd_low_bnd = 0.8` can be used to set a boundary. This results in a computed boundary of $0.48$. If the estimated BMD is less than the computed boundary (like in this example), it will be "bounded" to the threshold set in bmd_low_bnd. Similarly, the confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the computed boundary. Figure 7 provides a visual representation of the lower boundary bounding. The valid input range for `bmd_low_bnd` is between 0 and 1, excluding 0, ($0 < \text{bmd_low_bnd} \leq 1$).
 
 ```{r example 4 lower-demo}
 # using the argument to set a lower bound for BMD
@@ -645,7 +645,7 @@ DT::datatable(res_up[1, c('Name','Max Conc.', "bmd", "bmdl", "bmdu")],rownames =
 
 The estimated BMD `r round(res_up$bmd, 3)` is greater than the maximum tested concentration, which is `r max(conc)`. As with the `bmd_low_bnd`, users may allow the BMD to be greater than the maximum tested concentration but no greater than a boundary dose set using `bmd_up_bnd`.
 
-Suppose it is desired that the estimated BMD not be larger than 2 times the maximum tested concentration. Here, `bmd_up_bnd = 2` can set the upper threshold dose to $160$. If the estimated BMD is greater than the upper boundary (like in this example), it will be "bounded" to this dose, and its confidence interval will be shifted left. Figure 9 provides a visual representation of upper boundary censoring. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$).
+Suppose it is desired that the estimated BMD not be larger than 2 times the maximum tested concentration. Here, `bmd_up_bnd = 2` can set the upper threshold dose to $160$. If the estimated BMD is greater than the upper boundary (like in this example), it will be "bounded" to this dose, and its confidence interval will be shifted left. Figure 9 provides a visual representation of upper boundary bounding. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$).
 
 ```{r example upper-demo}
 # using bmd_up_bnd = 2
@@ -658,8 +658,8 @@ res_up2 <- concRespCore(row_up,fitmodels = c("cnst", "hill", "gnls", "poly1", "p
 # print out the new results
 # include previous results side by side for comparison 
 res_up2['Max Conc.'] <- max(conc)
-res_up2['Name'] <- paste(name, "after `censoring`", sep = "-")
-res_up['Name'] <- paste(name, "before `censoring`", sep = "-")
+res_up2['Name'] <- paste(name, "after `bounding`", sep = "-")
+res_up['Name'] <- paste(name, "before `bounding`", sep = "-")
 res_up2[1, c("Max Conc.", "bmd", "bmdl", "bmdu")] <- round(res_up2[1, c("Max Conc.", "bmd", "bmdl", "bmdu")], 3)
 
 output_up <- rbind(res_up[1, c('Name', "Max Conc.", "bmd", "bmdl", "bmdu")], 
