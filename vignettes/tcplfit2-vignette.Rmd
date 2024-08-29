@@ -846,9 +846,9 @@ Users performing concentration-response modeling may want to compare the resulti
 The following code demonstrates how to obtain the curve fitting results with `tcplfi2_core` and generate a visualization with `plot_allcurves`:
 ```{r}
 # using the first row of signature as an example 
-conc=as.numeric(str_split(signatures[1,"conc"],"\\|")[[1]])
-resp=as.numeric(str_split(signatures[1,"resp"],"\\|")[[1]])
-cutoff=signatures[1,"cutoff"]
+conc <- as.numeric(str_split(signatures[1,"conc"],"\\|")[[1]])
+resp <- as.numeric(str_split(signatures[1,"resp"],"\\|")[[1]])
+cutoff <- signatures[1,"cutoff"]
 
 # run curve fitting
 output <- tcplfit2_core(conc, resp, cutoff)
