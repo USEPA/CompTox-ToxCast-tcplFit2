@@ -1679,3 +1679,90 @@ htmlTable(output,
 )
 ```
 
+
+# Glossary
+
+n_gt_cutoff
+: number of data points above the cutoff
+
+cutoff 
+: noise cutoff
+
+fit_method
+: curve fit method
+
+top_over_cutoff
+: top divided by cutoff
+
+rmse
+: RMSE of the data points around the best model curve
+
+a
+: fitting parameter methods: exp2, exp3, poly1, poly2, pow
+
+b
+: fitting parameter methods: exp2, exp3, ploy2
+
+p
+: fitting parameter methods: exp3, exp5, gnls, hill, pow
+
+q
+: fitting parameter methods: gnls,
+
+tp
+: top of the curve
+
+ga 
+: ac50 for the rising curve in a gnls model or the Hill model
+
+la
+: ac50 for the falling curve in a gnls model
+
+er
+: fitted error term for plotting error bars
+
+bmr
+: benchmark response; level at which bmd is calculated = onesd*bmr_scale default bmr_scale is 1.349
+
+bmd
+: benchmark dose, curve value at bmr
+
+bmdl
+: lower limit on the bmd
+
+bmdu
+: upper limit on the bmd
+
+caikwt
+: one factor used in calculating the continuous hitcall. It is calculated from the formula = $exp(-aic(cnst)/2)/(exp(-aic(cnst)/2) + exp(-aic(fit method)/2))$ and measures how much lower the selected method AIC is than that for the constant model
+
+mll
+: another factor used in calculating the continuous hitcall = length(modpars) - aic(fit_method)/2
+
+hitcall
+: the final hitcall, a value ranging from 0 to 1
+
+top
+: curve top
+
+ac50
+: curve value at 50% of top, curve value at cutoff
+
+lc50 
+: curve value at 50% of top corresponding to the loss side of the gain-loss curve
+
+ac5
+: curve value at 5% of top
+
+ac10
+: curve value at 10% of top
+
+ac20
+: curve value at 20% of top
+
+acc
+: curve value at cutoff
+
+ac1sd
+: curve value at 1 standard deviation
+
