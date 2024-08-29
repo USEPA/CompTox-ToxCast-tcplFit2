@@ -29,7 +29,7 @@ knitr::opts_chunk$set(
 
 The package `tcplfit2` is used to perform basic concentration-response curve fitting. The original tcplFit() functions in the [ToxCast Data Analysis Pipeline (tcpl)](https://cran.r-project.org/web/packages/tcpl/index.html) package performed basic concentration-response curve fitting to 3 models: Hill, gain-loss [a modified Hill], and constant. With `tcplfit2`, the concentration-response functionality of the package `tcpl` has been expanded and is being used to process high-throughput screening (HTS) data generated at the US Environmental Protection Agency, including targeted assay data in ToxCast, high-throughput transcriptomics (HTTr), and high-throughput phenotypic profiling (HTPP) screening results. The `tcpl` R package continues to be used to manage, curve-fit, plot, and populate its linked MySQL database, invitrodb. Processing with  `tcpl` version 3.0 and beyond depends on the stand-alone `tcplfit2` package to allow a wider variety of concentration-response models (when using invitrodb in the 4.0 schema and beyond).
 
-The main set of extensions includes additional concentration-response models like those contained in the program [BMDExpress2](https://www.sciome.com/bmdexpress/). These include exponential, polynomial (1 & 2), and power functions in addition to the original Hill, gain-loss and constant models. Similar to the program BMDExpress, a defined benchmark response (BMR) level is used to estimate a benchmark dose (BMD), which is the concentration where the curve-fit intersects with this BMR threshold. One final addition was to let the hitcall value be a  number ranging from 0 to 1 (in contrast to binary hitcall values from tcplFit()). Continuous hitcall in `tcplfit2` is defined as the product of three proportional weights: 1) the AIC of the winning model is better than the constant model (i.e. winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff, and 3) the top from the winning model exceeds the cutoff. 
+The main set of extensions includes additional concentration-response models like those contained in the program [BMDExpress2](https://github.com/auerbachs/BMDExpress-2). These include exponential, polynomial (1 & 2), and power functions in addition to the original Hill, gain-loss and constant models. Similar to the program BMDExpress, a defined benchmark response (BMR) level is used to estimate a benchmark dose (BMD), which is the concentration where the curve-fit intersects with this BMR threshold. One final addition was to let the hitcall value be a  number ranging from 0 to 1 (in contrast to binary hitcall values from tcplFit()). Continuous hitcall in `tcplfit2` is defined as the product of three proportional weights: 1) the AIC of the winning model is better than the constant model (i.e. winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff, and 3) the top from the winning model exceeds the cutoff. 
  
 Although developed primarily for bioactivity data curve fitting in the Center for Computational Toxicology and Exposure, the `tcplfit2` package is written to be generally applicable to the chemical-screening community for standalone applications.
 
@@ -70,9 +70,9 @@ A user may also need to include other arguments in the `concRespCore` function, 
 
 -   `conthits` - Boolean argument. If TRUE (the default, and recommended usage), the hitcall returned will be a  value between 0 and 1.
 -   `errfun` - Allows user to specify the distribution of errors. The default is "dt4", models are fitted assuming the errors follow a Student's t-distribution with a degree of freedom of 4. Can assume normal distributed errors by changing it to "dnorm".
--   `poly2.biphasic` - If TRUE (the default, and recommended usage), the polynomial 2 model will attempt fit a biphasic curve to the response (i.e. increase then decrease or vice versa). Can force monotonic fitting with FALSE (parabola with the vertex centers at 0).
+-   `poly2.biphasic` - If TRUE (the default, and recommended usage), the polynomial 2 model will allow a biphasic curve to be fit to the response (i.e. increase then decrease or vice versa). Can force monotonic fitting with FALSE (parabola with the vertex centers at 0).
 -   `do.plot` - If this is set to TRUE (default is FALSE), a plot of all fitted curves will be generated. This plotting functionality is outdated by another plotting function in this package, `plot_allcurves`. More on this can be found under [Additional Plotting Options](#appendix) and the `tcplfit2` plotting vignette.
--   `fitmodels` - a character vector indicating which models to fit the concentration-response data with. If the `fitmodels` parameter is specified, the constant model (`cnst`) model must be included since it is used for comparison in the hitcalling process. However, all other models may be omitted by the user, for example the gain-loss (`gnls`) model is excluded in some applications.
+-   `fitmodels` - a character vector indicating which models to fit the concentration-response data with. If the `fitmodels` parameter is specified, the constant model (`cnst`) model must be included since it is used for comparison in the hitcalling process. However, any other model may be omitted by the user, for example the gain-loss (`gnls`) model is excluded in some applications.
 For a full list of potential arguments, refer the function documentation (`?concRespCore`).
 
 The following code provides a simple example for setting up the input and executing the modeling with `concRespCore`.
@@ -115,7 +115,7 @@ concRespPlot2(res, log_conc = TRUE) + ggtitle("Example 1: Chemical A")
 
 This example shows how to fit a set of concentration-response series from a single assay using the `tcplfit2_core` and `tcplhit2_core` functions sequentially. Using the functions sequentially allows users greater flexibility to examine the intermediate output. For example, the output from `tcplfit2_core` contains model parameters for all models fit to the concentration-response series provided. Furthermore, `tcplfit2_core` results may be passed to `plot_allcurves`, which generates a comparative plot of all curves fit to a concentration-response series.
 
-Here, data from a Tox21 high-throughput screening (HTS) assay measuring estrogen receptor (ER) agonist activity are examined. The data were processed by the ToxCast pipeline (`tcpl`), stored, and retrieved from the Level 3 (mc3) table in the database `invitrodb`. At Level 3, data have already undergone pre-processing steps (prior to `tcpl`) and been processed through to Level 3, including transformation of response values (including zero centering) and concentration normalization. For this example, 6 out of the 100 available chemical samples (spids) from `mc3` are selected. [Concentration-response Modeling for tcpl-like data without a database connection](#ex3) highlights how to process from source data. 
+Here, data from a Tox21 high-throughput screening (HTS) assay measuring estrogen receptor (ER) agonist activity are examined. The data were processed by the ToxCast pipeline (`tcpl`), stored, and retrieved from the Level 3 (mc3) table in the database `invitrodb`. At Level 3, data have already undergone pre-processing steps (prior to `tcpl`), including transformation of response values (including zero centering) and concentration normalization. For this example, 6 out of the 100 available chemical samples (spids) from `mc3` are selected. [Concentration-response Modeling for tcpl-like data without a database connection](#ex3) highlights how to process from source data. 
 
 The following code demonstrates how to set up the input data and execute curve fitting and hitcalling with the `tcplfit2_core` and `tcplhit2_core` functions, respectively.
 
@@ -341,7 +341,7 @@ dat <- dat[!is.na(cval),]
 
 ## - Normalization
 
-The third step normalizes and zero-centers before model fitting, and corresponds to Level 3 in `tcpl`. Our example dataset has both neutral and negative controls available, and the code below demonstrates how to normalize responses to a control in this scenario. However, given experimental designs vary from assay to assay, this process also varies across assays. Thus, the steps shown in this example may not apply to other assays and should only be considered applicable for this example data set. In other applications/scenarios, such as when neutral control or positive/negative controls are not available, the user should normalize responses that best accounts for baseline sampling variability within their experimental design and data. Provided below is a list of normalizing methods used in `tcpl` for reference.
+The third step normalizes and zero-centers before model fitting, and corresponds to Level 3 in `tcpl`. Our example dataset has both neutral and negative controls available, and the code below demonstrates how to normalize responses to a control in this scenario. However, given experimental designs vary from assay to assay, this process also varies across assays. Thus, the steps shown in this example may not apply to other assays and should only be considered applicable for this example data set. In other applications/scenarios, such as when neutral control or positive/negative controls are not available, the user should normalize responses in a way that best accounts for baseline sampling variability within their experimental design and data. Provided below is a list of normalizing methods used in `tcpl` for reference.
 
 For this example, the normalized responses (`resp`) are calculated as a percent of control, i.e. the ratio of differences. The numerator is the difference between the corrected (`cval`) and baseline (`bval`) values and denominator is the difference between the positive/negative control (`pval`) and baseline (`bval`) values.
 
@@ -370,7 +370,7 @@ dat[, pval := min(pval, na.rm = TRUE), by = list(apid)]
 dat[, resp := ((cval - bval)/(pval - bval) * 100)]
 ```
 
-Before model fitting, we need to determine the median absolute deviation around baseline (`BMAD`) and baseline variability (`onesd`), which are later used for cutoff and benchmark response (`BMR`) calculations, respectively. This is part of Level 4 processing in `tcpl`. `tcplfit2` assumes no effect occurs in the two lowest concentrations. Thus, we consider test wells in the two lowest concentrations as our baseline to calculate `BMAD` and `onesd`.
+Before model fitting, we need to determine the median absolute deviation around baseline (`BMAD`) and baseline variability (`onesd`), which are later used for cutoff and benchmark response (`BMR`) calculations, respectively. This is part of Level 4 processing in `tcpl`. In this example, we consider test wells in the two lowest concentrations as our baseline to calculate `BMAD` and `onesd`.
 
 `BMAD` can be calculated as the median absolute deviation of the data in control wells too. Check out other methods of determining `BMAD` and `onesd` used in `tcpl`.
 
@@ -410,7 +410,7 @@ myfun <- function(y) {
 }
 ```
 
-The following code performs dose-response modeling for all spids in the dataset. **Warning: The fitting step on the full data set, `dat`, can take 7-10 minutes to run.** Hence the following code chunk provides an example subset of data to demonstrate curve fitting. The example subset data only contains records of six samples.
+The following code performs dose-response modeling for all spids in the dataset. **Warning: The fitting step on the full data set, `dat`, can take 7-10 minutes with a single core laptop.** Hence the following code chunk provides an example subset of data to demonstrate curve fitting. The example subset data only contains records of six samples.
 
 ```{r example3_fitting_full, eval=FALSE, echo = FALSE}
 # only want to run tcplfit2 for test wells in this case
@@ -546,7 +546,7 @@ DT::datatable(res_low[1, c("Name","Min. Conc.", "bmd", "bmdl", "bmdu")],rownames
 
 Herein, The lowest tested concentration in the data is `r min(conc2)` but the estimated BMD from the hitcalling results is `r round(res_low$bmd, 3)`, which is lower. Users may allow the estimated BMD to be lower than the lowest concentration screened while restricting it to be no lower than a boundary set by using the argument `bmd_low_bnd`.
 
-If BMD should be no lower than 80% of the lowest tested concentration, then `bmd_low_bnd = 0.8` can be used to set a boundary. This results in a computed boundary of $0.48$. If the estimated BMD is less than the computed boundary (like in this example), it will be "bounded" to the threshold set in bmd_low_bnd. Similarly, the confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the computed boundary. Figure 7 provides a visual representation of the lower boundary bounding. The valid input range for `bmd_low_bnd` is between 0 and 1, excluding 0, ($0 < \text{bmd_low_bnd} \leq 1$).
+If BMD should be no lower than 80% of the lowest tested concentration, then `bmd_low_bnd = 0.8` can be used to set a boundary. This results in a computed boundary of $0.48$. If the estimated BMD is less than the computed boundary (like in this example), it will be "bounded" to the threshold set in bmd_low_bnd. Similarly, the confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the computed boundary. Figure 6 provides a visual representation of the lower boundary bounding. The valid input range for `bmd_low_bnd` is between 0 and 1, excluding 0, ($0 < \text{bmd_low_bnd} \leq 1$).
 
 ```{r example 4 lower-demo}
 # using the argument to set a lower bound for BMD
@@ -645,7 +645,7 @@ DT::datatable(res_up[1, c('Name','Max Conc.', "bmd", "bmdl", "bmdu")],rownames =
 
 The estimated BMD `r round(res_up$bmd, 3)` is greater than the maximum tested concentration, which is `r max(conc)`. As with the `bmd_low_bnd`, users may allow the BMD to be greater than the maximum tested concentration but no greater than a boundary dose set using `bmd_up_bnd`.
 
-Suppose it is desired that the estimated BMD not be larger than 2 times the maximum tested concentration. Here, `bmd_up_bnd = 2` can set the upper threshold dose to $160$. If the estimated BMD is greater than the upper boundary (like in this example), it will be "bounded" to this dose, and its confidence interval will be shifted left. Figure 9 provides a visual representation of upper boundary bounding. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$).
+Suppose it is desired that the estimated BMD not be larger than 2 times the maximum tested concentration. Here, `bmd_up_bnd = 2` can set the upper threshold dose to $160$. If the estimated BMD is greater than the upper boundary (like in this example), it will be "bounded" to this dose, and its confidence interval will be shifted left. Figure 7 provides a visual representation of upper boundary bounding. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$).
 
 ```{r example upper-demo}
 # using bmd_up_bnd = 2
@@ -701,7 +701,7 @@ legend(1e-3, 40, legend=c("Maximum Dose Tested", "Boundary", "BMD-before", "BMD-
 
 ## Bounding BMDs with `tcplhit2_core`
 
-The previous two examples provided for BMD bounding use the `concRespCore` function. However, the `bmd_low_bnd` and `bmd_low_bnd` are arguments originating from `tcplhit2_core` function, which is utilized within the `concRespCore` function. Thus, for users that perform dose-response modeling and hitcalling utilizing the `tcplfit2_core` and `tcplhit2_core` separately can do the same BMD "bounding." Regardless of whether a user utilizes the `bmd_low_bnd` and `bmd_low_bnd` arguments in the `concRespCore` or `tcplhit2_core` function the results should be identical. The code provided below shows how to replicate the results from the [lower bound example](#boundinglowerbound) example using `tcplhit2_core` as an alternative.
+The previous two examples provided for BMD bounding use the `concRespCore` function. However, the `bmd_low_bnd` and `bmd_up_bnd` are arguments originating from `tcplhit2_core` function, which is utilized within the `concRespCore` function. Thus, for users that perform dose-response modeling and hitcalling utilizing the `tcplfit2_core` and `tcplhit2_core` separately can do the same BMD "bounding." Regardless of whether a user utilizes the `bmd_low_bnd` and `bmd_up_bnd` arguments in the `concRespCore` or `tcplhit2_core` function the results should be identical. The code provided below shows how to replicate the results from the [lower bound example](#boundinglowerbound) example using `tcplhit2_core` as an alternative.
 
 ```{r example with hit core}
 # using the same data, fit curves 
@@ -782,7 +782,7 @@ legend(1e-3, 60, legend=c("Lowest Dose Tested", "Boundary Dose", "BMD-before", "
 
 The `concRespPlot` function and the `do.plot` argument in `concRespCore` provide plots similar to Figure 1 and 2, respectively. The `do.plot` argument returns a plot of all curve fits of a chemical, and `concRespCore` returns a plot of the winning curve with the hitcall results.
 
-The input data used for the demonstration contains 6 signatures for one chemical in a transcriptomics data set. Each signature is a different assay endpoint, thus one row in the data represents a given chemical and signature pair (assay endpoint). This data set is a sample from the signature scoring method that provides the cutoff, one standard deviation, and the concentration-response data.
+The input data used for the demonstration contains 6 signatures for one chemical in a transcriptomics data set for more info see: [High-Throughput Transcriptomics Platform for Screening Environmental Chemicals](https://doi.org/10.1093/toxsci/kfab009). Each signature is treated as a different assay endpoint, thus one row in the data represents a given chemical and signature pair. This data set is a sample from the signature scoring method that provides the cutoff, one standard deviation, and the concentration-response data.
 
 ```{r appendix plt1, fig.height = 6, fig.width = 7, warning = FALSE}
   # call additional R packages
@@ -835,7 +835,7 @@ The input data used for the demonstration contains 6 signatures for one chemical
 ## Plotting All Models From `tcplfit2_core`
 While most users prefer to fit and hitcall all of their data in one step with `concRespCore`, some users might prefer to fit their curves first with `tcplfit2_core` and/or examine each of the fits.  Thus, users performing concentration-response modeling may want to compare the resulting fits from all models.  The `plot_allcurves` function enables users to automatically generate this visualization with the output from the `tcplfit2_core` function. Note, to utilize `plot_allcurves`, `tcplfit2_core` must be run separately to obtain the necessary input. The resulting figure allows one to evaluate general behaviors and qualities of the resulting curve fits. Furthermore, some curves may fail to fit the observed data.  In these cases, failed models are excluded from the plot, and a warning message is provided, such that the user will know which models reasonably describe the data. Lastly, if a user wants to visualize their data with the concentrations on the `log-10` scale they can set the `log_conc` argument to `TRUE`.  
 
-For this vignette, the `signature` dataset available in the `tcplfit2` package will be used to demonstrate utility of the plotting functions.  The `signatures` dataset contains 6 transcriptional signatures (assay endpoints) for one chemical. Each row in the data represents a chemical-assay endpoint pair with a cutoff, baseline standard deviation, and experimental concentration-response data. For demonstration purposes, only the first row will be used.
+For this vignette, the `signature` dataset available in the `tcplfit2` package will be used to demonstrate utility of the plotting functions.  The `signatures` dataset contains 6 transcriptional signatures for one chemical. Each row in the data is treated as a chemical-assay endpoint pair with a cutoff, baseline standard deviation, and experimental concentration-response data. For demonstration purposes, only the first row will be used.
 ```{r}
 # Load the example data set
 data("signatures")
@@ -984,15 +984,15 @@ basic_plot +
 
 ***Figure 16**: Basic plot generated by `concRespPlot2` with an additional curve for comparison. Experimental data is shown with the open circles, the red curve represents the best fit model for the baseline model, and the blue curve represents the additional curve of interest.*
 
-Plots like Figure 6 typically have similar concentrations and response ranges. If one is comparing curves that do not have similar concentration and/or response ranges, additional alterations may be necessary.
+Plots like Figure 16 typically have similar concentrations and response ranges. If one is comparing curves that do not have similar concentration and/or response ranges, additional alterations may be necessary.
 
 # Area Under the Curve (AUC)
 
-Please note, this AUC calculation in `tcplfit2` is a beta functionality still under development and review, and as such, we welcome your feedback.
+**Please note, this AUC calculation in `tcplfit2` is a beta functionality still under development and review, and as such, we welcome your feedback.**
 
 This section explores how to estimate the area under the curve (AUC) for concentration-response curves with `tcplfit2` using the parameters from curve fitting in the integration to estimate an AUC. The AUC can be interpreted as a measure of overall efficacy and potency, which users may want to include as part of their analyses, such as analyses that aim to rank or prioritize chemical by activity.
 
-A consideration in applying this function `get_AUC` is whether the model bounds are on a log10-scale or arithmetic scale. The use of log10-scale or arithmethic scale may change interpretation of the AUC value. In lines 76-126 of the get_AUC.R function, the methods for converting curve fit model parameters to the log10 scale are provided and in the `get_AUC` function, use.log is a logical option that is FALSE by default.
+A consideration in applying this function `get_AUC` is whether the model bounds are on a log10-scale or arithmetic scale. The use of log10-scale or arithmethic scale may change interpretation of the AUC value. In the `get_AUC` function, use.log is a logical option that is FALSE by default.
 
 ## Area Under the Curve (AUC) with `concRespCore` 
 
@@ -1114,7 +1114,7 @@ lines(conc[order(conc)], pred_resp)
 polygon(c(conc[order(conc)], max(conc)), c(pred_resp, max(pred_resp)), col=rgb(1, 0, 0,0.5))
 ```
 
-***Figure 20:** Notice the function returns a negative AUC value, `r round(estimated_auc2, 5)`. The absolute value, `r abs(round(estimated_auc2,5))`, seems to align with the area between the curve and x-axis. Note: The x-axis in this plot is in the original units, so it looks different from the curve in figure 3, which has the x-axis in $log_{10}$ units.*
+***Figure 20:** Notice the function returns a negative AUC value, `r round(estimated_auc2, 5)`. The absolute value, `r abs(round(estimated_auc2,5))`, seems to align with the area between the curve and x-axis. Note: The x-axis in this plot is in the original (unlogged) units.
 
 As demonstrated, when integrating over a curve in the negative direction, the function will return a negative AUC value. However, some users may want to consider all "areas" as positive values. For this reason, the `return.abs = TRUE` argument in `get_AUC` converts negative AUC values to positive values when returned. This argument is by default `FALSE`.
 
@@ -1140,7 +1140,7 @@ b <- b1/b2
 
 ## plot the curve
 resp_sim <- poly2(c(a, b, 0.1), conc_sim)
-plot(conc_sim, resp_sim)
+plot(conc_sim, resp_sim, type = "l")
 abline(h = 0)
 ```
 
@@ -1153,17 +1153,6 @@ get_AUC("poly2", min(conc_sim), max(conc_sim), ps = c(a, b))
 
 Integrating over a curve with area above and below the x-axis, the current function returns the difference between the total area above the x-axis and the total area below the x-axis (i.e. blue region minus red region). In this example, area above the x-axis is slightly larger than the area below the x-axis so the function returned a positive difference.   
 
-Since the AUC is used as an indicator of overall effect size in a toxicological context, then it makes more sense to report the total area of the above and below x-axis (i.e., blue region plus red region) for bi-phasic curves. To do that, we need to calculate each area separately and take the sum of those areas. The code below demonstrate how this is done for the previously simulated polynomial 2 curve. It should be noted, one needs to identify where the x-intercept(s) occur in order to calculate each area. In this example, the non-zero x-intercept is at x = `r round((-b1-b1)/(2*b2), 3)`. 
-
-```{r, example 4 cont.2}
-# calculate area of each section separately and then sum them together 
-x_intercept <- 1.857
-total_auc <- get_AUC("poly2", min(conc_sim), x_intercept, ps = c(a, b), return.abs = TRUE) + 
-  get_AUC("poly2", x_intercept, max(conc_sim), ps = c(a, b))
-total_auc
-```
-
-The total area of red region plus blue region is `r total_auc`. 
 
 ## AUC with `tcplfit2_core` and `tcplhit2_core`
 
