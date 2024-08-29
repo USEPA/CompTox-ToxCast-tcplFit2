@@ -476,7 +476,7 @@ The resulting output from the previous code chunk is the same format as the `res
 
 Occasionally, the estimated benchmark dose (BMD) can occur outside the experimental tested concentration range,  e.g. the BMD may be greater than the maximum tested concentration in the data. In these cases, `tcplhit2_core` and `concRespCore` provide options for users to "bound" the estimated BMD. This can be done using the `bmd_low_bnd` and `bmd_up_bnd` arguments.
 
-`bmd_low_bnd` and `bmd_up_bnd` are multipliers applied to the minimum or maximum tested concentrations (i.e. reference doses), respectively, to provide an lower and upper boundaries for BMD estimates. This section demonstrates how to "bound" BMD estimates using the provided arguments in the `concRespCore` and `tcplhit2_core` functions, thereby preventing extreme BMD estimates far outside of the concentration range screened.
+`bmd_low_bnd` and `bmd_up_bnd` are multipliers applied to the minimum or maximum tested concentrations (i.e. reference doses), respectively, to provide a lower and upper boundaries for BMD estimates. This section demonstrates how to "bound" BMD estimates using the provided arguments in the `concRespCore` and `tcplhit2_core` functions, thereby preventing extreme BMD estimates far outside of the concentration range screened.
 
 ## Imposing Lower BMD Bounds {#boundinglowerbound}
 
@@ -484,11 +484,13 @@ First, consider a situation when the estimated BMD is less than the lowest teste
 
 In the following code chunk, we use the `mc3` dataset with some minor modifications to demonstrate this case. Here, we take one of the concentration-response series and remove dose groups less than $0.41$. Removing the lower dose groups simulates the scenario where there is a lack of data in the low-dose region and causes the BMD estimate to be less than the lowest concentration remaining in the data.
 
-```{r example 4 lower, class.source="scroll-100",}
+```{r example 4 lower, warning=FALSE}
 # We'll use data from mc3 in this section
 data("mc3")
 
 # determine the background variation
+# background is defined per the assay.  In this case we use logc <= -2
+# However, background should be defined in a way that makes sense for your application
 temp <- mc3[mc3$logc<= -2,"resp"]
 bmad <- mad(temp)
 onesd <- sd(temp)
@@ -499,7 +501,7 @@ spid <- unique(mc3$spid)[94]
 ex_df <- mc3[is.element(mc3$spid,spid),]
 
 # The data file has stored concentration in log10 form, fix it 
-conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
+conc <- 10^ex_df$logc # back-transforming concentrations on log10 scale
 resp <- ex_df$resp
 
 # modify the data for demonstration purposes 
@@ -519,7 +521,7 @@ row_low <- list(conc = conc2, resp = resp2, bmed = 0, cutoff = cutoff, onesd = o
 # run the concentration-response modeling for a single sample
 res_low <- concRespCore(row_low,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                           "pow", "exp2", "exp3", "exp4", "exp5"), 
-                        conthits = T, aicc = F, bidirectional=F)
+                        bidirectional=F)
 
 concRespPlot2(res_low, log_conc = T) + 
   geom_rect(aes(xmin = log10(res_low[1, "bmdl"]),
@@ -537,6 +539,8 @@ concRespPlot2(res_low, log_conc = T) +
 res_low['Min. Conc.'] <- min(conc2)
 res_low['Name'] <- name
 res_low[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")] <- round(res_low[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")], 3)
+```
+```{r example_4_table, echo=FALSE}
 DT::datatable(res_low[1, c("Name","Min. Conc.", "bmd", "bmdl", "bmdu")],rownames = FALSE)
 ```
 
@@ -561,6 +565,8 @@ res_low2[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")] <- round(res_low2[1, c("Min.
 
 output_low <- rbind(res_low[1, c('Name', "Min. Conc.", "bmd", "bmdl", "bmdu")], 
                     res_low2[1, c('Name', "Min. Conc.", "bmd", "bmdl", "bmdu")])
+```
+```{r example_4_lower_res_table, echo = FALSE}
 DT::datatable(output_low,rownames = FALSE)
 ```
 
@@ -632,6 +638,8 @@ res_up['Max Conc.'] <- max(conc)
 res_up['Name'] <- name
 res_up[1, c("Max Conc.", "bmd", "bmdl", "bmdu")] <- round(res_up[1, c("Max Conc.", "bmd", "bmdl", "bmdu")], 3)
 # function results
+```
+```{r example_5_table, echo = FALSE}
 DT::datatable(res_up[1, c('Name','Max Conc.', "bmd", "bmdl", "bmdu")],rownames = FALSE)
 ```
 
@@ -656,6 +664,8 @@ res_up2[1, c("Max Conc.", "bmd", "bmdl", "bmdu")] <- round(res_up2[1, c("Max Con
 
 output_up <- rbind(res_up[1, c('Name', "Max Conc.", "bmd", "bmdl", "bmdu")], 
                    res_up2[1, c('Name', "Max Conc.", "bmd", "bmdl", "bmdu")])
+```
+```{r example_upper_2_table, echo = FALSE}
 DT::datatable(output_up,rownames = FALSE)
 ```
 
@@ -708,6 +718,8 @@ hit_res[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")] <- round(hit_res[1, c("Min. C
 
 output_low <- rbind(output_low, 
                     hit_res[1, c('Name', "Min. Conc.", "bmd", "bmdl", "bmdu")])
+```
+```{r res-hit_table, echo = FALSE}
 DT::datatable(output_low,rownames = FALSE)
 ```
 
@@ -732,6 +744,8 @@ res_low3[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")] <- round(res_low3[1, c("Min.
 
 output_low <- rbind(output_low[-3, ], 
                     res_low3[1, c('Name', "Min. Conc.", "bmd", "bmdl", "bmdu")])
+```
+```{r lower_bound_res_table, echo = FALSE}
 DT::datatable(output_low,rownames = FALSE)
 ```
 
