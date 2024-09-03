@@ -1,3 +1,5 @@
+# tcplfit2 0.1.7
+
 # tcplfit2 0.1.6
 ==============
 * updated vignettes
