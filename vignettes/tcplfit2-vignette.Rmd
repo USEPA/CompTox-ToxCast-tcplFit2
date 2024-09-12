@@ -69,11 +69,11 @@ The `row` object may include other elements which provide annotation which will 
 A user may also need to include other arguments in the `concRespCore` function, which internally control the execution of curve fitting, hitcalling, and potency estimation:
 
 -   `conthits` - Boolean argument. If TRUE (the default, and recommended usage), the hitcall returned will be a  value between 0 and 1.
--   `errfun` - Allows user to specify the distribution of errors. The default is "dt4", models are fitted assuming the errors follow a Student's t-distribution with a degree of freedom of 4. Can assume normal distributed errors by changing it to "dnorm".
--   `poly2.biphasic` - If TRUE (the default, and recommended usage), the polynomial 2 model will allow a biphasic curve to be fit to the response (i.e. increase then decrease or vice versa). Can force monotonic fitting with FALSE (parabola with the vertex centers at 0).
--   `do.plot` - If this is set to TRUE (default is FALSE), a plot of all fitted curves will be generated. This plotting functionality is outdated by another plotting function in this package, `plot_allcurves`. More on this can be found under [Additional Plotting Options](#appendix) and the `tcplfit2` plotting vignette.
+-   `errfun` - Allows user to specify the distribution of errors. The default is "dt4", models are fit assuming the errors follow a Student's t-distribution with 4 degrees of freedom. Can assume the errors are normally distributed by changing it to "dnorm".
+-   `poly2.biphasic` - If TRUE (the default, and recommended usage), the polynomial 2 model will allow a biphasic curve to be fit to the response (i.e. increase then decrease or vice versa). Can force monotonic fitting with FALSE (parabola with vertex not in the tested concentration range).
+-   `do.plot` - If this is set to TRUE (default is FALSE), a plot of all fitted curves will be generated. This plotting functionality is outdated by another plotting function in this package, `plot_allcurves`. More on this can be found under [Plotting](#appendix).
 -   `fitmodels` - a character vector indicating which models to fit the concentration-response data with. If the `fitmodels` parameter is specified, the constant model (`cnst`) model must be included since it is used for comparison in the hitcalling process. However, any other model may be omitted by the user, for example the gain-loss (`gnls`) model is excluded in some applications.
-For a full list of potential arguments, refer the function documentation (`?concRespCore`).
+For a full list of potential arguments, refer to the function documentation (`?concRespCore`).
 
 The following code provides a simple example for setting up the input and executing the modeling with `concRespCore`.
 
@@ -102,7 +102,7 @@ htmlTable::htmlTable(head(res),
         css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
-One can plot winning curve by passing the output (`res`) to the function `concRespPlot2`. This function returns a basic `ggplot` object, which is meant to leverage the flexibility and modularity of `ggplot2` object to allow users the ability to customize the plot by adding layers of detail. For more information on customizing plots we refer users to the `tcplfit2` plotting vignette.
+One can plot winning curve by passing the output (`res`) to the function `concRespPlot2`. This function returns a basic `ggplot` object, which is meant to leverage the flexibility and modularity of `ggplot2` objects that allow users the ability to customize the plot by adding layers of detail. For more information on customizing plots we refer users to the [Plotting](#appendix) section.
 
 ```{r example1 plot, fig.height = 4.55, fig.width = 8}
 # plot the winning curve from example 1, add a title
@@ -201,7 +201,7 @@ Below the structure of the "Hill" elements are shown as an example of details co
 
 - `success` - a binary indicator, where 1 indicates the fit was successful.
 - `aic` - the Akaike Information Criterion (AIC)
-- `cov` - a binary indicator, where 1 indicates the estimating the inverted hessian was successful
+- `cov` - a binary indicator, where 1 indicates estimation of the inverted hessian was successful
 - `rme` - the root mean square error around the curve
 - `modl` - a numeric vector of model predicted responses at the given concentrations
 - `tp`, `ga`, `p` - estimated model parameters for the "Hill" model
@@ -348,7 +348,7 @@ For this example, the normalized responses (`resp`) are calculated as a percent 
 $$
 \% \space control = \frac{cval - bval}{pval - bval}
 $$
-The table below provides a few methods for calculating `bval` and `pval` in tcpl. For more on the data normalization step, refer to the [Data Normalization](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html#data-normalization) section of `tcpl`'s Data Processing Vignette. 
+The table below provides a few methods for calculating `bval` and `pval` in `tcpl`. For more on the data normalization step, refer to the [Data Normalization](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html#data-normalization) section of `tcpl`'s Data Processing Vignette. 
 
 ```{r, echo=FALSE}
 htmlTable::htmlTable(head(tcpl::tcplMthdList(3)),
@@ -474,9 +474,9 @@ The resulting output from the previous code chunk is the same format as the `res
 
 # Bounding the Benchmark Dose (BMD)
 
-Occasionally, the estimated benchmark dose (BMD) can occur outside the experimental tested concentration range,  e.g. the BMD may be greater than the maximum tested concentration in the data. In these cases, `tcplhit2_core` and `concRespCore` provide options for users to "bound" the estimated BMD. This can be done using the `bmd_low_bnd` and `bmd_up_bnd` arguments.
+Occasionally, the estimated benchmark dose (BMD) can occur outside the experimental concentration range,  e.g. the BMD may be greater than the maximum tested concentration in the data. In these cases, `tcplhit2_core` and `concRespCore` provide options for users to "bound" the estimated BMD. This can be done using the `bmd_low_bnd` and `bmd_up_bnd` arguments.
 
-`bmd_low_bnd` and `bmd_up_bnd` are multipliers applied to the minimum or maximum tested concentrations (i.e. reference doses), respectively, to provide a lower and upper boundaries for BMD estimates. This section demonstrates how to "bound" BMD estimates using the provided arguments in the `concRespCore` and `tcplhit2_core` functions, thereby preventing extreme BMD estimates far outside of the concentration range screened.
+`bmd_low_bnd` and `bmd_up_bnd` are multipliers applied to the minimum or maximum tested concentrations (i.e. reference doses), respectively, to provide lower and upper boundaries for BMD estimates. This section demonstrates how to "bound" BMD estimates using the provided arguments in the `concRespCore` and `tcplhit2_core` functions, thereby preventing extreme BMD estimates far outside of the concentration range screened.
 
 ## Imposing Lower BMD Bounds {#boundinglowerbound}
 
@@ -546,7 +546,7 @@ DT::datatable(res_low[1, c("Name","Min. Conc.", "bmd", "bmdl", "bmdu")],rownames
 
 Herein, The lowest tested concentration in the data is `r min(conc2)` but the estimated BMD from the hitcalling results is `r round(res_low$bmd, 3)`, which is lower. Users may allow the estimated BMD to be lower than the lowest concentration screened while restricting it to be no lower than a boundary set by using the argument `bmd_low_bnd`.
 
-If BMD should be no lower than 80% of the lowest tested concentration, then `bmd_low_bnd = 0.8` can be used to set a boundary. This results in a computed boundary of $0.48$. If the estimated BMD is less than the computed boundary (like in this example), it will be "bounded" to the threshold set in bmd_low_bnd. Similarly, the confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the computed boundary. Figure 6 provides a visual representation of the lower boundary bounding. The valid input range for `bmd_low_bnd` is between 0 and 1, excluding 0, ($0 < \text{bmd_low_bnd} \leq 1$).
+If the BMD should be no lower than 80% of the lowest tested concentration, then `bmd_low_bnd = 0.8` can be used to set a boundary. This results in a computed boundary of $0.48$. If the estimated BMD is less than the computed boundary (like in this example), it will be "bounded" to the threshold set in `bmd_low_bnd`. Similarly, the confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the computed boundary. Figure 6 provides a visual representation of the lower boundary bounding. The valid input range for `bmd_low_bnd` is between 0 and 1, excluding 0, ($0 < \text{bmd_low_bnd} \leq 1$).
 
 ```{r example 4 lower-demo}
 # using the argument to set a lower bound for BMD
@@ -643,7 +643,7 @@ res_up[1, c("Max Conc.", "bmd", "bmdl", "bmdu")] <- round(res_up[1, c("Max Conc.
 DT::datatable(res_up[1, c('Name','Max Conc.', "bmd", "bmdl", "bmdu")],rownames = FALSE)
 ```
 
-The estimated BMD `r round(res_up$bmd, 3)` is greater than the maximum tested concentration, which is `r max(conc)`. As with the `bmd_low_bnd`, users may allow the BMD to be greater than the maximum tested concentration but no greater than a boundary dose set using `bmd_up_bnd`.
+The estimated BMD, `r round(res_up$bmd, 3)`, is greater than the maximum tested concentration, which is `r max(conc)`. As with the `bmd_low_bnd`, users may allow the BMD to be greater than the maximum tested concentration but no greater than a boundary dose set using `bmd_up_bnd`.
 
 Suppose it is desired that the estimated BMD not be larger than 2 times the maximum tested concentration. Here, `bmd_up_bnd = 2` can set the upper threshold dose to $160$. If the estimated BMD is greater than the upper boundary (like in this example), it will be "bounded" to this dose, and its confidence interval will be shifted left. Figure 7 provides a visual representation of upper boundary bounding. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$).
 
@@ -701,7 +701,7 @@ legend(1e-3, 40, legend=c("Maximum Dose Tested", "Boundary", "BMD-before", "BMD-
 
 ## Bounding BMDs with `tcplhit2_core`
 
-The previous two examples provided for BMD bounding use the `concRespCore` function. However, the `bmd_low_bnd` and `bmd_up_bnd` are arguments originating from `tcplhit2_core` function, which is utilized within the `concRespCore` function. Thus, for users that perform dose-response modeling and hitcalling utilizing the `tcplfit2_core` and `tcplhit2_core` separately can do the same BMD "bounding." Regardless of whether a user utilizes the `bmd_low_bnd` and `bmd_up_bnd` arguments in the `concRespCore` or `tcplhit2_core` function the results should be identical. The code provided below shows how to replicate the results from the [lower bound example](#boundinglowerbound) example using `tcplhit2_core` as an alternative.
+The previous two examples provided for BMD bounding use the `concRespCore` function. However, the `bmd_low_bnd` and `bmd_up_bnd` arguments originate from the `tcplhit2_core` function, which is utilized within the `concRespCore` function. Thus, for users that perform dose-response modeling and hitcalling utilizing the `tcplfit2_core` and `tcplhit2_core` separately can do the same BMD "bounding." Regardless of whether a user utilizes the `bmd_low_bnd` and `bmd_up_bnd` arguments in the `concRespCore` or `tcplhit2_core` function the results should be identical. The code provided below shows how to replicate the results from the [lower bound example](#boundinglowerbound) using `tcplhit2_core` as an alternative.
 
 ```{r example with hit core}
 # using the same data, fit curves 
@@ -727,7 +727,7 @@ DT::datatable(output_low,rownames = FALSE)
 
 If the estimated BMD falls between the lowest dose tested and the defined threshold for an acceptable BMD, i.e. lowest tested dose and lower boundary dose, the estimated BMD will remain unchanged. For demonstration purposes, the lower bound example is used, but the same principle applies to the upper bound case.
 
-The same data from the [lower bound example](#boundinglowerbound) is used along with a smaller `bmd_low_bnd` value to obtain a lower boundary dose. Here, the estimated BMD is acceptable as long as it is no less than 40% (two-fifths) of the minimum tested concentration. The estimated BMD is `r res_low$bmd`, which is between the lowest tested dose, `r min(conc2)`, and the new computed boundary is $0.24$. Thus, the BMD estimate and its confidence interval will remain unchanged.
+The same data from the [lower bound example](#boundinglowerbound) is used along with a smaller `bmd_low_bnd` value to obtain a lower boundary dose. Here, the estimated BMD is acceptable as long as it is no less than 40% (two-fifths) of the minimum tested concentration. The estimated BMD is `r res_low$bmd`, which is between the lowest tested dose, `r min(conc2)`, and the new computed boundary, $0.24$. Thus, the BMD estimate and its confidence interval will remain unchanged.
 
 ```{r example even lower bound}
 res_low3 <- concRespCore(row_low,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
