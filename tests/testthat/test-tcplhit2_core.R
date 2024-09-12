@@ -197,7 +197,7 @@ test_that("tcplhit2 BMD boundary check", {
   cutoff <- 3*bmad
   onesd <- sd(Y[1:10])
   params <- tcplfit2_core(X, Y, cutoff,
-                          force.fit = T)
+                          force.fit = T, poly2.biphasic = FALSE)
   # No thresholds specified, no censoring
   output_nobound <- tcplhit2_core(params, X, Y, cutoff, onesd,
                           bmed=0, conthits=T, aicc=F)

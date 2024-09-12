@@ -3,7 +3,7 @@ test_that("tcplfit2_core works", {
   conc=as.numeric(str_split(signatures[1,"conc"],"\\|")[[1]])
   resp=as.numeric(str_split(signatures[1,"resp"],"\\|")[[1]])
   cutoff=signatures[1,"cutoff"]
-  output <- tcplfit2_core(conc, resp, cutoff = cutoff)
+  output <- tcplfit2_core(conc, resp, cutoff = cutoff, poly2.biphasic = FALSE)
 
   #check hill result
   expect_equal(output[["hill"]]$tp, 0.6795, tolerance = 1e-3)
