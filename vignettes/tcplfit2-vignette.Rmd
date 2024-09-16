@@ -1269,7 +1269,7 @@ Model: $f(x) = a*x^b$
 Parameters include: 
 
 * `a` : Scaling factor. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \gt 0$.
-* `p` : Power, or the rate of growth. A measure of how steep the curve is. The larger `p` is, the steeper the curve is. `p` is restricted to $0.3 \le p \le 20$. 
+* `p` : Power, or the rate of growth. A measure of how steep the curve is. The larger `p` is, the steeper the curve is. `p` is restricted such that $0.3 \le p \le 20$. 
 
 ```{r pow, fig.width=8, fig.height=5, warning=FALSE}
 fits_pow <- data.frame(
@@ -1320,7 +1320,7 @@ Model: $f(x) = \frac{tp}{(1 + (ga/x)^p )}$
 Parameters include: 
 
 * `tp` : Top, the highest (or lowest - if a decreasing curve) response achieved at saturation, that is the horizontal asymptote. If bi-directional fitting is allowed, then $-\infty < tp <\infty$. Otherwise $0 \le tp < \infty$.
-* `ga` : AC50, concentration at 50% of maximal activity. It provides useful information about the "apparent affinity" of the protein under study (enzyme, transporter, etc.) for the substrate. The parameter constraint on `ga` is $0 \le ga < \infty$. 
+* `ga` : AC50, concentration at 50% of the maximal activity. It provides useful information about the "apparent affinity" of the protein under study (enzyme, transporter, etc.) for the substrate. The parameter constraint on `ga` is $0 \le ga < \infty$. 
 * `p` : Power, also called the Hill coefficient. Mathematically, it is a measure of how steep the response curve is. In context, it is a measure of the co-operativity of substrate binding to the enzyme, transporter, etc. `p` is restricted such that $0.3 \le p \le 8$. 
 
 ```{r Hill, fig.height=5, fig.width=8, warning=FALSE}
@@ -1382,18 +1382,18 @@ hill_plot3 <- ggplot(fits_hill, aes(log10(ex_conc))) +
 grid.arrange(hill_plot1, hill_plot2, hill_plot3, ncol = 2, nrow = 2)
 ```
 
-**Figure 25:** The top left plot illustrates how changes in `tp` (maximal change in response) affect the shape of resulting Hill curves, while holding all other parameters constant ($ga = 5, p = 1.76$). The top right plot illustrates how changes `ga` (slope) affect the shape of resulting Hill curves, while holding all other parameters constant($tp = 120, p = 1.76$). The bottom left plot illustrates how changes in `p` (power) affect the shape of resulting Hill curves, while holding all other parameters constant ($tp = 120, ga = 5$). Note: The x-axes are in $log_{10}$ scale to reflect the scale the model is optimized in, i.e. log Hill model $f(x) = \frac{tp}{1 + 10^{(p*(ga-x))}}$.
+**Figure 25:** The top left plot illustrates how changes in `tp` (maximal change in response) affect the shape of resulting Hill curves, while holding all other parameters constant ($ga = 5, p = 1.76$). The top right plot illustrates how changes in `ga` (slope) affect the shape of resulting Hill curves, while holding all other parameters constant ($tp = 120, p = 1.76$). The bottom left plot illustrates how changes in `p` (power) affect the shape of resulting Hill curves, while holding all other parameters constant ($tp = 120, ga = 5$). Note: The x-axes are in $log_{10}$ scale to reflect the scale the model is optimized in, i.e. log Hill model $f(x) = \frac{tp}{1 + 10^{(p*(ga-x))}}$.
 
 ## Gain-Loss (Gnls)
-The Gain-Loss model is the product of two Hill models.  One Hill model fits the response going up and one fits the responses going down. A gain-loss curve can occur either in a gain first then lose, or vice-versa.
+The Gain-Loss model is the product of two Hill models.  One Hill model fits the response going up (gain) and one fits the response going down (loss). A gain-loss curve can occur either as a gain in response first then changing to a loss, or vice-versa.
 
 Model: $f(x) = \frac{tp}{[(1 + (ga/x)^p )(1 + (x/la)^q )]}$
 
 Parameters include:
 
-* `tp`, `ga`, and `p` are the same as in [Hill model](#Hill), and the `la` and `q` parameters are counterparts to the `ga` and `p` parameters, respectively, in the loss direction of the curve. 
-* `la` : Loss AC50. The larger it gets the slower the curve starts to decrease (if it increase first). The parameter constrains on `la` are $0 \le la < \infty$ and $la-ga\ge 1.5$.
-* `q` : Loss power or the rate of loss. The larger it is, the faster the curve decreases (if it increase first). `q` is restricted such that $0.3 \le p \le 8$. 
+* `tp`, `ga`, and `p` are the same as in the [Hill model](#Hill), and the `la` and `q` parameters are counterparts to the `ga` and `p` parameters, respectively, but in the loss direction of the curve. 
+* `la` : Loss AC50, concentration at 50% of the maximal activity in the loss direction. The larger it gets the slower the curve starts to decrease (if it increase first). The parameter constraints on `la` are $0 \le la < \infty$ and $la-ga\ge 1.5$.
+* `q` : Loss power or the rate of loss. The larger it is, the faster the curve decreases (if it increases first). `q` is restricted such that $0.3 \le q \le 8$. 
 
 ```{r gnls, fig.width=8, fig.height=5, warning=FALSE}
 fits_gnls <- data.frame(
@@ -1435,7 +1435,7 @@ gnls_plot2 <- ggplot(fits_gnls, aes(log10(ex_conc))) +
 grid.arrange(gnls_plot1, gnls_plot2, ncol = 2)
 ```
 
-**Figure 26:** The left plot illustrates how changes in `la` (loss slope) affect the shape of resulting gain-loss curves, while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,q = 1.34$). The right plot illustrates how changes in `q` (loss power) affect the shape of resulting gain-loss curves, while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,la = 20$). Note: The x-axes are in $log_{10}$ scale to reflect the scale the model is optimized in, i.e. log gain-loss model $f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))})] }$.
+**Figure 26:** The left plot illustrates how changes in `la` (loss slope) affect the shape of resulting gain-loss curves, while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,q = 1.34$). The right plot illustrates how changes in `q` (loss power) affect the shape of resulting gain-loss curves, while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,la = 20$). Note: The x-axes are in $log_{10}$ scale to reflect the scale the model is optimized in, i.e. the log gain-loss model $f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))})] }$.
 
 ## Exponential 2 (Exp2) {#exponential2}
 
@@ -1444,7 +1444,7 @@ Model: $f(x) = a*(e^{\frac{x}{b}}-1)$
 Parameters include: 
 
 * `a` : The y-scalar. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a < \infty$. Otherwise, $0 < a <\infty$.
-* `b` : The x-scalar. If `b` increases, the curve is shrunk horizontally. `b` is restricted to be $b > 0$ (i.e. positive). 
+* `b` : The x-scalar. If `b` increases, the curve is shrunk horizontally. `b` is restricted such that $b > 0$ (i.e. positive). 
 
 ```{r exp2, fig.width=8, fig.height=5, warning=FALSE}
 fits_exp2 <- data.frame(
@@ -1496,7 +1496,7 @@ Model: $f(x) = a*(e^{(x/b)^p} - 1)$
 Parameters include:
 
 * `a` and `b` are similar to those in Exponential 2. For details and plots, refer back to [Exponential 2](#exponential2). 
-* `p` : Power. A measure of how steep the curve is. The further `p` is from 1, the steeper the curve is. `p` is restricted to be $0.3 \le p \le 8$. 
+* `p` : Power. A measure of how steep the curve is. The further `p` is from 1, the steeper the curve is. `p` is restricted such that $0.3 \le p \le 8$. 
 
 ```{r exp3, fig.width=5, fig.height=5, warning=FALSE}
 fits_exp3 <- data.frame(
@@ -1531,7 +1531,7 @@ Model: $f(x) = tp*(1-2^{(-\frac{x}{ga})})$
 Parameters include: 
 
 * `tp` : Top. The horizontal asymptote the curve is approaching (can also be negative); it is the maximum or minimum of the predicted responses. If bi-directional fitting is allowed, then $-\infty <tp < \infty$. Otherwise, $0 \le tp < \infty$.
-* `ga` : AC50, concentration at 50% of maximal activity. It acts as slope controlling rate the response (curve) approaches the top. If `ga` increases, the curve is shrunk horizontally. `ga` is restricted to be $0 \le ga < \infty$ (e.g. non-negative). 
+* `ga` : AC50, concentration at 50% of the maximal activity. It acts as the slope, controlling the rate at which the response (curve) approaches the top. If `ga` increases, the curve is shrunk horizontally. `ga` is restricted such that $0 \le ga < \infty$ (i.e. non-negative). 
 
 ```{r exp4, fig.width=8, fig.height=5, warning=FALSE}
 fits_exp4 <- data.frame(
@@ -1583,7 +1583,7 @@ Model: $f(x) = tp*(1-2^{(-(x/ga)^p)})$
 Parameters include:
 
 * `tp` and `ga` are similar to those in Exponential 4. For details and plots, refer back to [Exponential 4](#exponential4). 
-* `p` : Power. A measure of how steep the curve is. The further `p` is from 1, the steeper the curve is. `p` is restricted to be $0.3 \le p \le 8$.
+* `p` : Power. A measure of how steep the curve is. The further `p` is from 1, the steeper the curve is. `p` is restricted such that $0.3 \le p \le 8$.
 
 ```{r exp5, fig.width=5, fig.height=5, warning=FALSE}
 fits_exp5 <- data.frame(
@@ -1681,28 +1681,28 @@ htmlTable(output,
 
 
 # Glossary
-The following glossary, though it may not be encompassing all terms included this package, is provided to serve as a quick reference when using `tcplfit2`:
+The following glossary, though it may not be encompassing all terms included in this package, is provided to serve as a quick reference when using `tcplfit2`:
 
 a
 : Model fitting parameter in the following models: exp2, exp3, poly1, poly2, pow
 
 ac5
-: Active concentration at 5% of maximal modeled response (top) value
+: Active concentration at 5% of the maximal modeled response (top) value
 
 ac10
-: Active concentration at 10% of maximal modeled response (top) value
+: Active concentration at 10% of the maximal modeled response (top) value
 
 ac20
-: Active concentration at 20% of maximal modeled response (top) value
+: Active concentration at 20% of the maximal modeled response (top) value
 
 ac50
-: Active concentration at 50% of maximal modeled response (top) value
+: Active concentration at 50% of the maximal modeled response (top) value
 
 acc
-: Active concentration at cutoff
+: Active concentration at the cutoff
 
 ac1sd
-: Active concentration at 1 standard deviation of baseline response
+: Active concentration at 1 standard deviation of the baseline response
 
 b
 : Model fitting parameter in the following models: exp2, exp3, ploy2
@@ -1723,13 +1723,13 @@ bmdu
 : Benchmark Dose upper confidence limit. Derived using a 90% confidence interval around the BMD to reflect the uncertainty
 
 bmr
-: Benchmark Response. Level at which BMD is calculated as $onesd*bmr_scale$, where the default bmr_scale is 1.349
+: Benchmark Response. Response level at which the BMD is calculated as $onesd*bmr_scale$, where the default bmr_scale is 1.349
 
 caikwt
 : Akaike weight of constant model relative to winning model, calculated as $exp(-aic(cnst)/2)/(exp(-aic(cnst)/2) + exp(-aic(fit method)/2))$. Used in calculating the continuous hitcall.
 
 conc
-: Tested concentrations, typically uM
+: Tested concentrations, typically micromolar (uM)
 
 cutoff 
 : Efficacy threshold. User-specified to define activity and may reflect statistical, assay-specific, and biological considerations 
@@ -1741,7 +1741,7 @@ fit_method
 : Curve fit method
 
 ga 
-: AC50 for the rising curve in a gnls model or the Hill model
+: AC50 for the rising curve in a Hill model or the gnls model
 
 hitc or hitcall
 : Continuous hit call value ranging from 0 to 1
@@ -1756,7 +1756,7 @@ lc50
 : Loss concentration at 50% of maximal modeled response (top), corresponding to the loss side of the gnls model
 
 n_gt_cutoff
-: Nnumber of data points above the cutoff
+: Number of data points above the cutoff
 
 p
 : Model fitting parameter in the following models: exp3, exp5, gnls, hill, pow
@@ -1768,13 +1768,13 @@ resp
 : Observed responses at respective concentrations (conc)
 
 rmse
-: Root mean square deviation of the data points relative to model fit. Lower RMSE indicate model fits the data well.
+: Root mean square error of the data points relative to model fit. Lower RMSE indicate model fits the data well.
 
 top_over_cutoff
 : Ratio of the maximal modeled response value to the cutoff (top/cutoff)
 
 top
-: Response value at highest concentration or modeled top value (tp) 
+: Response value at the highest concentration or modeled top value (tp) 
 
 tp
 : Model fitting parameter in the following models: hill, gnls, exp4, exp5
