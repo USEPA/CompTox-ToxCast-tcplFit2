@@ -1170,9 +1170,9 @@ post_hit_AUC(out)
 
 # Model Details
 
-This section contains details for all models available in `tcplfit2`, with parameter explanations and illustrative plots. Users should note that the implementation of all the models in `tcplfit2` assume the baseline response is always 0. 
+This section contains details for all models available in `tcplfit2`, with parameter explanations and illustrative plots. Users should note that the implementation of all models in `tcplfit2` assume the baseline response is always 0. 
 
-The following code chunk prepares two concentration ranges for use in visualizing the various parameters used in these models.
+The following code chunk prepares two concentration ranges for visualizing the effect of various parameters in the models on the shape of the concentration-response curve as their values change.
 
 ```{r setup-2, warning=FALSE}
 # prepare concentration data for demonstration
@@ -1181,13 +1181,13 @@ ex2_conc <- seq(0, 3, length.out = 100)
 ```
 
 ## Polynomial 1 (Poly1)
-Poly1 is a simple linear model. 
+The Poly1 model is a simple linear model with the intercept assumed to be at zero. 
 
 Model: $y = ax$
 
 Parameters include:
 
-* `a` : slope of the line (i.e. rate of change for the response across the dose range). If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \ge 0$ (i.e. non-negative).
+* `a` : slope of the line (i.e. rate of change for the response across the concentration/dose range). If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \ge 0$ (i.e. non-negative).
 
 ```{r poly 1, fig.width=5, fig.height=5, warning=FALSE}
 poly1_plot <- ggplot(mapping=aes(ex_conc)) +  
@@ -1204,19 +1204,21 @@ poly1_plot <- ggplot(mapping=aes(ex_conc)) +
 poly1_plot
 ```
 
-**Figure 22:** This plot illustrates how the change in `a` (slope parameter) affects the resulting curve-fits.
+**Figure 22:** This plot illustrates how changing the parameter `a` (slope) affects the shape of the resulting curves.
 
 ## Polynomial 2 (Poly2)
-Poly2 is a quadratic model. The version implemented in `tcplfit2` has been re-parameterized to assume the baseline response is always zero, and such that the `a` and `b` parameters are interpreted in terms of their impact on the the x- and y-scales, respectively. Poly2 is defined by the following equation, which is slightly different in contrast to a typical quadratic function:
+The Poly2 model is a quadratic model with the baseline response assumed to be zero.  The quadratic model implemented in `tcplfit2` is parameterized such that the `a` and `b` parameters are interpreted in terms of their impact on the the x- and y-scales, respectively. The Poly2 model is defined by the following equation:
 
 Model: $f(x) = a(\frac{x}{b} + \frac{x^2}{b^2})$. 
 
-* Typical quadratic function: $f(x) = ax^2+bx+c$. 
+Note, this parameterization differs from the typical representation of a quadratic function.
+
+* Typical quadratic function: $f(x) = (b_1)x^2+(b_2)x+c$. 
 
 Parameters include: 
 
 * `a` : The y-scalar. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \ge 0$ (i.e. non-negative).
-* `b` : The x-scalar. If `b` increase, the curve is shrunk horizontally. Optimization of the poly2 model in `tcplfit2` makes it such that $b > 0$ (i.e. monotonic increasing or decreasing curves only).
+* `b` : The x-scalar. If `b` increase, the curve is shrunk horizontally. Optimization of the poly2 model in `tcplfit2` restricts `b` such that $b > 0$.
 
 ```{r poly 2, fig.width=8, fig.height=5, warning=FALSE}
 fits_poly <- data.frame(
@@ -1260,7 +1262,9 @@ poly2_plot2 <- ggplot(fits_poly, aes(ex_conc)) +
 grid.arrange(poly2_plot1, poly2_plot2, ncol = 2)
 ```
 
-**Figure 23:** The left plot illustrates how changes in `a` (y-scalar) affect the resulting polynomial 2 curves, while holding `b` constant ($b = 2$). The right  plot illustrates how changes in `b` (x-scalar) affect the resulting polynomial 2 curves, while holding `a` constant ($a = 4$).
+**Figure 23:** The left plot illustrates how changing the `a` (y-scalar) affects the shape of the resulting polynomial 2 curves while holding `b` constant ($b = 2$). The right plot illustrates how changing `b` (x-scalar) affects the shape of the resulting polynomial 2 curves while holding `a` constant ($a = 4$).
+
+It should be noted, the quadratic model may be optimized either allowing for the possibility of bi-phasic responses in the concentration/dose range (`poly2.biphasic=TRUE` argument in `tcplfit2_core`, default) or assuming the response is monotonic (`poly2.biphasic=FALSE`). When bi-phasic modeling is enabled, the polynomial 2 model is optimized using the typical quadratic function then parameters are converted to the x- and y-scalar parameterization.
 
 ## Power (Pow)
 
@@ -1269,7 +1273,7 @@ Model: $f(x) = a*x^b$
 Parameters include: 
 
 * `a` : Scaling factor. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a <\infty$. Otherwise, $a \gt 0$.
-* `p` : Power, or the rate of growth. A measure of how steep the curve is. The larger `p` is, the steeper the curve is. `p` is restricted such that $0.3 \le p \le 20$. 
+* `p` : Power, or the rate of growth. A measure of how steep the curve is. The larger `p` is, the steeper the curve is. Optimization of the power model restricts `p` such that $0.3 \le p \le 20$.
 
 ```{r pow, fig.width=8, fig.height=5, warning=FALSE}
 fits_pow <- data.frame(
@@ -1311,7 +1315,7 @@ pow_plot2 <- ggplot(fits_pow, aes(ex2_conc)) +
 grid.arrange(pow_plot1, pow_plot2, ncol = 2)
 ```
 
-**Figure 24:** The left plot illustrates how changes in `a` (scaling factor) affect the resulting power curves, while holding `p` constant ($p = 1.45$). The right plot illustrates how changes in `p` (power) affect the shapes of resulting power curves, while holding `a` constant ($a = 1.2$). Note: These plots use a smaller concentration range from 0 to 3 to better show the impact of `p` on resulting curves.
+**Figure 24:** The left plot illustrates how changing `a` (scaling factor) affects the shape of the resulting power curves while holding `p` constant ($p = 1.45$). The right plot illustrates how changing `p` (power) affects the shape of the resulting power curves while holding `a` constant ($a = 1.2$). Note: These plots use a concentration range from 0 to 3 to better show the impact of `p` on the resulting curves.
 
 ## Hill {#Hill}
 
@@ -1319,9 +1323,9 @@ Model: $f(x) = \frac{tp}{(1 + (ga/x)^p )}$
 
 Parameters include: 
 
-* `tp` : Top, the highest (or lowest - if a decreasing curve) response achieved at saturation, that is the horizontal asymptote. If bi-directional fitting is allowed, then $-\infty < tp <\infty$. Otherwise $0 \le tp < \infty$.
-* `ga` : AC50, concentration at 50% of the maximal activity. It provides useful information about the "apparent affinity" of the protein under study (enzyme, transporter, etc.) for the substrate. The parameter constraint on `ga` is $0 \le ga < \infty$. 
-* `p` : Power, also called the Hill coefficient. Mathematically, it is a measure of how steep the response curve is. In context, it is a measure of the co-operativity of substrate binding to the enzyme, transporter, etc. `p` is restricted such that $0.3 \le p \le 8$. 
+* `tp` : Top, the highest response (or lowest - for a decreasing curve) achieved at saturation, that is the horizontal asymptote. If bi-directional fitting is allowed, then $-\infty < tp <\infty$. Otherwise $0 \le tp < \infty$.
+* `ga` : AC50, concentration at 50% of the maximal activity. It provides useful information about the "apparent affinity" of the protein under study (enzyme, transporter, etc.) for the substrate. The model restricts `ga` such that $0 \le ga < \infty$.
+* `p` : Power, also called the Hill coefficient. Mathematically, it is a measure of how steep the response curve is. In context, it is a measure of the co-operativity of substrate binding to the enzyme, transporter, etc. Optimization of the Hill model restricts `p` such that $0.3 \le p \le 8$.
 
 ```{r Hill, fig.height=5, fig.width=8, warning=FALSE}
 fits_hill <- data.frame(
@@ -1382,7 +1386,7 @@ hill_plot3 <- ggplot(fits_hill, aes(log10(ex_conc))) +
 grid.arrange(hill_plot1, hill_plot2, hill_plot3, ncol = 2, nrow = 2)
 ```
 
-**Figure 25:** The top left plot illustrates how changes in `tp` (maximal change in response) affect the shape of resulting Hill curves, while holding all other parameters constant ($ga = 5, p = 1.76$). The top right plot illustrates how changes in `ga` (slope) affect the shape of resulting Hill curves, while holding all other parameters constant ($tp = 120, p = 1.76$). The bottom left plot illustrates how changes in `p` (power) affect the shape of resulting Hill curves, while holding all other parameters constant ($tp = 120, ga = 5$). Note: The x-axes are in $log_{10}$ scale to reflect the scale the model is optimized in, i.e. log Hill model $f(x) = \frac{tp}{1 + 10^{(p*(ga-x))}}$.
+**Figure 25:** The top left plot illustrates how changing `tp` (maximal change in response) affects the shape of the resulting Hill curves while holding all other parameters constant ($ga = 5, p = 1.76$). The top right plot illustrates how changing `ga` (slope) affects the shape of the resulting Hill curves while holding all other parameters constant ($tp = 120, p = 1.76$). The bottom left plot illustrates how changing `p` (power) affects the shape of the resulting Hill curves while holding all other parameters constant ($tp = 120, ga = 5$). Note: The x-axes are in the $log_{10}$ scale to reflect the scale the model is optimized in, i.e. log Hill model $f(x) = \frac{tp}{1 + 10^{(p*(ga-x))}}$.
 
 ## Gain-Loss (Gnls)
 The Gain-Loss model is the product of two Hill models.  One Hill model fits the response going up (gain) and one fits the response going down (loss). A gain-loss curve can occur either as a gain in response first then changing to a loss, or vice-versa.
@@ -1392,8 +1396,8 @@ Model: $f(x) = \frac{tp}{[(1 + (ga/x)^p )(1 + (x/la)^q )]}$
 Parameters include:
 
 * `tp`, `ga`, and `p` are the same as in the [Hill model](#Hill), and the `la` and `q` parameters are counterparts to the `ga` and `p` parameters, respectively, but in the loss direction of the curve. 
-* `la` : Loss AC50, concentration at 50% of the maximal activity in the loss direction. The larger it gets the slower the curve starts to decrease (if it increase first). The parameter constraints on `la` are $0 \le la < \infty$ and $la-ga\ge 1.5$.
-* `q` : Loss power or the rate of loss. The larger it is, the faster the curve decreases (if it increases first). `q` is restricted such that $0.3 \le q \le 8$. 
+* `la` : Loss AC50, concentration at 50% of the maximal activity in the loss direction. The model optimization restricts `la` such that $0 \le la < \infty$ and $la-ga\ge 1.5$.
+* `q` : Loss power or the rate of loss. The larger it is, the faster the curve decreases (if it increases first). The model restricts `q` such that $0.3 \le q \le 8$. 
 
 ```{r gnls, fig.width=8, fig.height=5, warning=FALSE}
 fits_gnls <- data.frame(
@@ -1435,7 +1439,7 @@ gnls_plot2 <- ggplot(fits_gnls, aes(log10(ex_conc))) +
 grid.arrange(gnls_plot1, gnls_plot2, ncol = 2)
 ```
 
-**Figure 26:** The left plot illustrates how changes in `la` (loss slope) affect the shape of resulting gain-loss curves, while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,q = 1.34$). The right plot illustrates how changes in `q` (loss power) affect the shape of resulting gain-loss curves, while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,la = 20$). Note: The x-axes are in $log_{10}$ scale to reflect the scale the model is optimized in, i.e. the log gain-loss model $f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))})] }$.
+**Figure 26:** The left plot illustrates how changing `la` (loss slope) affects the shape of the resulting gain-loss curves while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,q = 1.34$). The right plot illustrates how changing `q` (loss power) affects the shape of the resulting gain-loss curves while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,la = 20$). Note: The x-axes are in the $log_{10}$ scale to reflect the scale the model is optimized in, i.e. the log gain-loss model $f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))})] }$.
 
 ## Exponential 2 (Exp2) {#exponential2}
 
@@ -1444,7 +1448,7 @@ Model: $f(x) = a*(e^{\frac{x}{b}}-1)$
 Parameters include: 
 
 * `a` : The y-scalar. If `a` increases, the curve is stretched vertically. If bi-directional fitting is allowed, then $-\infty < a < \infty$. Otherwise, $0 < a <\infty$.
-* `b` : The x-scalar. If `b` increases, the curve is shrunk horizontally. `b` is restricted such that $b > 0$ (i.e. positive). 
+* `b` : The x-scalar. If `b` increases, the curve is shrunk horizontally. The model restricts `b` such that $b > 0$ (i.e. positive). 
 
 ```{r exp2, fig.width=8, fig.height=5, warning=FALSE}
 fits_exp2 <- data.frame(
@@ -1487,7 +1491,7 @@ exp2_plot2 <- ggplot(fits_exp2, aes(ex2_conc)) +
 grid.arrange(exp2_plot1, exp2_plot2, ncol = 2)
 ```
 
-**Figure 27:** The left plot illustrates how changes in `a` (y-scalar) affect the shape of resulting exponential 2 curves, while holding `b` constant ($b=12$). The right plot illustrates how changes in `b` (x-scalar) affect the shape of resulting exponential 2 curves, while holding `a` constant ($a=0.45$). Note: These plots use a smaller concentration range from 0 to 3 to better show the impact of `b` on resulting curves.
+**Figure 27:** The left plot illustrates how changing `a` (y-scalar) affects the shape of the resulting exponential 2 curves while holding `b` constant ($b=12$). The right plot illustrates how changing `b` (x-scalar) affects the shape of the resulting exponential 2 curves while holding `a` constant ($a=0.45$). Note: These plots use a smaller concentration range from 0 to 3 to better show the impact of `b` on the resulting curves.
 
 ## Exponential 3 (Exp3)
 
@@ -1496,7 +1500,7 @@ Model: $f(x) = a*(e^{(x/b)^p} - 1)$
 Parameters include:
 
 * `a` and `b` are similar to those in Exponential 2. For details and plots, refer back to [Exponential 2](#exponential2). 
-* `p` : Power. A measure of how steep the curve is. The further `p` is from 1, the steeper the curve is. `p` is restricted such that $0.3 \le p \le 8$. 
+* `p` : Power. A measure of how steep the curve is. The further `p` is from 1, the steeper the curve is. The model restricts `p` such that $0.3 \le p \le 8$. 
 
 ```{r exp3, fig.width=5, fig.height=5, warning=FALSE}
 fits_exp3 <- data.frame(
@@ -1522,7 +1526,7 @@ exp3_plot <- ggplot(fits_exp3, aes(ex2_conc)) +
 exp3_plot
 ```
 
-**Figure 28:** This plot illustrates how changes in `p` (power) affect the shape of resulting exponential 3 curves, while holding all other parameters constant ($a = 1.67,b = 12.5$). Note: This plot uses a smaller concentration range from 0 to 3 to better show the impact of `p` on resulting curves.
+**Figure 28:** This plot illustrates how changing `p` (power) affects the shape of the resulting exponential 3 curves while holding all other parameters constant ($a = 1.67,b = 12.5$). Note: This plot uses a smaller concentration range from 0 to 3 to better show the impact of `p` on the resulting curves.
 
 ## Exponential 4 (Exp4) {#exponential4}
 
@@ -1531,7 +1535,7 @@ Model: $f(x) = tp*(1-2^{(-\frac{x}{ga})})$
 Parameters include: 
 
 * `tp` : Top. The horizontal asymptote the curve is approaching (can also be negative); it is the maximum or minimum of the predicted responses. If bi-directional fitting is allowed, then $-\infty <tp < \infty$. Otherwise, $0 \le tp < \infty$.
-* `ga` : AC50, concentration at 50% of the maximal activity. It acts as the slope, controlling the rate at which the response (curve) approaches the top. If `ga` increases, the curve is shrunk horizontally. `ga` is restricted such that $0 \le ga < \infty$ (i.e. non-negative). 
+* `ga` : AC50, concentration at 50% of the maximal activity. It acts as the slope, controlling the rate at which the response (curve) approaches the top. If `ga` increases, the curve is shrunk horizontally. The model restricts `ga` such that $0 \le ga < \infty$ (i.e. non-negative). 
 
 ```{r exp4, fig.width=8, fig.height=5, warning=FALSE}
 fits_exp4 <- data.frame(
@@ -1574,7 +1578,7 @@ exp4_plot2 <- ggplot(fits_exp4, aes(ex_conc)) +
 grid.arrange(exp4_plot1, exp4_plot2, ncol = 2)
 ```
 
-**Figure 29:** The left plot illustrates how changes in `tp` (maximal change in response) affect the shape of resulting exponential 4 curves, while holding `ga` constant ($ga = 15$). The right plot illustrates how changes in `ga` (slope) affect the shapes of exponential 4 curves, while holding `tp` constant ($tp = 500$).
+**Figure 29:** The left plot illustrates how changing `tp` (maximal change in response) affects the shape of the resulting exponential 4 curves while holding `ga` constant ($ga = 15$). The right plot illustrates how changing `ga` (slope) affects the shape of the resulting exponential 4 curves while holding `tp` constant ($tp = 500$).
 
 ## Exponential 5 (Exp5)
 
@@ -1583,7 +1587,7 @@ Model: $f(x) = tp*(1-2^{(-(x/ga)^p)})$
 Parameters include:
 
 * `tp` and `ga` are similar to those in Exponential 4. For details and plots, refer back to [Exponential 4](#exponential4). 
-* `p` : Power. A measure of how steep the curve is. The further `p` is from 1, the steeper the curve is. `p` is restricted such that $0.3 \le p \le 8$.
+* `p` : Power. A measure of how steep the curve is. The further `p` is from 1, the steeper the curve is. The model restricts `p` such that $0.3 \le p \le 8$.
 
 ```{r exp5, fig.width=5, fig.height=5, warning=FALSE}
 fits_exp5 <- data.frame(
@@ -1609,7 +1613,7 @@ exp5_plot <- ggplot(fits_exp5, aes(ex_conc)) +
 exp5_plot
 ```
 
-**Figure 30:** This plot illustrates how changes in `p` (power) affect the shape of resulting exponential 5 curves, while holding all other parameters constant ($tp = 793, ga = 6.25$).
+**Figure 30:** This plot illustrates how changing `p` (power) affects the shape of the resulting exponential 5 curves while holding all other parameters constant ($tp = 793, ga = 6.25$).
 
 ## Table of All Model Details
 
@@ -1726,7 +1730,7 @@ bmr
 : Benchmark Response. Response level at which the BMD is calculated as $onesd*bmr_scale$, where the default bmr_scale is 1.349
 
 caikwt
-: Akaike weight of constant model relative to winning model, calculated as $exp(-aic(cnst)/2)/(exp(-aic(cnst)/2) + exp(-aic(fit method)/2))$. Used in calculating the continuous hitcall.
+: Akaike weight of the constant model relative to the winning model, calculated as $exp(-aic(cnst)/2)/(exp(-aic(cnst)/2) + exp(-aic(fit method)/2))$. Used in calculating the continuous hitcall.
 
 conc
 : Tested concentrations, typically micromolar (uM)
