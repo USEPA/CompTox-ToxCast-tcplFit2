@@ -249,7 +249,7 @@ concRespPlot2(result_table[1,],log_conc = TRUE) +
 
 ## Concentration-response Modeling for `tcpl`-like data without a database connection {#ex3}
 
-The `tcplLite` functionality was deprecated with the updates to `tcpl` and development of `tcplfit2`, because `tcplfit2` allows one to perform curve fitting and hitcalling independent of a database connection. This example demonstrates how to perform an analysis analogous to `tcplLite` with `tcplfit2`. More information on the ToxCast program can be found at https://www.epa.gov/chemical-research/toxicity-forecasting. A detailed explanation of processing levels can be found within `tcpl`'s [Data Processing vignette](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html).
+The `tcplLite` functionality was deprecated with the updates to `tcpl` and development of `tcplfit2`, because `tcplfit2` allows one to perform curve fitting and hitcalling independent of a database connection. This example demonstrates how to perform an analysis analogous to `tcplLite` with `tcplfit2`. More information on the ToxCast program can be found at https://www.epa.gov/chemical-research/toxicity-forecasting. A detailed explanation of processing levels can be found within the Data Processing section of the [`tcpl` Vignette on CRAN](https://cran.r-project.org/web/packages/tcpl/index.html).
 
 In this example, the example input data comes from the ACEA_AR assay. Data from the assay component ACEA_AR_agonist_80hr assumes the response changes in the positive direction relative to DMSO (neutral control & baseline activity) for this curve fitting analysis. Using an electrical impedance as a cell growth reporter, increased activity can be used to infer increased signaling at the pathway-level for the androgen receptor (as encoded by the AR gene). Given the heterogeneity in assay data reporting, source data often must go through pre-processing steps to transform into a uniform data format, namely Level 0 data. 
 
@@ -348,7 +348,7 @@ For this example, the normalized responses (`resp`) are calculated as a percent 
 $$
 \% \space control = \frac{cval - bval}{pval - bval}
 $$
-The table below provides a few methods for calculating `bval` and `pval` in `tcpl`. For more on the data normalization step, refer to the [Data Normalization](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html#data-normalization) section of `tcpl`'s Data Processing Vignette. 
+The table below provides a few methods for calculating `bval` and `pval` in `tcpl`. For more on the data normalization step, refer to the Data Normalization sub-section in the [`tcpl` Vignette on CRAN](https://cran.r-project.org/web/packages/tcpl/index.html). 
 
 ```{r, echo=FALSE}
 htmlTable::htmlTable(head(tcpl::tcplMthdList(3)),
@@ -1617,7 +1617,7 @@ exp5_plot
 
 ## Table of All Model Details
 
-This table provides a summary of model details for all available `tcplfit2` models. This table is taken from the [Data Processing vignette](https://cran.r-project.org/web/packages/tcpl/vignettes/Data_processing.html#concentration-response-modeling-details) in the `tcpl` package.
+This table provides a summary of model details for all available `tcplfit2` models. This table is taken from the Concentration-Response Modeling Details sub-section in the [`tcpl` Vignette on CRAN](https://cran.r-project.org/web/packages/tcpl/index.html).
 
 ```{r appendix-table, echo=FALSE, warning=FALSE}
 # First column - tcplfit2 available models.
