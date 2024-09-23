@@ -1,41 +1,33 @@
 ## Changes from last version
-* minor update including updates to docs and vignette
+* updates to docs and vignette
+* Bug fix to tcplfit2 hit-calling 
+* Bug fixing and enhancements to better accommodate bidirectional curve-fitting with tcplfit2
+* Changes to the function of the poly2 so that it permits nonmonotonic fitting
+
 
 ## Test environments
 
-* local Windows 10 install, R 4.2.2
-* R Under development (unstable) (2023-10-05 r85268 ucrt)
-* rhub Fedora Linux, R-devel, clang, gfortran,
-	   Windows Server 2022, R-devel, 64 bit,
-	   Ubuntu Linux 20.04.1 LTS, R-release, GCC
+* local Windows 10 install, R 4.3.3
+* R Under development (unstable) (2024-09-21 r87186 ucrt)
 
-## R CMD check results
+## (local) R CMD check results
 0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 
-## rhub results
-All 3 notes for rhub appear to be related to rhub environment and not package directly
-* checking HTML version of manual ... NOTE
-Skipping checking math rendering: package 'V8' unavailable
-* checking for non-standard things in the check directory ... NOTE
-Found the following files/directories:
-  ''NULL''
-* checking for detritus in the temp directory ... NOTE
-Found the following files/directories:
-  'lastMiKTeXException'
-
-
 ## win-builder results
-Installation time in seconds: 6
-Check time in seconds: 79
-Status: OK
-R Under development (unstable) (2023-10-05 r85268 ucrt)
+Installation time in seconds: 13
+Check time in seconds: 192
+Status: 1 NOTE
+R Under development (unstable) (2024-09-21 r87186 ucrt)
+
+* this NOTE is related to possibly misspelled words in DESCRIPTION. All words are correctly spelled.
 
 
-## Downstream dependencies
+## revdepcheck results
 
-* There are 1 Downstream dependencies for this package.
-── CHECK  1 packages ──
-✔ tcpl 3.0.1        ── E: 0     | W: 0     | N: 0                                                        
-OK: 1                                                                                                                       
-BROKEN: 0
-Total time: 3 min
+We checked 1 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+
+ * We saw 0 new problems
+ * We failed to check 0 packages
+
+
+
