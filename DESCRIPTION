@@ -1,6 +1,6 @@
 Package: tcplfit2
 Title: A Concentration-Response Modeling Utility
-Version: 0.1.6
+Version: 0.1.7
 Authors@R: c(person("Thomas", "Sheffield", role = c("aut")),
 				person("Richard S", "Judson", role = c("ctb"), comment = c(ORCID = "0000-0002-2348-9633")),
 				person("Jason", "Brown", role = "cre", email = "brown.jason@epa.gov", comment = c(ORCID = "0009-0000-2294-641X")),

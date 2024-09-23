@@ -18,7 +18,7 @@ test_that("concRespCore works", {
 
 test_that("HTPP global data internal check", {
 
-  skip_on_cran()
+  skip()
 
   # load necessary data
   load(here::here("R", "sysdata.rda"))
@@ -129,7 +129,7 @@ test_that("HTPP global data internal check", {
 
 test_that("HTPP category data internal check", {
 
-  skip_on_cran()
+  skip()
 
   ## load necessary data
   ## Code below is commented out, not needed when running all tests in the package at once (such as with testthat::test_local().)
@@ -248,7 +248,7 @@ test_that("HTPP category data internal check", {
 
 test_that("HTPP feature data internal check", {
 
-  skip_on_cran()
+  skip()
 
   ## load necessary data
   ## Code below is commented out, not needed when running all tests in the package at once (such as with testthat::test_local().)
@@ -367,7 +367,7 @@ test_that("HTPP feature data internal check", {
 
 test_that("HTTr signature data internal check", {
 
-  skip_on_cran()
+  skip()
 
   ## load necessary data
   ## Code below is commented out, not needed when running all tests in the package at once (such as with testthat::test_local().)
@@ -443,7 +443,7 @@ test_that("HTTr signature data internal check", {
 
 test_that("HTTr gene data internal check", {
 
-  skip_on_cran()
+  skip()
 
   ## load necessary data
   ## Code below is commented out, not needed when running all tests in the package at once (such as with testthat::test_local().)

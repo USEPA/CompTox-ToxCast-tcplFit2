@@ -1,3 +1,11 @@
+# tcplfit2 0.1.7
+* updated documentation/vignettes
+* fixed bug for borderline negative continuous hitcalls
+* biphasic poly2 model was added
+* beta AUC implementation
+* started adding some basic tests
+
+
 # tcplfit2 0.1.6
 ==============
 * updated vignettes
