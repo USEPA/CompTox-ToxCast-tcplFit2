@@ -1,4 +1,5 @@
 # tcplfit2 0.1.7
+==============
 * updated documentation/vignettes
 * fixed bug for borderline negative continuous hitcalls
 * biphasic poly2 model was added

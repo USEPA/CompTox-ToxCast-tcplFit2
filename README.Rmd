@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 
 ## Welcome to the GitHub repository for the tcplfit2 package.
 
-<a href="https://cran.r-project.org/web/packages/tcplfit2/index.html"><img src="vignettes/img/tcplfit2_hex.png" width="200" align="right" /></a>
+<a href="https://CRAN.R-project.org/package=tcplfit2"><img src="vignettes/img/tcplfit2_hex.png" width="200" align="right" /></a>
 
 The tcplfit2 R package performs basic concentration-response curve fitting. The original tcplFit() function in the [ToxCast Data Analysis Pipeline (tcpl) R package](https://github.com/USEPA/CompTox-ToxCast-tcpl) performed basic concentration-response curvefitting to 3 models. With tcplfit2, the core tcpl concentration-response functionality has been expanded to process diverse high-throughput screen (HTS) data generated at the US Environmental Protection Agency, including targeted ToxCast, high-throughput transcriptomics (HTTr) and high-throughput phenotypic profiling (HTPP). tcplfit2 can be used independently to support analysis for diverse chemical screening efforts.
 

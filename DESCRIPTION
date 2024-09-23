@@ -28,7 +28,8 @@ Suggests:
     htmlTable,
     tidyr,
     dplyr,
-    gridExtra
+    gridExtra,
+    rmdformats
 VignetteBuilder: knitr
 Imports: 
     stats,
@@ -41,3 +42,4 @@ Imports:
 Depends: 
     R (>= 3.5.0)
 Config/testthat/edition: 3
+BugReports: https://github.com/USEPA/CompTox-ToxCast-tcplFit2/issues
