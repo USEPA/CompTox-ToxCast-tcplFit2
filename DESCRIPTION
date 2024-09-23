@@ -28,7 +28,8 @@ Suggests:
     htmlTable,
     tidyr,
     dplyr,
-    gridExtra
+    gridExtra,
+    rmdformats
 VignetteBuilder: knitr
 Imports: 
     stats,
