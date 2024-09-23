@@ -23,11 +23,11 @@ knitr::opts_chunk$set(
 ```
 
 
-<a href="https://cran.r-project.org/web/packages/tcplfit2/index.html"><img src="img/tcplfit2_hex.png" width="200" align="right" style="float: right; margin-left: 10px; margin-bottom: 10px;"/></a>
+<a href="https://CRAN.R-project.org/package=tcplfit2"><img src="img/tcplfit2_hex.png" width="200" align="right" style="float: right; margin-left: 10px; margin-bottom: 10px;"/></a>
 
 # Introduction
 
-The package `tcplfit2` is used to perform basic concentration-response curve fitting. The original tcplFit() functions in the [ToxCast Data Analysis Pipeline (tcpl)](https://cran.r-project.org/web/packages/tcpl/index.html) package performed basic concentration-response curve fitting to 3 models: Hill, gain-loss [a modified Hill], and constant. With `tcplfit2`, the concentration-response functionality of the package `tcpl` has been expanded and is being used to process high-throughput screening (HTS) data generated at the US Environmental Protection Agency, including targeted assay data in ToxCast, high-throughput transcriptomics (HTTr), and high-throughput phenotypic profiling (HTPP) screening results. The `tcpl` R package continues to be used to manage, curve-fit, plot, and populate its linked MySQL database, invitrodb. Processing with  `tcpl` version 3.0 and beyond depends on the stand-alone `tcplfit2` package to allow a wider variety of concentration-response models (when using invitrodb in the 4.0 schema and beyond).
+The package `tcplfit2` is used to perform basic concentration-response curve fitting. The original tcplFit() functions in the [ToxCast Data Analysis Pipeline (tcpl)](https://cran.R-project.org/package=tcplfit2) package performed basic concentration-response curve fitting to 3 models: Hill, gain-loss [a modified Hill], and constant. With `tcplfit2`, the concentration-response functionality of the package `tcpl` has been expanded and is being used to process high-throughput screening (HTS) data generated at the US Environmental Protection Agency, including targeted assay data in ToxCast, high-throughput transcriptomics (HTTr), and high-throughput phenotypic profiling (HTPP) screening results. The `tcpl` R package continues to be used to manage, curve-fit, plot, and populate its linked MySQL database, invitrodb. Processing with  `tcpl` version 3.0 and beyond depends on the stand-alone `tcplfit2` package to allow a wider variety of concentration-response models (when using invitrodb in the 4.0 schema and beyond).
 
 The main set of extensions includes additional concentration-response models like those contained in the program [BMDExpress2](https://github.com/auerbachs/BMDExpress-2). These include exponential, polynomial (1 & 2), and power functions in addition to the original Hill, gain-loss and constant models. Similar to the program BMDExpress, a defined benchmark response (BMR) level is used to estimate a benchmark dose (BMD), which is the concentration where the curve-fit intersects with this BMR threshold. One final addition was to let the hitcall value be a  number ranging from 0 to 1 (in contrast to binary hitcall values from tcplFit()). Continuous hitcall in `tcplfit2` is defined as the product of three proportional weights: 1) the AIC of the winning model is better than the constant model (i.e. winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff, and 3) the top from the winning model exceeds the cutoff. 
  
@@ -249,7 +249,7 @@ concRespPlot2(result_table[1,],log_conc = TRUE) +
 
 ## Concentration-response Modeling for `tcpl`-like data without a database connection {#ex3}
 
-The `tcplLite` functionality was deprecated with the updates to `tcpl` and development of `tcplfit2`, because `tcplfit2` allows one to perform curve fitting and hitcalling independent of a database connection. This example demonstrates how to perform an analysis analogous to `tcplLite` with `tcplfit2`. More information on the ToxCast program can be found at https://www.epa.gov/chemical-research/toxicity-forecasting. A detailed explanation of processing levels can be found within the Data Processing section of the [`tcpl` Vignette on CRAN](https://cran.r-project.org/web/packages/tcpl/index.html).
+The `tcplLite` functionality was deprecated with the updates to `tcpl` and development of `tcplfit2`, because `tcplfit2` allows one to perform curve fitting and hitcalling independent of a database connection. This example demonstrates how to perform an analysis analogous to `tcplLite` with `tcplfit2`. More information on the ToxCast program can be found at https://www.epa.gov/comptox-tools/toxicity-forecasting-toxcast. A detailed explanation of processing levels can be found within the Data Processing section of the [`tcpl` Vignette on CRAN](https://cran.R-project.org/package=tcpl).
 
 In this example, the example input data comes from the ACEA_AR assay. Data from the assay component ACEA_AR_agonist_80hr assumes the response changes in the positive direction relative to DMSO (neutral control & baseline activity) for this curve fitting analysis. Using an electrical impedance as a cell growth reporter, increased activity can be used to infer increased signaling at the pathway-level for the androgen receptor (as encoded by the AR gene). Given the heterogeneity in assay data reporting, source data often must go through pre-processing steps to transform into a uniform data format, namely Level 0 data. 
 
@@ -348,7 +348,7 @@ For this example, the normalized responses (`resp`) are calculated as a percent 
 $$
 \% \space control = \frac{cval - bval}{pval - bval}
 $$
-The table below provides a few methods for calculating `bval` and `pval` in `tcpl`. For more on the data normalization step, refer to the Data Normalization sub-section in the [`tcpl` Vignette on CRAN](https://cran.r-project.org/web/packages/tcpl/index.html). 
+The table below provides a few methods for calculating `bval` and `pval` in `tcpl`. For more on the data normalization step, refer to the Data Normalization sub-section in the [`tcpl` Vignette on CRAN](https://cran.R-project.org/package=tcpl). 
 
 ```{r, echo=FALSE}
 htmlTable::htmlTable(head(tcpl::tcplMthdList(3)),
@@ -1078,7 +1078,7 @@ data.frame(mylist,row.names = "AUC")
 
 ## - Negative Responses
 
-This section demonstrates the behavior of the `get_AUC` function with negative response curves. Here, example data is pulled from example 3 in the [tcplfit2 Introduction Vignette](https://cran.r-project.org/web/packages/tcplfit2/vignettes/tcplfit2-vignette.html). 
+This section demonstrates the behavior of the `get_AUC` function with negative response curves. Here, example data is pulled from example 3 in the [tcplfit2 Introduction Vignette](https://cran.R-project.org/package=tcplfit2). 
 
 ```{r example 3, fig.height = 4.55, fig.width = 8}
 # Taking the code from example 3 in the vignette 
@@ -1617,7 +1617,7 @@ exp5_plot
 
 ## Table of All Model Details
 
-This table provides a summary of model details for all available `tcplfit2` models. This table is taken from the Concentration-Response Modeling Details sub-section in the [`tcpl` Vignette on CRAN](https://cran.r-project.org/web/packages/tcpl/index.html).
+This table provides a summary of model details for all available `tcplfit2` models. This table is taken from the Concentration-Response Modeling Details sub-section in the [`tcpl` Vignette on CRAN](https://cran.R-project.org/package=tcpl).
 
 ```{r appendix-table, echo=FALSE, warning=FALSE}
 # First column - tcplfit2 available models.
@@ -1679,7 +1679,7 @@ htmlTable(output,
         rnames = FALSE  ,
         css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ',
         caption="*tcplfit2* model details.",
-        tfoot = "Model descriptions are pulled from tcplFit2 manual at <https://cran.r-project.org/package=tcplfit2/tcplfit2.pdf>."
+        tfoot = "Model descriptions are pulled from tcplFit2 manual at <https://cran.R-project.org/package=tcplfit2>."
 )
 ```
 
