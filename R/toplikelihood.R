@@ -15,6 +15,9 @@
 #' @param ps Vector of parameters, must be in order: a, tp, b, ga, p, la, q, er
 #' @param top Model top.
 #' @param mll Winning model maximum log-likelihood.
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #'
 #' @importFrom stats pchisq
 #'
@@ -31,7 +34,9 @@
 #' toplikelihood(fname, cutoff = .8, conc, resp, ps, top, mll)
 #' toplikelihood(fname, cutoff = 1, conc, resp, ps, top, mll)
 #' toplikelihood(fname, cutoff = 1.2, conc, resp, ps, top, mll)
-toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll){
+toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"){
+  #cutoff needs to account for sign otherwise reparameterization will flip the model
+  cutoff = cutoff*sign(top)
 
   #reparameterize so that top is exactly at cutoff
   if(fname == "exp2"){
@@ -56,9 +61,9 @@ toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll){
   }
   #get loglikelihood of top exactly at cutoff, use likelihood profile test
   # to calculate probability of being above cutoff
-  loglik = tcplObj(p = ps, conc = conc, resp = resp, fname = fname)
-  if(abs(top) >= cutoff) out = (1 + pchisq(2*(mll - loglik), 1))/2
-  if(abs(top) < cutoff) out = (1 - pchisq(2*(mll - loglik), 1))/2
+  loglik = tcplObj(p = ps, conc = conc, resp = resp, fname = fname, errfun = errfun)
+  if(abs(top) >= abs(cutoff)) out = (1 + pchisq(2*(mll - loglik), 1))/2
+  if(abs(top) < abs(cutoff)) out = (1 - pchisq(2*(mll - loglik), 1))/2
 
   return(out)
 

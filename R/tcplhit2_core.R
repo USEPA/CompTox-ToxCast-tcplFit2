@@ -22,10 +22,18 @@
 #'   such as the chemical name or other identifiers, and any assay identifiers. The column names
 #'   identify the type of value. This can be NULL. The values will be included in the output
 #'   summary data frame
-#' @param bmd_low_bnd Multiplier for bmd lower bound.  A value of .1 would require the bmd to be no lower
-#'   than 1/10th of the lowest concentration tested.
-#' @param bmd_up_bnd Multiplier for the bmd upper bound.  A value of 10 would require the bmd to be no lower
-#'   than 10 times the highest concentration tested.
+#' @param bmd_low_bnd Multiplier for bmd lower bound, must be between 0 and 1
+#'   (excluding 0). A value of 0.1 would require the bmd is no lower than a
+#'   of 1/10th of the lowest tested concentration (i.e. lower threshold).
+#'   If the bmd is less than the threshold, the bmd and its confidence
+#'   interval will be censored and shifted right.
+#' @param bmd_up_bnd Multiplier for the bmd upper bound, must be greater than
+#'   or equal to 1. A value of 10 would require the bmd is no larger than 10
+#'   times the highest tested concentration (i.e. upper threshold). If the bmd
+#'   is greater than the threshold, the bmd and its confidence interval will be
+#'   censored and shifted left.
+#' @param poly2.biphasic If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+#'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:
@@ -66,10 +74,16 @@
 #'   }
 #' @export
 #'
-tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL) {
+tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL,poly2.biphasic = TRUE) {
   # initialize parameters to NA
   a <- b <- tp <- p <- q <- ga <- la <- er <- top <- ac50 <- ac50_loss <- ac5 <- ac10 <- ac20 <- acc <- ac1sd <- bmd <- NA_real_
   bmdl <- bmdu <- caikwt <- mll <- NA_real_
+
+  # get error distribution
+  errfun = params[["errfun"]]
+  if (is.null(errfun))
+    stop("'errfun' is missing in the output from tcplfit2_core. 'errfun' tracks the error distribution assumed for the model fits and should be provided in 'params' list. -- see tcplfit2_core help for additional details.")
+
   # get aics and degrees of freedom
   aics <- sapply(params$modelnames, function(x) {
     params[[x]][["aic"]]
@@ -131,7 +145,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     mll <- length(modpars) - aics[[fit_method]] / 2
     hitcall <- hitcontinner(conc, resp, top, cutoff, er,
       ps = unlist(modpars), fit_method,
-      caikwt = caikwt, mll = mll
+      caikwt = caikwt, mll = mll, errfun = errfun
     )
   } else {
     hitcall <- hitloginner(conc, resp, top, cutoff, ac50)
@@ -151,41 +165,73 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     ac20 <- acy(.2 * top, modpars, type = fit_method)
     acc <- acy(sign(top) * cutoff, c(modpars,top = top), type = fit_method)
     ac1sd <- acy(sign(top) * onesd, modpars, type = fit_method)
-    bmd <- acy(sign(top) * bmr, modpars, type = fit_method)
+    if(fit_method=="poly2" & poly2.biphasic){
+      bmd <- c(acy(-bmr,modpars,type = fit_method,poly2.biphasic = poly2.biphasic),
+               acy(bmr,modpars,type = fit_method,poly2.biphasic = poly2.biphasic))
+      bmr_dir <- c(-1,1)[which.min(bmd)]
+      bmd <- bmd[which.min(bmd)]
+      # get the vertex of the parabola (x_v) - location where the bottom or top of the parabola is (x-axis)
+      x_v <- (-modpars$b/2) # x_v = -b/2
 
-    # get bmdl and bmdu
-    bmdl <- bmdbounds(fit_method,
-      bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-      bmd = bmd, which.bound = "lower"
-    )
-    bmdu <- bmdbounds(fit_method,
-      bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
-      bmd = bmd, which.bound = "upper"
-    )
+      # get bmdl and bmdu
+      bmdl <- bmdbounds(fit_method,
+                        bmr = bmr_dir * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
+                        bmd = bmd, which.bound = "lower",poly2.biphasic = poly2.biphasic,x_v = x_v
+      )
+      bmdu <- bmdbounds(fit_method,
+                        bmr = bmr_dir * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
+                        bmd = bmd, which.bound = "upper",poly2.biphasic = poly2.biphasic,x_v = x_v
+      )
+    }else{
+      bmd <- acy(sign(top) * bmr, modpars, type = fit_method,poly2.biphasic = poly2.biphasic)
+      # get bmdl and bmdu
+      bmdl <- bmdbounds(fit_method,
+                        bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
+                        bmd = bmd, which.bound = "lower",poly2.biphasic = poly2.biphasic
+      )
+      bmdu <- bmdbounds(fit_method,
+                        bmr = sign(top) * bmr, pars = unlist(modpars), conc, resp, onesidedp = .05,
+                        bmd = bmd, which.bound = "upper",poly2.biphasic = poly2.biphasic
+      )
+    }
 
     # apply bmd min
     if(!is.null(bmd_low_bnd) & !is.na(bmd)){
-      min_conc <- min(conc)
-      min_bmd <- min_conc*bmd_low_bnd
-      if(bmd < min_bmd){
-        bmd_diff <- min_bmd - bmd
-        #shift all bmd to the right
-        bmd <- bmd + bmd_diff
-        bmdl <- bmdl + bmd_diff
-        bmdu <- bmdu + bmd_diff
+      # check if the argument is within its allowable range
+      if (bmd_low_bnd > 0 & bmd_low_bnd <= 1) {
+        # warning message for extreme values
+        if (bmd_low_bnd < 1e-3){warning("The specified bmd_lower_bnd is less than 1e-3. This may result in an extremely low threshold value for BMD censoring. Suggested value is 0.1.")}
+        min_conc <- min(conc[conc!=0])
+        min_bmd <- min_conc*bmd_low_bnd
+        if(bmd < min_bmd){
+          bmd_diff <- min_bmd - bmd
+          #shift all bmd to the right
+          bmd <- bmd + bmd_diff
+          bmdl <- bmdl + bmd_diff
+          bmdu <- bmdu + bmd_diff
+          }
+      } else {
+        warning("bmd_low_bnd must be between 0 and 1, not including 0.")
       }
     }
 
     # apply bmd max
     if(!is.null(bmd_up_bnd) & !is.na(bmd)){
-      max_conc <- max(conc)
-      max_bmd <- max_conc*bmd_up_bnd
-      if(bmd > max_bmd){
-        #shift all bmd to the left
-        bmd_diff <- bmd - max_bmd
-        bmd <- bmd - bmd_diff
-        bmdl <- bmdl - bmd_diff
-        bmdu <- bmdu - bmd_diff
+      # check if the argument is within its allowable range
+      if (bmd_up_bnd >= 1) {
+        # warning message for extreme values
+        if (bmd_up_bnd > 1e3) {warning("The specified bmd_up_bnd is larger than 1e3. This may result in an extremely high threshold value for BMD censoring. Suggested value is 10.")}
+        max_conc <- max(conc)
+        max_bmd <- max_conc*bmd_up_bnd
+        if(bmd > max_bmd){
+          #shift all bmd to the left
+          bmd_diff <- bmd - max_bmd
+          bmd <- bmd - bmd_diff
+          bmdl <- bmdl - bmd_diff
+          bmdu <- bmdu - bmd_diff
+          }
+      } else {
+        warning("bmd_up_bnd must be greater than or equal to 1.")
       }
     }
 
@@ -202,7 +248,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
   name.list <- c(
     "n_gt_cutoff", "cutoff", "fit_method",
     "top_over_cutoff", "rmse", "a", "b", "tp", "p", "q", "ga", "la", "er", "bmr", "bmdl", "bmdu", "caikwt",
-    "mll", "hitcall", "ac50", "ac50_loss", "top", "ac5", "ac10", "ac20", "acc", "ac1sd", "bmd", "conc", "resp"
+    "mll", "hitcall", "ac50", "ac50_loss", "top", "ac5", "ac10", "ac20", "acc", "ac1sd", "bmd", "conc", "resp", "errfun"
   )
   row <- as.data.frame(c(identifiers, mget(name.list)), stringsAsFactors = FALSE)
   return(row)

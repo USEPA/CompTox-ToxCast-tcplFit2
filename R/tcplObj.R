@@ -16,9 +16,9 @@
 #'   regular units otherwise.
 #' @param resp Vector of corresponding responses.
 #' @param fname Name of model function.
-#' @param errfun Which error distribution to assume for each point. "dt4" is the
-#'   original 4 degrees of freedom t-distribution. "dnorm" is the normal
-#'   distribution.
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #' @param err An optional estimation of error for the given fit.
 #'
 #' @importFrom stats dt dnorm
@@ -241,6 +241,23 @@ poly2 = function(ps,x){
   #a = ps[1], b = ps[2]
   x0 = x/ps[2]
   return(ps[1]*(x0 + x0*x0))
+}
+
+#' Polynomial 2 Model (BMDS)
+#'
+#' \eqn{f(x) = b1*x + b2*x^{2}}
+#'
+#' @param ps Vector of parameters: b1,b2,er
+#' @param x Vector of concentrations (regular units)
+#'
+#' @return Vector of model responses
+#' @export
+#' @examples
+#' poly2bmds(c(1,2),1)
+#'
+poly2bmds = function(ps,x){
+  #b1 = ps[1], b2 = ps[2]
+  return(ps[1]*x + ps[2]*(x)^2)
 }
 
 #' Power Model

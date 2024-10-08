@@ -20,6 +20,9 @@
 #'   will be positive only.
 #' @param verbose If TRUE, gives optimization and hessian inversion details.
 #' @param nofit If nofit = TRUE, returns formatted output filled with missing values.
+#' @param errfun Which error distribution to assume for each point, defaults to
+#'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+#'   supported distribution is "dnorm", the normal distribution.
 #'
 #' @importFrom methods is
 #' @importFrom numDeriv hessian
@@ -34,7 +37,7 @@
 #'
 #' @examples
 #' fithill(c(.03,.1,.3,1,3,10,30,100), c(0,0,.1, .2, .5, 1, 1.5, 2))
-fithill = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE){
+fithill = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, errfun = "dt4"){
 
   logc = log10(conc)
   fenv <- environment()
@@ -105,7 +108,8 @@ fithill = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
                                          maxit = 6000),
                           conc = logc,
                           resp = resp,
-                          fname = "loghill"),
+                          fname = "loghill",
+                          errfun = errfun),
               silent = !verbose)
 
   ## Generate some summary statistics
@@ -131,7 +135,8 @@ fithill = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
                                    fit$par,
                                    conc = logc,
                                    resp = resp,
-                                   fname = "loghill")),
+                                   fname = "loghill",
+                                   errfun = errfun)),
                     silent = !verbose)
 
     if (!is(fit$cov, "try-error")) { # Could invert hill Hessian

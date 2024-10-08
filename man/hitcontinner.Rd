@@ -4,7 +4,18 @@
 \alias{hitcontinner}
 \title{Continuous Hitcalls Inner}
 \usage{
-hitcontinner(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll)
+hitcontinner(
+  conc,
+  resp,
+  top,
+  cutoff,
+  er,
+  ps,
+  fit_method,
+  caikwt,
+  mll,
+  errfun = "dt4"
+)
 }
 \arguments{
 \item{conc}{Vector of concentrations.}
@@ -24,6 +35,10 @@ hitcontinner(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll)
 \item{caikwt}{Akaike weight of constant model relative to winning model.}
 
 \item{mll}{Maximum log-likelihood of winning model.}
+
+\item{errfun}{Which error distribution to assume for each point, defaults to
+"dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+supported distribution is "dnorm", the normal distribution.}
 }
 \value{
 Continuous hitcall between 0 and 1.

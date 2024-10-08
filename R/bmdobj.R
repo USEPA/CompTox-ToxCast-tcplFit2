@@ -16,12 +16,17 @@
 #'   power scaling: p when available, then b or ga, then a if no others.
 #'   Since bmd is linked to the x-scale, type 2 should always be used. Other
 #'   types can also be vulnerable to underflow/overflow.
+#' @param poly2.biphasic If poly2.biphasic = TRUE, constraints are set to allow
+#'   for the polynomial 2 model fit to be bi-phasic (i.e. non-monotonic).
+#' @param x_v The vertex of the quadratic/parabolic fit.
+#'   Only in use when estimating the BMDL and BMDU values for the "poly2" model
+#'   when poly2.biphasic = TRUE. No default is set.
 #'
 #' @importFrom stats qchisq
 #'
 #' @return Objective function value to find the zero of.
 #' @export
-bmdobj= function(bmd, fname, bmr, conc, resp, ps, mll, onesp, partype = 2){
+bmdobj= function(bmd, fname, bmr, conc, resp, ps, mll, onesp, partype = 2, poly2.biphasic = TRUE,x_v){
 
   #implements the BMD substitutions in Appendix A of the Technical Report.
   #Changes one of the existing parameters to an explicit bmd parameter through
@@ -55,10 +60,29 @@ bmdobj= function(bmd, fname, bmr, conc, resp, ps, mll, onesp, partype = 2){
     if(partype == 1) ps["a"] = bmr/bmd
     if(partype == 2) ps["a"] = bmr/bmd
     if(partype == 3) ps["a"] = bmr/bmd
-  } else if(fname == "poly2"){
+  } else if(fname == "poly2" & poly2.biphasic != TRUE){
     if(partype == 1) ps["a"] = bmr/(bmd/ps["b"] + (bmd/ps["b"])^2 )
     if(partype == 2) ps["b"] = 2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1)
     if(partype == 3) ps["b"] = 2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1)
+  } else if(fname == "poly2" & poly2.biphasic == TRUE){
+    if(partype == 1) ps["a"] = bmr/(bmd/ps["b"] + (bmd/ps["b"])^2 )
+    # when you have biphasic curves there are 2 possible solutions
+    # in the case the 'vertex' - top or bottom of the parabola - is greater than
+    # the BMD then use the min of the "b" estimates, otherwise use the max
+    if(partype == 2){
+      b_est <- c(2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1),
+                 -2*bmd/(sqrt(1 + 4*bmr/ps["a"]) + 1))
+      ps["b"] = ifelse(x_v > bmd,
+                       yes = b_est[which.min(b_est)],
+                       no = b_est[which.max(b_est)])
+    }
+    if(partype == 3){
+      b_est <- c(2*bmd/(sqrt(1 + 4*bmr/ps["a"]) - 1),
+                 -2*bmd/(sqrt(1 + 4*bmr/ps["a"]) + 1))
+      ps["b"] = ifelse(x_v > bmd,
+                       yes = b_est[which.min(b_est)],
+                       no = b_est[which.max(b_est)])
+    }
   } else if(fname == "pow"){
     if(partype == 1) ps["a"] = bmr/(bmd^ps["p"])
     if(partype == 2) ps["a"] = bmr/(bmd^ps["p"])

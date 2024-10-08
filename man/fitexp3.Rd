@@ -10,7 +10,8 @@ fitexp3(
   bidirectional = TRUE,
   verbose = FALSE,
   nofit = FALSE,
-  dmin = 0.3
+  dmin = 0.3,
+  errfun = "dt4"
 )
 }
 \arguments{
@@ -26,6 +27,10 @@ will be positive only.}
 \item{nofit}{If nofit = TRUE, returns formatted output filled with missing values.}
 
 \item{dmin}{Minimum allowed value of p.}
+
+\item{errfun}{Which error distribution to assume for each point, defaults to
+"dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
+supported distribution is "dnorm", the normal distribution.}
 }
 \value{
 Named list containing: success, aic (Akaike Information Criteria),
