@@ -89,7 +89,7 @@ concRespPlot <- function(row,ymin=-120,ymax=120,draw.error.arrows=FALSE) {
   col.list <- c("black","cyan","red")
 
   #empty plot to start with
-  plotrange = c(min(conc),100)
+  plotrange = c(min(conc),max(conc))
   plot(c(1,1),type="n",xlab="conc (uM)",ylab="Response",xlim=plotrange,ylim=c(ymin,ymax),
        log="x",main=paste(name,"\n",assay),cex.main=0.9)
 
