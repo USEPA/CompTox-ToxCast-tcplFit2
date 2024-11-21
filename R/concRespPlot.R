@@ -69,10 +69,6 @@ concRespPlot <- function(row,ymin=-120,ymax=120,draw.error.arrows=FALSE) {
   bmdl <- unlist(bmdl)
   bmdu <- unlist(bmdu)
 
-  #hard-code plotting points for curves
-  logc_plot <- seq(from=-3,to=2,by=0.05)
-  conc_plot <- 10**logc_plot
-
   #reformat conc and resp as vectors
   conc <- as.numeric(str_split(row[1,"conc"],"\\|")[[1]])
   resp <- as.numeric(str_split(row[1,"resp"],"\\|")[[1]])
@@ -84,6 +80,9 @@ concRespPlot <- function(row,ymin=-120,ymax=120,draw.error.arrows=FALSE) {
   # less than the second lowest dose (in log).
   logconc <- replace(logconc, logconc == -Inf, sort(unique(logconc))[2]-1)
   conc <- 10**logconc
+
+  #plotting points for curves based on min/max experimental conc
+  conc_plot <- seq(from = min(conc), to = max(conc), by = 0.05)
 
   #some deprecated code; later will use j =1 and col.list[j] to mean black
   col.list <- c("black","cyan","red")
