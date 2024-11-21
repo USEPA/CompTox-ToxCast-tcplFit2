@@ -82,7 +82,7 @@ concRespPlot <- function(row,ymin=-120,ymax=120,draw.error.arrows=FALSE) {
   conc <- 10**logconc
 
   #plotting points for curves based on min/max experimental conc
-  conc_plot <- seq(from = min(conc), to = max(conc), by = 0.05)
+  conc_plot <- seq(from = min(conc), to = max(conc), length = 100)
 
   #some deprecated code; later will use j =1 and col.list[j] to mean black
   col.list <- c("black","cyan","red")
