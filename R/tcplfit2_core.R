@@ -141,7 +141,7 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
   if (do.plot && sum(successes, na.rm = T) == length(shortnames)) {
     resp <- resp[order(logc)]
     #par(xpd = T)
-    cols <- c("black", brewer.pal(9, "Set1"))
+    cols <- c("black","darkred", brewer.pal(8, "Dark2"))
     n <- length(logc)
     allresp <- c(resp, sapply(shortnames, function(x) {
       get(x)[["modl"]][order(logc)]
