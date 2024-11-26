@@ -141,13 +141,14 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
   if (do.plot && sum(successes, na.rm = T) == length(shortnames)) {
     resp <- resp[order(logc)]
     #par(xpd = T)
-    cols <- c("black","darkred", brewer.pal(8, "Dark2"))
+    cols <- c("black", "darkred", brewer.pal(8, "Dark2"))
     n <- length(logc)
     allresp <- c(resp, sapply(shortnames, function(x) {
       get(x)[["modl"]][order(logc)]
     }))
     logc <- logc[order(logc)]
-    plot(rep(logc, length.out = length(allresp)), allresp, col = rep(cols, each = n), pch = 16)
+    log10_conc <- rep(logc, length.out = length(allresp))
+    plot(log10_conc, allresp, col = rep(cols, each = n), pch = 16)
 
     for (i in 1:length(allresp)) {
       points(logc, allresp[((i - 1) * n + 1):(i * n)], col = cols[i], type = "l")
