@@ -40,9 +40,9 @@ toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"
 
   #reparameterize so that top is exactly at cutoff
   if(fname == "exp2"){
-    ps[1] = cutoff/( exp(max(conc)/ps[2]) - 1 )
+    ps[1] = cutoff/( exp(x[which.max(abs(resp))]/ps[2]) - 1 )
   } else if(fname == "exp3"){
-    ps[1] = cutoff/( exp((max(conc)/ps[2])^ps[3]) - 1 )
+    ps[1] = cutoff/( exp((x[which.max(abs(resp))]/ps[2])^ps[3]) - 1 )
   } else if(fname == "exp4"){
     ps[1] = cutoff
   } else if(fname == "exp5"){
@@ -53,11 +53,11 @@ toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"
     #approximating actual top with theoretical top for convenience.
     ps[1] = cutoff
   } else if(fname == "poly1"){
-    ps[1] = cutoff/max(conc)
+    ps[1] = cutoff/x[which.max(abs(resp))]
   } else if(fname == "poly2"){
-    ps[1] = cutoff/(max(conc)/ps[2] + (max(conc)/ps[2])^2 )
+    ps[1] = cutoff/(x[which.max(abs(resp))]/ps[2] + (x[which.max(abs(resp))]/ps[2])^2 )
   } else if(fname == "pow"){
-    ps[1] = cutoff/(max(conc)^ps[2])
+    ps[1] = cutoff/(x[which.max(abs(resp))]^ps[2])
   }
   #get loglikelihood of top exactly at cutoff, use likelihood profile test
   # to calculate probability of being above cutoff
