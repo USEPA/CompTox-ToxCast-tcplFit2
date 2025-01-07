@@ -41,28 +41,42 @@ toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"
   #seq across conc range for predicting curve values
   conc_seq = 10**seq(from = log10(min(conc)), to = log10(max(conc)), by = 0.05)
 
+  cat("parameters", ps)
+
   #reparameterize so that top is exactly at cutoff
   if(fname == "exp2"){
-    ps[1] = cutoff/( exp(conc[which.max(abs(resp))]/ps[2]) - 1 )
+    pred = do.call(fname,list(c(ps[1],ps[2],ps[3]),conc_seq))
+    ps[1] = cutoff/( exp(conc_seq[which.max(abs(pred))]/ps[2]) - 1 )
   } else if(fname == "exp3"){
-    ps[1] = cutoff/( exp((conc[which.max(abs(resp))]/ps[2])^ps[3]) - 1 )
+    pred = do.call(fname,list(c(ps[1],ps[2],ps[3],ps[4]),conc_seq))
+    ps[1] = cutoff/( exp((conc_seq[which.max(abs(pred))]/ps[2])^ps[3]) - 1 )
   } else if(fname == "exp4"){
-    ps[1] = cutoff
+    pred = do.call(fname,list(c(ps[1],ps[2],ps[3]),conc_seq))
+    ps[1] = cutoff/( 1 - 2^(-conc_seq[which.max(abs(pred))]/ps[2]))
+    # ps[1] = cutoff
   } else if(fname == "exp5"){
-    ps[1] = cutoff
+    pred = do.call(fname,list(c(ps[1],ps[2],ps[3],ps[4]),conc_seq))
+    ps[1] = cutoff/( 1 - 2^(-(conc_seq[which.max(abs(pred))]/ps[2])^ps[3]))
+    # ps[1] = cutoff
   } else if(fname == "hillfn"){
-    ps[1] = cutoff
+    pred = do.call(fname,list(c(ps[1],ps[2],ps[3],ps[4]),conc_seq))
+    ps[1] = cutoff * ( 1 + (ps[2]/conc_seq[which.max(abs(pred))])^ps[3])
+    # ps[1] = cutoff
   } else if(fname == "gnls"){
     #approximating actual top with theoretical top for convenience.
-    ps[1] = cutoff
+    pred = do.call(fname,list(c(ps[1],ps[2],ps[3],ps[4],ps[5],ps[6]),conc_seq))
+    ps[1] = cutoff * (( 1 + (ps[2]/conc_seq[which.max(abs(pred))])^ps[3])*( 1 + (conc_seq[which.max(abs(pred))]/ps[4])^ps[5]))
+    # ps[1] = cutoff
   } else if(fname == "poly1"){
-    ps[1] = cutoff/conc[which.max(abs(resp))]
+    pred = do.call(fname,list(c(ps[1],ps[2]),conc_seq))
+    ps[1] = cutoff/conc_seq[which.max(abs(pred))]
   } else if(fname == "poly2"){
-    #fit curve
-    pred = do.call(fname,list(c(ps[1],ps[2],ps[3]),conc_seq))
+    #fit curve to find max predicted response
+    pred = do.call(fname,list(c(ps[1],ps[2],ps[5]),conc_seq))
     ps[1] = cutoff/(conc_seq[which.max(abs(pred))]/ps[2] + (conc_seq[which.max(abs(pred))]/ps[2])^2 )
   } else if(fname == "pow"){
-    ps[1] = cutoff/(conc[which.max(abs(resp))]^ps[2])
+    pred = do.call(fname,list(c(ps[1],ps[2],ps[3]),conc_seq))
+    ps[1] = cutoff/(conc_seq[which.max(abs(pred))]^ps[2])
   }
   #get loglikelihood of top exactly at cutoff, use likelihood profile test
   # to calculate probability of being above cutoff
