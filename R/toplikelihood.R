@@ -38,6 +38,9 @@ toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"
   #cutoff needs to account for sign otherwise reparameterization will flip the model
   cutoff = cutoff*sign(top)
 
+  #seq across conc range for predicting curve values
+  conc_seq = 10**seq(from = log10(min(conc)), to = log10(max(conc)), by = 0.05)
+
   #reparameterize so that top is exactly at cutoff
   if(fname == "exp2"){
     ps[1] = cutoff/( exp(conc[which.max(abs(resp))]/ps[2]) - 1 )
@@ -55,7 +58,9 @@ toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"
   } else if(fname == "poly1"){
     ps[1] = cutoff/conc[which.max(abs(resp))]
   } else if(fname == "poly2"){
-    ps[1] = cutoff/(conc[which.max(abs(resp))]/ps[2] + (conc[which.max(abs(resp))]/ps[2])^2 )
+    #fit curve
+    pred = do.call(fname,list(c(ps[1],ps[2],ps[3]),conc_seq))
+    ps[1] = cutoff/(conc_seq[which.max(abs(pred))]/ps[2] + (conc_seq[which.max(abs(pred))]/ps[2])^2 )
   } else if(fname == "pow"){
     ps[1] = cutoff/(conc[which.max(abs(resp))]^ps[2])
   }
