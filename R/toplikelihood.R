@@ -41,8 +41,6 @@ toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"
   #seq across conc range for predicting curve values
   conc_seq = 10**seq(from = log10(min(conc)), to = log10(max(conc)), by = 0.05)
 
-  cat("parameters", ps)
-
   #reparameterize so that top is exactly at cutoff
   if(fname == "exp2"){
     pred = do.call(fname,list(c(ps[1],ps[2],ps[3]),conc_seq))
