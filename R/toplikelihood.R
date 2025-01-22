@@ -38,39 +38,49 @@ toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"
   #cutoff needs to account for sign otherwise reparameterization will flip the model
   cutoff = cutoff*sign(top)
 
-  #seq across conc range for predicting curve values
-  conc_seq = 10**seq(from = log10(min(conc)), to = log10(max(conc)), by = 0.05)
-
   #reparameterize so that top is exactly at cutoff
-  #for each method, first calculate pred: predicted curve
-  #all methods explicitly solve for conc where top occurs
+  #all methods explicitly solve for conc where top occurs, x_top
+  #for exp4, exp5, and hill models, if top == tp, then set tp = cutoff b/c
+  #cannot analytically solve for x_top
   if(fname == "exp2"){
-    pred = do.call(fname,list(c(ps[1],ps[2],ps[3]),conc_seq))
-    ps[1] = cutoff/( exp(conc_seq[which.max(abs(pred))]/ps[2]) - 1 )
+    x_top = acy(y = top, modpars = list(a=ps[1],b=ps[2],er=ps[3]),type=fname)
+    ps[1] = cutoff/( exp(x_top/ps[2]) - 1 )
   } else if(fname == "exp3"){
-    pred = do.call(fname,list(c(ps[1],ps[2],ps[3],ps[4]),conc_seq))
-    ps[1] = cutoff/( exp((conc_seq[which.max(abs(pred))]/ps[2])^ps[3]) - 1 )
+    x_top = acy(y = top, modpars = list(a=ps[1],b=ps[2],p=ps[3],er=ps[4]),type=fname)
+    ps[1] = cutoff/( exp((x_top/ps[2])^ps[3]) - 1 )
   } else if(fname == "exp4"){
-    pred = do.call(fname,list(c(ps[1],ps[2],ps[3]),conc_seq))
-    ps[1] = cutoff/( 1 - 2^(-conc_seq[which.max(abs(pred))]/ps[2]))
+    if (top == ps[1]) {
+      ps[1] = cutoff
+    } else {
+      x_top = acy(y = top, modpars = list(tp=ps[1],ga=ps[2],er=ps[3]),type=fname)
+      ps[1] = cutoff/( 1 - 2^(-x_top/ps[2]))
+    }
   } else if(fname == "exp5"){
-    pred = do.call(fname,list(c(ps[1],ps[2],ps[3],ps[4]),conc_seq))
-    ps[1] = cutoff/( 1 - 2^(-(conc_seq[which.max(abs(pred))]/ps[2])^ps[3]))
+    if (top == ps[1]) {
+      ps[1] = cutoff
+    } else{
+      x_top = acy(y = top, modpars = list(tp=ps[1], ga=ps[2], p=ps[3], er=ps[4]), type = fname)
+      ps[1]  = cutoff/ (1-2^(-(x_top/ps[2])^ps[3]))
+    }
   } else if(fname == "hillfn"){
-    pred = do.call(fname,list(c(ps[1],ps[2],ps[3],ps[4]),conc_seq))
-    ps[1] = cutoff * ( 1 + (ps[2]/conc_seq[which.max(abs(pred))])^ps[3])
+    if (top == ps[1]){
+      ps[1] = cutoff
+    } else {
+      x_top = acy(y = top, modpars = list(tp=ps[1], ga=ps[2], p=ps[3], er=ps[4]), type = "hill")
+      ps[1] = cutoff * ( 1 + (ps[2]/x_top)^ps[3])
+    }
   } else if(fname == "gnls"){
-    pred = do.call(fname,list(c(ps[1],ps[2],ps[3],ps[4],ps[5],ps[6]),conc_seq))
-    ps[1] = cutoff * (( 1 + (ps[2]/conc_seq[which.max(abs(pred))])^ps[3])*( 1 + (conc_seq[which.max(abs(pred))]/ps[4])^ps[5]))
+    x_top = acy(y = top, modpars = list(tp=ps[1],ga=ps[2],p=ps[3],la=ps[4],q=ps[5],er=ps[6]), type = fname)
+    ps[1] = cutoff * (( 1 + (ps[2]/x_top)^ps[3])*( 1 + (x_top/ps[4])^ps[5]))
   } else if(fname == "poly1"){
-    pred = do.call(fname,list(c(ps[1],ps[2]),conc_seq))
-    ps[1] = cutoff/conc_seq[which.max(abs(pred))]
+    x_top = acy(y = top, modpars = list(a=ps[1],er=ps[2]),type = fname)
+    ps[1] = cutoff/x_top
   } else if(fname == "poly2"){
-    pred = do.call(fname,list(c(ps[1],ps[2],ps[5]),conc_seq))
-    ps[1] = cutoff/(conc_seq[which.max(abs(pred))]/ps[2] + (conc_seq[which.max(abs(pred))]/ps[2])^2 )
+    x_top = acy(y = top, modpars = list(a=ps[1], b=ps[2], er=ps[3]), type = fname)
+    ps[1] = cutoff/(x_top/ps[2] + (x_top/ps[2])^2 )
   } else if(fname == "pow"){
-    pred = do.call(fname,list(c(ps[1],ps[2],ps[3]),conc_seq))
-    ps[1] = cutoff/(conc_seq[which.max(abs(pred))]^ps[2])
+    x_top = acy(y = top, modpars = list(a=ps[1], p=ps[2], er=ps[3]), type = fname)
+    ps[1] = cutoff/(x_top^ps[2])
   }
   #get loglikelihood of top exactly at cutoff, use likelihood profile test
   # to calculate probability of being above cutoff
