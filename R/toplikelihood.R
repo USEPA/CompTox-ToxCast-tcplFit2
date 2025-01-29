@@ -18,6 +18,8 @@
 #' @param errfun Which error distribution to assume for each point, defaults to
 #'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
 #'   supported distribution is "dnorm", the normal distribution.
+#' @param poly2.biphasic Which fitting method to use for poly2. If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+#'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
 #'
 #' @importFrom stats pchisq
 #'
@@ -34,7 +36,7 @@
 #' toplikelihood(fname, cutoff = .8, conc, resp, ps, top, mll)
 #' toplikelihood(fname, cutoff = 1, conc, resp, ps, top, mll)
 #' toplikelihood(fname, cutoff = 1.2, conc, resp, ps, top, mll)
-toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"){
+toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4", poly2.biphasic = TRUE){
   #cutoff needs to account for sign otherwise reparameterization will flip the model
   cutoff = cutoff*sign(top)
 
