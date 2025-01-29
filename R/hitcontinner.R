@@ -40,7 +40,7 @@
 #' hitcontinner(conc,resp,top,cutoff = 0.8, er,ps,fit_method, caikwt, mll)
 #' hitcontinner(conc,resp,top,cutoff = 1, er,ps,fit_method, caikwt, mll)
 #' hitcontinner(conc,resp,top,cutoff = 1.2, er,ps,fit_method, caikwt, mll)
-hitcontinner = function(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll, errfun = "dt4"){
+hitcontinner = function(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll, errfun = "dt4", poly2.biphasic = TRUE){
 
   #Each P represents the odds of the curve being a hit according to different criteria; multiply all Ps to get hit odds overall
   if(fit_method == "none") return(0)
