@@ -115,6 +115,18 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
         } else if (model == "gnls") {
           # gnls methods; use calculated top/ac50, etc.
           assign(model, append(get(model), list(top = acy(0, get(model), type = model, returntop = T))))
+          # find x_top and check if outside tested concentration range
+          x_top = acy(0, get(model), type = model, returntoploc = T)
+          if (x_top > max(conc)){
+            # replace untreated controls with psuedo-value
+            if (any(conc == 0)) warning("Data contains untreated controls (conc = 0). A pseudo value replaces -Inf after log-transform.  The pseudo value is set to one log-unit below the lowest experimental `conc`.")
+            logc_temp <- replace(logc, logc == -Inf, sort(unique(logc)[2]-1))
+            # generate concentration sequence over entire experimental concentration range
+            conc_seq <- 10**seq(from = min(logc_temp), to = max(logc_temp), length.out = 100)
+            modpars <- get(model)[get(model)$pars]
+            fit = do.call(model, list(unlist(modpars),conc_seq))
+            assign(model, append(get(model), list(top = fit[which.max(abs(fit))] )))
+          }
           # check if the theoretical top was calculated
           if(is.na(get(model)$top)){
             # if the theoretical top is NA return NA for ac50 and ac50_loss
