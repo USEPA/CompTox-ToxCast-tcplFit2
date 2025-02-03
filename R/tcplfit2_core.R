@@ -114,10 +114,10 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
           assign(model, append(get(model), list(ac50 = acy(.5 * get(model)$top, get(model), type = model))))
         } else if (model == "gnls") {
           # gnls methods; use calculated top/ac50, etc.
-          assign(model, append(get(model), list(top = acy(0, get(model), type = model, returntop = T))))
-          # find x_top and check if outside tested concentration range
-          x_top = acy(0, get(model), type = model, returntoploc = T)
-          if (x_top > max(conc)){
+          # before assigning to model, verify xtop is not outside conc range
+          top = acy(0, get(model), type = model, returntop = T)
+          x_top = acy(y = top, modpars = get(model), type = model, verbose = verbose)
+          if (x_top > max(conc) | x_top < min(conc)){ #x_top outside tested conc range
             # replace untreated controls with psuedo-value
             if (any(conc == 0)) warning("Data contains untreated controls (conc = 0). A pseudo value replaces -Inf after log-transform.  The pseudo value is set to one log-unit below the lowest experimental `conc`.")
             logc_temp <- replace(logc, logc == -Inf, sort(unique(logc)[2]-1))
@@ -125,7 +125,11 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
             conc_seq <- 10**seq(from = min(logc_temp), to = max(logc_temp), length.out = 100)
             modpars <- get(model)[get(model)$pars]
             fit = do.call(model, list(unlist(modpars),conc_seq))
-            assign(model, append(get(model), list(top = fit[which.max(abs(fit))] )))
+            top = fit[which.max(abs(fit))]
+            x_top = acy(y = top, modpars = get(model), type = model, verbose = verbose)
+            assign(model, append(get(model), list(top = top))) # assign empirical top
+          } else { #x_top within tested conc range
+            assign(model, append(get(model), list(top = top))) # assign analytical top
           }
           # check if the theoretical top was calculated
           if(is.na(get(model)$top)){
