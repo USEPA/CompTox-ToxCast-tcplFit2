@@ -69,7 +69,7 @@ fitexp4 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
   a0 = mmed #use largest response with desired directionality
   if(a0 == 0) a0 = .01  #if 0, use a smallish number
   g <- c(a0, # y scale/top (tp)
-         mmed_conc/sqrt(10), # x scale or AC50 (ga); 1
+         median(conc), # x scale or AC50 (ga); 1
          er_est) # logSigma (er)
 
   ## Generate the bound matrices to constrain the model.
