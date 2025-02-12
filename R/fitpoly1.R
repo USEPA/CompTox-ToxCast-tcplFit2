@@ -94,7 +94,7 @@ fitpoly1 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F
                           mu = 1e-6,
                           method = "Nelder-Mead",
                           control = list(fnscale = -1,
-                                         reltol = 1e-10,
+                                         reltol = 1e-12,
                                          maxit = 6000),
                           conc = conc,
                           resp = resp,

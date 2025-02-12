@@ -122,7 +122,7 @@ fitgnls = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
                           mu = 1e-6,
                           method = "Nelder-Mead",
                           control = list(fnscale = -1,
-                                         reltol = 1e-10,
+                                         reltol = 1e-12,
                                          maxit = 6000),
                           conc = logc,
                           resp = resp,

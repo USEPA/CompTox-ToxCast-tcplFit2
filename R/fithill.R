@@ -90,7 +90,7 @@ fithill = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
                0.3, -8) # p bounds
   } else {
     val <- 1.2*max(abs(resp_min),abs(resp_max))
-    hbnds <- c(-val,-val, # tp bounds
+    hbnds <- c(-val,val, # tp bounds
                logc_min - 1, -(logc_max + 0.5), # ga bounds
                0.3, -8) # p bounds
   }
@@ -104,7 +104,7 @@ fithill = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
                           mu = 1e-6,
                           method = "Nelder-Mead",
                           control = list(fnscale = -1,
-                                         reltol = 1e-10,
+                                         reltol = 1e-12,
                                          maxit = 6000),
                           conc = logc,
                           resp = resp,
