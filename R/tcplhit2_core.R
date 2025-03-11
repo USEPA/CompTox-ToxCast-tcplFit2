@@ -145,7 +145,7 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     mll <- length(modpars) - aics[[fit_method]] / 2
     hitcall <- hitcontinner(conc, resp, top, cutoff, er,
       ps = unlist(modpars), fit_method,
-      caikwt = caikwt, mll = mll, errfun = errfun
+      caikwt = caikwt, mll = mll, errfun = errfun, poly2.biphasic = poly2.biphasic
     )
   } else {
     hitcall <- hitloginner(conc, resp, top, cutoff, ac50)
