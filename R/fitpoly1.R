@@ -32,7 +32,8 @@
 #'
 #' @examples
 #' fitpoly1(c(.03,.1,.3,1,3,10,30,100), c(0,.01,.1, .1, .2, .5, 2, 5))
-fitpoly1 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, errfun = "dt4"){
+fitpoly1 = function(conc, resp, bidirectional = TRUE, verbose = FALSE,
+                    nofit = FALSE, errfun = "dt4",optim_method,control){
 
   fenv <- environment()
   #initialize myparams
@@ -92,10 +93,12 @@ fitpoly1 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = F
                           ui = Ui,
                           ci = Ci,
                           mu = 1e-6,
-                          method = "Nelder-Mead",
-                          control = list(fnscale = -1,
-                                         reltol = 1e-10,
-                                         maxit = 6000),
+                          # method = "Nelder-Mead",
+                          method = optim_method,
+                          # control = list(fnscale = -1,
+                          #                reltol = 1e-10,
+                          #                maxit = 6000),
+                          control = control,
                           conc = conc,
                           resp = resp,
                           fname = "poly1",

@@ -44,7 +44,8 @@
 #' @examples
 #' fitpoly2(c(.03,.1,.3,1,3,10,30,100), c(0,.01,.1, .1, .2, .5, 2, 8))
 fitpoly2 = function(conc, resp, bidirectional = TRUE,biphasic = TRUE,
-                    verbose = FALSE, nofit = FALSE,errfun = "dt4"){
+                    verbose = FALSE, nofit = FALSE,errfun = "dt4",
+                    optim_method,control){
   fenv <- environment()
   #initialize myparams
   pars <- paste0(c("a","b","b1","b2","er"))
@@ -127,10 +128,12 @@ fitpoly2 = function(conc, resp, bidirectional = TRUE,biphasic = TRUE,
                           ui = Ui,
                           ci = Ci,
                           mu = 1e-6,
-                          method = "Nelder-Mead",
-                          control = list(fnscale = -1,
-                                         reltol = 1e-10,
-                                         maxit = 6000),
+                          # method = "Nelder-Mead",
+                          method = optim_method,
+                          # control = list(fnscale = -1,
+                          #                reltol = 1e-10,
+                          #                maxit = 6000),
+                          control = control,
                           conc = conc,
                           resp = resp,
                           fname = fname,

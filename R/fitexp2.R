@@ -32,7 +32,8 @@
 #'
 #' @examples
 #' fitexp2(c(.1,1,10,100), c(0,.1,1,10))
-fitexp2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, errfun = "dt4"){
+fitexp2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE,
+                   nofit = FALSE, errfun = "dt4",optim_method,control){
 
   fenv <- environment()
   #initialize myparams
@@ -96,9 +97,11 @@ fitexp2 = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FA
                           ci = Ci,
                           mu = 1e-6,
                           method = "Nelder-Mead",
+                          # method = optim_method,
                           control = list(fnscale = -1,
                                          reltol = 1e-10,
                                          maxit = 6000),
+                          # control = control,
                           conc = conc,
                           resp = resp,
                           fname = "exp2",

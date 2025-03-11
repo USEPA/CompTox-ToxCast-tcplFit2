@@ -24,7 +24,7 @@
 #' @examples
 #' fitcnst(c(.1,1,10,100), c(1,2,0,-1))
 #' fitcnst(c(.1,1,10,100), c(1,2,0,-1), nofit = TRUE)
-fitcnst = function(conc, resp, nofit = FALSE, errfun = "dt4", ...){
+fitcnst = function(conc, resp, nofit = FALSE, errfun = "dt4",...){
 
   pars <- "er"
   myparams = c("success", "aic", "rme","er")
@@ -38,6 +38,7 @@ fitcnst = function(conc, resp, nofit = FALSE, errfun = "dt4", ...){
   er_est <- if ((rmad <- mad(resp)) > 0) log(rmad) else log(1e-32)
 
   ###----------------------- Fit the Constant Model -----------------------###
+  message("Fitting Constant Model with 'Brent' Optimization Method")
   fit <- optim(er_est,
                 tcplObj,
                 fname = "cnst",

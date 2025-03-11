@@ -61,6 +61,10 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
                           fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", "pow", "exp2", "exp3", "exp4", "exp5"),
                           poly2.biphasic = TRUE,
                           errfun = "dt4",
+                          optim_method = "Nelder-Mead",
+                          control = list(fnscale = -1,
+                                         reltol = 1e-10,
+                                         maxit = 6000),
                           ...) {
   logc <- log10(conc)
   rmds <- tapply(resp, logc, median)
@@ -76,6 +80,8 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
     resp <- resp+1e-6 # adding epsilon to resp vector
   }
   # decide whether to run each model, then use generic functions to run model by name
+  print(optim_method)
+  print(control)
   for (model in modelnames) {
     # only fit when four or more concentrations, the model is in fitmodels, and
     # ( either one response is above cutoff OR force.fit == T OR it's the constant model.)
@@ -86,12 +92,12 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
     if(fname != "fitpoly2"){
       assign(model, do.call(fname, list(
         conc = conc, resp = resp, bidirectional = bidirectional, verbose = verbose,
-        nofit = !to.fit, errfun = errfun
+        nofit = !to.fit, errfun = errfun,optim_method = optim_method,control = control
       )))
     }else{
       assign(model, do.call(fname, list(
         conc = conc, resp = resp, bidirectional = bidirectional, verbose = verbose,
-        nofit = !to.fit,biphasic = poly2.biphasic
+        nofit = !to.fit,biphasic = poly2.biphasic,optim_method = optim_method,control = control
       )))
     }
 

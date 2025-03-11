@@ -34,7 +34,7 @@
 #' @examples
 #' fitpow(c(.03,.1,.3,1,3,10,30,100), c(0,.01,.1, .1, .2, .5, 2, 8))
 fitpow = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FALSE, nmin = .3,
-                  errfun = "dt4"){
+                  errfun = "dt4",optim_method,control){
 
   fenv <- environment()
   #initialize myparams
@@ -97,10 +97,12 @@ fitpow = function(conc, resp, bidirectional = TRUE, verbose = FALSE, nofit = FAL
                           ui = Ui,
                           ci = Ci,
                           mu = 1e-6,
-                          method = "Nelder-Mead",
-                          control = list(fnscale = -1,
-                                         reltol = 1e-10,
-                                         maxit = 6000),
+                          # method = "Nelder-Mead",
+                          method = optim_method,
+                          # control = list(fnscale = -1,
+                          #                reltol = 1e-10,
+                          #                maxit = 6000),
+                          control = control,
                           conc = conc,
                           resp = resp,
                           fname = "pow",
