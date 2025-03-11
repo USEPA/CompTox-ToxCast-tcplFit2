@@ -123,6 +123,10 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
           # before assigning to model, verify xtop is not outside conc range
           top = acy(0, get(model), type = model, returntop = T)
           x_top = acy(y = top, modpars = get(model), type = model, verbose = verbose)
+          message(paste("x_top =",x_top))
+          message(paste("max(conc) = ",max(conc)))
+          message(paste("check 1: upper bound - ",x_top > max(conc)))
+          message(paste("check 2: lower bound - ",x_top < min(conc)))
           if (x_top > max(conc) | x_top < min(conc)){ #x_top outside tested conc range
             # replace untreated controls with psuedo-value
             if (any(conc == 0)) warning("Data contains untreated controls (conc = 0). A pseudo value replaces -Inf after log-transform.  The pseudo value is set to one log-unit below the lowest experimental `conc`.")
