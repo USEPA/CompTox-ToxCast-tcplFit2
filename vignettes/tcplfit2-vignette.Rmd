@@ -210,7 +210,7 @@ Below the structure of the "Hill" elements are shown as an example of details co
 - `er_sd` - the numeric value for the standard deviation of the error term
 - `pars` - a character vector containing the name of model parameters estimated for the "Hill" model
 - `sds` - a character vector containing the name of parameters storing the standard deviation of model parameters for the "Hill" model
-- `top` - the predicted maximal response
+- `top` - the maximal predicted change in response from baseline (i.e. $y = 0$), can be positive or negative
 - `ac50` - the concentration inducing 50% of the maximal predicted response
 
 All of these details are provided for other models, except for the constant model. The constant model only includes the `success`, `aic`, `rme`, and `er` elements. 
@@ -426,7 +426,157 @@ subdat[wllt == 't',params:= myfun(.SD), by = .(spid)]
 
 ## -  Hitcalling
 
-After all models are fit to the data, `tcplhit2_core` is used to perform hitcalling and corresponds to Level 5 in `tcpl`. The output of `tcplfit2_core`, i.e. Level 4 data, may be fed directly to the `tcplhit2_core` function. The results are then pivoted wide, and the resulting data table is displayed below.
+After all models are fit to the data, `tcplhit2_core` is used to perform hitcalling, which  corresponds to Level 5 in `tcpl`. The continuous hitcall value (`hitc`) is the product of three proportional weights, and the resulting continuous value is between 0 and 1. The proportional weights as defined as:
+
+$p_1$
+: “the winning AIC value is less than that of the constant model.”
+Determine whether the constant model – if allowed to win – is a better fit than the winning model – i.e., is the winning model essentially flat or not. The constant model may never be selected as the winning model, but if the constant model has the lowest AIC compared to other models, the calculated continuous `hitc` will be zero.
+
+When `aicc` is `FALSE`, default:
+
+$$ p_1 = 1 - \frac{exp(0.5*AIC_{const})}{exp(0.5*AIC_{const})+exp(0.5*AIC_{winning})}$$
+Otherwise, the corrected AICs (i.e. $AIC_c$) for the constant and winning model are used. The corrected AIC values are estimated as:
+
+$$ AIC_c= AIC + \frac{2+df*(df+1)}{n-df-1}$$
+
+where $df$ is the model's degrees of freedom and $n$ is the number of observed responses.
+
+$p_2$
+: “at least one median response is greater than the cutoff.”
+At least one dose group has a central tendency of the response values “outside” the cutoff band (consider bi-directional). Response is greater than cutoff in “+” direction and less than cutoff in “–” direction.
+
+When assuming the responses follow a t-distribution (default):
+
+$$ p_2 = 1 - \prod_{k=1}^{D}(x_k \sim t(\frac{y_k - sign(top) * cutoff}{exp(err)},df = 4))$$
+alternatively, when assuming the responses follow a normal distribution:
+
+$$ p_2 = 1 - \prod_{k=1}^{D}N(\frac{y_k-sign(top)*cutoff}{exp(err)},1) $$
+
+where $y_k$ are the median responses at each experimental concentration/dose group $k$, $sign(top)$ is the sign (either positive or negative) of the maximal predicted response from baseline, $cutoff$ is the user defined response threshold indicating meaningful biological activity, and $err$ is the model error parameter.
+
+$p3$
+: “the top of the fitted curve is above the cutoff”
+Determine whether the predicted maximal response exceeds the cutoff, i.e. the response corresponding to the effect size of interest.
+
+$$ p_3 = \frac{1 \pm \chi_2(2*(MLL-LL),1)}{2} $$
+where $MLL$ is the maximum log-likelihood of the original predicted best fit model, $LL$ is the log-likelihood of the re-scaled predicted best fit model, and the $\pm$ is $+$ when $ |top| \geq | cutoff | $ and $-$ when $ |top| < | cutoff | $.
+
+See Sheffield et al., 2021 for more information on tcplfit2.
+
+The following plots provide visual representations for the comparisons conducted in each of the proportional weights that make up the continuous hitcall value. Each figure has one item "highlighted" in blue and another "highlighted" in red.  The blue represents the reference for the proportional weight of interest, whereas the red represents an indicator for potential a biologically active response (i.e. key comparator) for the proportional weight of interest.  For example, for $p_1$ which (as mentioned previously) is meant determine whether the winning model (red), which is the best fit curve to the observed data given it has the lowest AIC, is much different from the constant model (blue), which indicates no biological response.
+
+```{r hitc_plot_setup,echo=FALSE}
+DATA_CASE <- tcplfit2::signatures[1,]
+conc <- strsplit(DATA_CASE[,"conc"],split = "[|]") %>% 
+  unlist() %>% as.numeric()
+resp <- strsplit(DATA_CASE[,"resp"],split = "[|]") %>% 
+  unlist() %>% as.numeric()
+
+
+fit <- tcplfit2::tcplfit2_core(conc = conc,resp = resp,
+                               cutoff = DATA_CASE[,"cutoff"])
+hit <- tcplfit2::tcplhit2_core(params = fit,
+                               conc = conc,resp = resp,
+                               cutoff = DATA_CASE[,"cutoff"],
+                               onesd = DATA_CASE[,"onesd"])
+
+XC <- seq(from = min(conc),to = max(conc),length.out = 100)
+YC <- tcplfit2::exp4(x = XC,ps = unlist(fit$exp4[fit$exp4$pars]))
+```
+
+```{r hitc_plots,echo=FALSE}
+## Generate a Base Plot for the Concentration-Response ##
+base_plot <- ggplot2::ggplot()+
+  geom_point(aes(log10(conc),resp))+
+  geom_line(aes(x = log10(XC),y = YC))+
+  geom_hline(aes(yintercept = c(-1,1)*DATA_CASE[,"cutoff"],linetype = "Cutoff"))+
+  geom_hline(aes(yintercept = c(-1,1)*1.349*DATA_CASE[,"onesd"],linetype = "BMR"))+
+  ggplot2::ylim(c(-1,1))+
+  scale_linetype_manual(breaks = c("Cutoff","BMR"),values = c("dashed","dotted"))+
+  theme_bw()+
+  theme(axis.title.x = element_blank(),axis.title.y = element_blank())
+
+## Proportional Weight 1 ##
+# generate the plot
+p1_plot <- base_plot+
+  # add a title for the subplot
+  ggplot2::ggtitle("p1",subtitle = "AIC Weight")+
+  # add the constant model (reference)
+  ggplot2::geom_hline(aes(yintercept = 0,color = "Constant"))+
+  # add the winning model (comparison)
+  ggplot2::geom_line(aes(x = log10(XC),y = YC,color = "Best Fit"))+
+  scale_color_manual(name = "",
+                     breaks = c("Constant","Best Fit"),
+                     values = c("blue","red"))+
+  theme(legend.position = "bottom")
+
+## Proportional Weight 2 ##
+# obtain the concentrations that are outside the cutoff band
+p2_DG <- which(abs(resp)>=abs(DATA_CASE[,"cutoff"]))
+# generate the plot
+p2_plot <- base_plot+
+  # add a title for the subplot
+  ggplot2::ggtitle("p2",subtitle = "Responses Outside Cutoff")+
+  # add the cutoff band - highlighted
+  geom_hline(aes(yintercept = c(-1,1)*DATA_CASE[,"cutoff"],linetype = "Cutoff",color = "Cutoff"))+
+  # add the concentrations with median responses outside the cutoff band - highlighted
+  ggplot2::geom_point(aes(log10(conc)[p2_DG],resp[p2_DG],color = "Extreme Responses"))+
+  scale_color_manual(name = "",
+                     breaks = c("Cutoff","Extreme Responses"),
+                     values = c("blue","red"))+
+  theme(legend.position = "bottom")
+
+## Proportional Weight 3 ##
+# set up temporary data needed for re-scaling plot
+tmp_cutoff <- DATA_CASE[,"cutoff"] # cutoff value
+tmp_top <- fit$exp4$top # maximal predicted response from baseline
+tmp_ps  <- unlist(fit$exp4[fit$exp4$pars]) # model parameters
+# code from toplikelihood.R lines 51-56 for the "exp4" model
+if (tmp_top == tmp_ps[1]) { # check if the top and tp are the same
+  tmp_ps[1] = tmp_cutoff
+} else {
+  x_top = acy(y = tmp_top, modpars = list(tp=tmp_ps[1],ga=tmp_ps[2],er=tmp_ps[3]),type="exp4")
+  tmp_ps[1] = tmp_cutoff/( 1 - 2^(-x_top/tmp_ps[2]))
+}
+# obtain the rescaled predicted response
+YC_rescale <- tcplfit2::exp4(x = XC,ps = tmp_ps)
+# generate the plot
+p3_plot <- base_plot+
+  # add a title for the subplot
+  ggplot2::ggtitle("p3",subtitle = "Top Likelihood Ratio")+
+  # add the cutoff band - highlighted
+  geom_hline(mapping = aes(yintercept = DATA_CASE[,"cutoff"],color = "Top at Cutoff"),linetype = "dashed")+
+  # add the original predicted curve - highlighted
+  geom_line(aes(x = log10(XC),y = YC,color = "Best Fit"))+
+  # add the rescaled predicted curve - highlighted
+  geom_line(aes(x = log10(XC),y = YC_rescale,color = "Rescaled Best Fit"))+
+  # add the 'top' (maximal predicted change in response from baseline)
+  geom_hline(mapping = aes(yintercept = fit$exp4$top,color = "Top"))+
+  # scale_linetype_manual(name = "",
+  #                       breaks = c("Cutoff","BMR","Top"),
+  #                       values = c("dashed","dotted","solid"))+
+  scale_color_manual(name = "",
+                     breaks = c("Top at Cutoff","Best Fit","Rescaled Best Fit","Top"),
+                     values = c("hotpink","blue","red","skyblue"))+
+  theme(legend.position = "bottom")
+
+  
+
+## All Plots ##
+grid.arrange(p1_plot,p2_plot,p3_plot,ncol = 3,
+             top = paste(DATA_CASE[,"signature"],DATA_CASE[,"dtxsid"],sep = "\n"),
+             left = "response",
+             bottom = paste("log10(conc)",
+                            paste(paste("hitc:",signif(hit[,"hitcall"],3)),paste("bmd:",signif(hit[,"bmd"],3)),sep = ", "),
+                            sep = "\n")
+             )
+```
+
+One should note that the distribution of hitcall values does not follow a normal distribution, rather values tend towards 0 or 1. Hitcall values close to 1 indicate concentration-response series with biological activity in the measured response (i.e. ‘active’ hit).
+
+Users may consider binarizarizing the continuous hitcall values into active or inactive designations, setting the the activity threshold based on the level of stringency required by the user. Currently the ToxCast work, requires a `hitc` value greater than or equal to 0.90 to label a response as active, and anything less is considered inactive. For further details on the activity threshold used in ToxCast we refer readers to the `tcpl` vignette and Nyffeler et al., 2023.
+
+The output of `tcplfit2_core`, i.e. Level 4 data from invitroDB, may be fed directly to the `tcplhit2_core` function. The results are then pivoted wide, and the resulting data table is displayed below.
 
 ```{r example3_hitcalling, fig.height = 6, fig.width = 7}
 myfun2 <- function(y) {
@@ -1323,7 +1473,7 @@ Model: $f(x) = \frac{tp}{(1 + (ga/x)^p )}$
 
 Parameters include: 
 
-* `tp` : Top, the highest response (or lowest - for a decreasing curve) achieved at saturation, that is the horizontal asymptote. If bi-directional fitting is allowed, then $-\infty < tp <\infty$. Otherwise $0 \le tp < \infty$.
+* `tp` : Top parameter, the maximum theoretical response (highest or lowest - for an increasing or decreasing curve, respectively) achieved at saturation, that is the horizontal asymptote. If bi-directional fitting is allowed, then $-\infty < tp <\infty$. Otherwise $0 \le tp < \infty$.
 * `ga` : AC50, concentration at 50% of the maximal activity. It provides useful information about the "apparent affinity" of the protein under study (enzyme, transporter, etc.) for the substrate. The model restricts `ga` such that $0 \le ga < \infty$.
 * `p` : Power, also called the Hill coefficient. Mathematically, it is a measure of how steep the response curve is. In context, it is a measure of the co-operativity of substrate binding to the enzyme, transporter, etc. Optimization of the Hill model restricts `p` such that $0.3 \le p \le 8$.
 
@@ -1534,7 +1684,7 @@ Model: $f(x) = tp*(1-2^{(-\frac{x}{ga})})$
 
 Parameters include: 
 
-* `tp` : Top. The horizontal asymptote the curve is approaching (can also be negative); it is the maximum or minimum of the predicted responses. If bi-directional fitting is allowed, then $-\infty <tp < \infty$. Otherwise, $0 \le tp < \infty$.
+* `tp` : Top parameter. The maximum theoretical response (i.e., horizontal asymptote that the predicted curve is approaching), which may also be negative for decreasing curves. If bi-directional fitting is allowed, then $-\infty <tp < \infty$. Otherwise, $0 \le tp < \infty$.
 * `ga` : AC50, concentration at 50% of the maximal activity. It acts as the slope, controlling the rate at which the response (curve) approaches the top. If `ga` increases, the curve is shrunk horizontally. The model restricts `ga` such that $0 \le ga < \infty$ (i.e. non-negative). 
 
 ```{r exp4, fig.width=8, fig.height=5, warning=FALSE}
@@ -1649,12 +1799,12 @@ OutputParameters <- c(
   "a (y-scale)", # linear,
   "a (y-scale) </br> b (x-scale)", # quadratic
   "a (y-scale) </br> p (power)", # power
-  "tp (top) </br> ga (gain AC50) </br> p (gain-power)", # hill
+  "tp (top parameter) </br> ga (gain AC50) </br> p (gain-power)", # hill
   "tp (top) </br> ga (gain AC50) </br> p (gain power) </br> la (loss AC50) </br> q (loss power)", # gain-loss
   "a (y-scale) </br> b (x-scale)", # exp2
   "a (y-scale) </br> b (x-scale) </br> p (power)", # exp3
-  "tp (top) </br> ga (AC50)", # exp4
-  "tp (top) </br> ga (AC50) </br> p (power)" # exp5
+  "tp (top parameter) </br> ga (AC50)", # exp4
+  "tp (top parameter) </br> ga (AC50) </br> p (power)" # exp5
 )
 # Fifth column - additional model details.
 Details <- c(
@@ -1691,16 +1841,16 @@ a
 : Model fitting parameter in the following models: exp2, exp3, poly1, poly2, pow
 
 ac5
-: Active concentration at 5% of the maximal modeled response (top) value
+: Active concentration at 5% of the maximal predicted change in response (top) value
 
 ac10
-: Active concentration at 10% of the maximal modeled response (top) value
+: Active concentration at 10% of the maximal predicted change in response (top) value
 
 ac20
-: Active concentration at 20% of the maximal modeled response (top) value
+: Active concentration at 20% of the maximal predicted change in response (top) value
 
 ac50
-: Active concentration at 50% of the maximal modeled response (top) value
+: Active concentration at 50% of the maximal predicted change in response (top) value
 
 acc
 : Active concentration at the cutoff
@@ -1757,7 +1907,7 @@ la
 : AC50 for the falling curve in a gain-loss model
 
 lc50 
-: Loss concentration at 50% of maximal modeled response (top), corresponding to the loss side of the gnls model
+: Loss concentration at 50% of maximal predicted change in response (top), corresponding to the loss side of the gnls model
 
 n_gt_cutoff
 : Number of data points above the cutoff
@@ -1775,10 +1925,10 @@ rmse
 : Root mean square error of the data points relative to model fit. Lower RMSE indicate model fits the data well.
 
 top_over_cutoff
-: Ratio of the maximal modeled response value to the cutoff (top/cutoff)
+: Ratio of the maximal predicted change in response value to the cutoff (top/cutoff)
 
 top
-: Response value at the highest concentration or modeled top value (tp) 
+: Response value at the maximal predicted change in response from baseline ($y = 0$)
 
 tp
-: Model fitting parameter in the following models: hill, gnls, exp4, exp5
+: Model fitting parameter in the following models: hill, gnls, exp4, exp5 - the horizontal asymptote that the predicted curve is approaching (theoretical maximum)
