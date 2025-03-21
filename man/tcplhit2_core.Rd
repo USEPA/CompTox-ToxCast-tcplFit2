@@ -75,7 +75,7 @@ The elements of summary are:
     \item b - fitting parameter methods: exp2, exp3, ploy2
     \item p - fitting parameter methods: exp3, exp5, gnls, hill, pow
     \item q - fitting parameter methods: gnls,
-    \item tp - top of the curve
+    \item tp - the theoretical top parameter for the curve fit - horizontal asymptote
     \item ga - ac50 for the rising curve in a gnls model or the Hill model
     \item la - ac50 for the falling curve in a gnls model
     \item er - fitted error term for plotting error bars
@@ -88,7 +88,7 @@ The elements of summary are:
       selected method AIC is than that for the constant model
     \item mll - another factor used in calcualting the continuous hitcall = length(modpars) - aic(fit_method)/2
     \item hitcall - the final hitcall, a value ranging from 0 to 1
-    \item top - curve top
+    \item top - the model predicted maximal change in response from baseline
     \item ac50 - curve value at 50\% of top, curve value at cutoff
     \item lc50 - curve value at 50\% of top corresponding to the loss side of the gain-loss curve
     \item ac5 - curve value at 5\% of top

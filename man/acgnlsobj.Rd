@@ -11,7 +11,7 @@ acgnlsobj(x, y, tp, ga, p, la, q)
 
 \item{y}{Desired activity level.}
 
-\item{tp}{Top.}
+\item{tp}{Gain-loss Model Top Parameter.}
 
 \item{ga}{Gain AC50.}
 

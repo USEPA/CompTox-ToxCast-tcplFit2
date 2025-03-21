@@ -52,11 +52,13 @@ Returns concentration at which model equals y.
 \details{
 Mathematically inverts model functions of the given type, except for gnls,
 which is numerically inverted. gnls returns NA when y > tp. Other options
-return the actual top (as opposed to theoretical tp) and top location for
-gnls model. gnls model defaults to giving concentration on gain side. Only
-one of getloss, returntop, and returntoploc should be TRUE at a time.  If
-top location solution fails for gnls, top is set to tp. Returns NA if gnls
-numerical solver fails. Returns NA if model was not successfully fit.
+return the actual top (i.e. the maximal predicted change in response from
+baseline), as opposed to model parameter tp (i.e. theoretical maximum
+response), and top location for gnls model. gnls model defaults to giving
+concentration on gain side. Only one of getloss, returntop, and returntoploc
+should be TRUE at a time.  If top location solution fails for gnls, top is
+set to tp. Returns NA if gnls numerical solver fails. Returns NA if model was
+not successfully fit.
 }
 \examples{
 acy(1, list(ga = 10, tp = 2, p = 3), type = "hill")

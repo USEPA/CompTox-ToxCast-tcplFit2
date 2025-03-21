@@ -9,7 +9,7 @@ gnlsderivobj(x, tp, ga, p, la, q)
 \arguments{
 \item{x}{Concentration.}
 
-\item{tp}{Top.}
+\item{tp}{Gain-loss Model Top Parameter.}
 
 \item{ga}{Gain AC50.}
 

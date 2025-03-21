@@ -42,7 +42,7 @@ outputs.
 }
 \details{
 Zero background and increasing absolute response are assumed. Parameters are
-"tp" (top), "ga" (AC50), and error term "er".
+"tp" (top, theoretical maximal response), "ga" (AC50), and error term "er".
 success = 1 for a successful fit, 0 if optimization failed, and NA if
 nofit = TRUE. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
 if nofit = TRUE. aic, rme, modl, parameters, and parameter sds are set to
