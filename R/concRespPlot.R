@@ -18,7 +18,7 @@
 #'     \item fit_method - curve fit method
 #'     \item bmd, bmdl, bmdu - bmd, bmd lower bound, and bmd upper bound
 #'     \item ac50, acc - curve value at 50\% of top, curve value at cutoff
-#'     \item top - curve top
+#'     \item top - curve top (maximal predicted change in response from baseline)
 #'     \item name - name of the chemical
 #'     \item assay - name of the assay, signature, or other endpoint
 #'     \item other identifiers
