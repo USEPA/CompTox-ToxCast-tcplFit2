@@ -466,67 +466,35 @@ See Sheffield et al., 2021 for more information on tcplfit2.
 The following plots provide visual representations for the comparisons conducted in each of the proportional weights that make up the continuous hitcall value. Each figure has one item "highlighted" in blue and another "highlighted" in red.  The blue represents the reference for the proportional weight of interest, whereas the red represents an indicator for potential a biologically active response (i.e. key comparator) for the proportional weight of interest.  For example, for $p_1$ which (as mentioned previously) is meant determine whether the winning model (red), which is the best fit curve to the observed data given it has the lowest AIC, is much different from the constant model (blue), which indicates no biological response.
 
 ```{r hitc_plot_setup,echo=FALSE}
+# obtain the base example data
 DATA_CASE <- tcplfit2::signatures[1,]
 conc <- strsplit(DATA_CASE[,"conc"],split = "[|]") %>% 
   unlist() %>% as.numeric()
 resp <- strsplit(DATA_CASE[,"resp"],split = "[|]") %>% 
   unlist() %>% as.numeric()
+OG_data <- data.frame(xval = conc,yval = resp) %>%
+  # obtain the concentrations that are outside the cutoff band
+  dplyr::mutate(type = ifelse(abs(resp)>=abs(DATA_CASE[,"cutoff"]),"Extreme Responses",NA)) %>% 
+  mutate(.,df = "OG_data")
 
-
+# obtain the fit and best fitting/hitcalling information
 fit <- tcplfit2::tcplfit2_core(conc = conc,resp = resp,
                                cutoff = DATA_CASE[,"cutoff"])
 hit <- tcplfit2::tcplhit2_core(params = fit,
                                conc = conc,resp = resp,
                                cutoff = DATA_CASE[,"cutoff"],
                                onesd = DATA_CASE[,"onesd"])
-
+# obtain the continuous curve from fit information
 XC <- seq(from = min(conc),to = max(conc),length.out = 100)
 YC <- tcplfit2::exp4(x = XC,ps = unlist(fit$exp4[fit$exp4$pars]))
-```
+# set up a continuous curve dataset
+cont_fit <-
+  # best fit
+  data.frame(xval = XC,yval = YC,type = "Best Fit") %>%
+  # constant (flat) fit
+  rbind.data.frame(data.frame(xval = XC,yval = rep(0,length(XC)),type = "Constant Fit"))
 
-```{r hitc_plots,echo=FALSE}
-## Generate a Base Plot for the Concentration-Response ##
-base_plot <- ggplot2::ggplot()+
-  geom_point(aes(log10(conc),resp))+
-  geom_line(aes(x = log10(XC),y = YC))+
-  geom_hline(aes(yintercept = c(-1,1)*DATA_CASE[,"cutoff"],linetype = "Cutoff"))+
-  geom_hline(aes(yintercept = c(-1,1)*1.349*DATA_CASE[,"onesd"],linetype = "BMR"))+
-  ggplot2::ylim(c(-1,1))+
-  scale_linetype_manual(breaks = c("Cutoff","BMR"),values = c("dashed","dotted"))+
-  theme_bw()+
-  theme(axis.title.x = element_blank(),axis.title.y = element_blank())
-
-## Proportional Weight 1 ##
-# generate the plot
-p1_plot <- base_plot+
-  # add a title for the subplot
-  ggplot2::ggtitle("p1",subtitle = "AIC Weight")+
-  # add the constant model (reference)
-  ggplot2::geom_hline(aes(yintercept = 0,color = "Constant"))+
-  # add the winning model (comparison)
-  ggplot2::geom_line(aes(x = log10(XC),y = YC,color = "Best Fit"))+
-  scale_color_manual(name = "",
-                     breaks = c("Constant","Best Fit"),
-                     values = c("blue","red"))+
-  theme(legend.position = "bottom")
-
-## Proportional Weight 2 ##
-# obtain the concentrations that are outside the cutoff band
-p2_DG <- which(abs(resp)>=abs(DATA_CASE[,"cutoff"]))
-# generate the plot
-p2_plot <- base_plot+
-  # add a title for the subplot
-  ggplot2::ggtitle("p2",subtitle = "Responses Outside Cutoff")+
-  # add the cutoff band - highlighted
-  geom_hline(aes(yintercept = c(-1,1)*DATA_CASE[,"cutoff"],linetype = "Cutoff",color = "Cutoff"))+
-  # add the concentrations with median responses outside the cutoff band - highlighted
-  ggplot2::geom_point(aes(log10(conc)[p2_DG],resp[p2_DG],color = "Extreme Responses"))+
-  scale_color_manual(name = "",
-                     breaks = c("Cutoff","Extreme Responses"),
-                     values = c("blue","red"))+
-  theme(legend.position = "bottom")
-
-## Proportional Weight 3 ##
+## prop weight 3 - continuous curve dataset addition ##
 # set up temporary data needed for re-scaling plot
 tmp_cutoff <- DATA_CASE[,"cutoff"] # cutoff value
 tmp_top <- fit$exp4$top # maximal predicted response from baseline
@@ -540,30 +508,102 @@ if (tmp_top == tmp_ps[1]) { # check if the top and tp are the same
 }
 # obtain the rescaled predicted response
 YC_rescale <- tcplfit2::exp4(x = XC,ps = tmp_ps)
-# generate the plot
+# add the continuous rescaled curve to the continuous curve dataset
+cont_fit <- rbind.data.frame(
+  cont_fit,
+  data.frame(xval = XC,yval = YC_rescale,type = "Rescaled Best Fit")
+) %>% mutate(.,df = "cont_fit")
+
+# dataset with reference lines (e.g. cutoff, bmr, top, etc.)
+ref_df <- data.frame(
+  xval = rep(0,6),
+  yval = c(hit$cutoff*c(-1,1),
+           hit$bmr*c(-1,1),
+           fit$exp4$top,
+           hit$cutoff),
+  type = c(rep("Cutoff",2),rep("BMR",2),"Top","Top at Cutoff")
+) %>% mutate(.,df = "ref_df")
+
+## plotting dataframe combined
+plot_highlight_df <- rbind.data.frame(OG_data,cont_fit,ref_df)
+```
+
+```{r hitc_plots,echo=FALSE,fig.height = 6, fig.width = 7}
+## Generate a Base Plot for the Concentration-Response ##
+base_plot <- ggplot2::ggplot()+
+  geom_point(data = dplyr::filter(plot_highlight_df,df == "OG_data"),
+             aes(x = log10(xval),y = yval))+
+  geom_line(data = dplyr::filter(plot_highlight_df,df == "cont_fit" & type == "Best Fit"),
+             aes(x = log10(xval),y = yval))+
+  geom_hline(data = dplyr::filter(plot_highlight_df,df == "ref_df" & type %in% c("Cutoff","BMR")),
+             aes(yintercept = yval,linetype = type,colour = type))+
+  ggplot2::ylim(c(-1,1))+
+  scale_colour_manual(breaks = c("Cutoff","BMR"),values = rep("black",2))+
+  scale_linetype_manual(breaks = c("Cutoff","BMR"),values = c("dashed","dotted"))+
+  theme_bw()+
+  theme(axis.title.x = element_blank(),axis.title.y = element_blank())
+
+## Proportional Weight 1 Plot ##
+p1_plot <- base_plot+
+  # add a title for the subplot
+  ggplot2::ggtitle("p1",subtitle = "AIC Weight")+
+  # add the constant (reference) and winning model (comparison) - highlighted
+  geom_line(data = dplyr::filter(plot_highlight_df,df == "cont_fit" & type != "Rescaled Best Fit"),
+             aes(x = log10(xval),y = yval,colour = type,linetype = type))+
+  scale_colour_manual(name = "",
+                      breaks = c("Constant Fit","Best Fit","Cutoff","BMR"),
+                      values = c("blue","red",rep("black",2)))+
+  scale_linetype_manual(name = "",
+                        breaks = c("Constant Fit","Best Fit","Cutoff","BMR"),
+                        values = c("solid","solid","dashed","dotted"))+
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.65,0.15),
+        legend.key.size = unit(0.5,"cm"),legend.text = element_text(size = 7))
+
+## Proportional Weight 2 Plot ##
+p2_plot <- base_plot+
+  # add a title for the subplot
+  ggplot2::ggtitle("p2",subtitle = "Responses Outside Cutoff")+
+  # add the concentrations with median responses outside the cutoff band - highlighted
+  geom_point(data = dplyr::filter(plot_highlight_df,df == "OG_data" & type == "Extreme Responses"),
+             aes(x = log10(xval),y = yval,shape = type),col = "red")+
+  # add the cutoff band - highlighted
+  geom_hline(data = dplyr::filter(plot_highlight_df,df == "ref_df" & type %in% c("Cutoff","BMR")),
+             aes(yintercept = yval,linetype = type,colour = type))+
+  scale_colour_manual(name = "",
+                     breaks = c("Cutoff","BMR"),
+                     values = c("blue","black"))+
+  scale_linetype_manual(name = "",
+                        breaks = c("Cutoff","BMR"),
+                        values = c("dashed","dotted"))+
+  scale_shape(name = "")+
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.65,0.15),
+        legend.key.size = unit(0.5,"cm"),legend.text = element_text(size = 7))
+
+## Proportional Weight 3 Plot ##
 p3_plot <- base_plot+
   # add a title for the subplot
   ggplot2::ggtitle("p3",subtitle = "Top Likelihood Ratio")+
-  # add the cutoff band - highlighted
-  geom_hline(mapping = aes(yintercept = DATA_CASE[,"cutoff"],color = "Top at Cutoff"),linetype = "dashed")+
-  # add the original predicted curve - highlighted
-  geom_line(aes(x = log10(XC),y = YC,color = "Best Fit"))+
-  # add the rescaled predicted curve - highlighted
-  geom_line(aes(x = log10(XC),y = YC_rescale,color = "Rescaled Best Fit"))+
-  # add the 'top' (maximal predicted change in response from baseline)
-  geom_hline(mapping = aes(yintercept = fit$exp4$top,color = "Top"))+
-  # scale_linetype_manual(name = "",
-  #                       breaks = c("Cutoff","BMR","Top"),
-  #                       values = c("dashed","dotted","solid"))+
-  scale_color_manual(name = "",
-                     breaks = c("Top at Cutoff","Best Fit","Rescaled Best Fit","Top"),
-                     values = c("hotpink","blue","red","skyblue"))+
-  theme(legend.position = "bottom")
-
-  
+  # add the original predicted curve & the re-scaled predicted curve - highlighted
+  ggplot2::geom_line(data = dplyr::filter(plot_highlight_df,df == "cont_fit" & type != "Constant Fit"),
+                     aes(x = log10(xval),y = yval,colour = type,linetype = type))+
+  # add the 'top' (maximal predicted change in response from baseline) & the cutoff band - highlighted
+  ggplot2::geom_hline(data = dplyr::filter(plot_highlight_df,df == "ref_df"),
+                      aes(yintercept = yval,colour = type,linetype = type))+
+  scale_linetype_manual(name = "",
+                        breaks = c("Best Fit","Rescaled Best Fit","Cutoff","BMR","Top","Top at Cutoff"),
+                        values = c(rep("solid",2),"dashed","dotted",rep("dashed",2)))+
+  scale_colour_manual(name = "",
+                      breaks = c("Best Fit","Rescaled Best Fit","Cutoff","BMR","Top","Top at Cutoff"),
+                      values = c("blue","red",rep("black",2),"skyblue","hotpink"))+
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.65,0.2),
+        legend.key.size = unit(0.5,"cm"),legend.text = element_text(size = 7))
 
 ## All Plots ##
-grid.arrange(p1_plot,p2_plot,p3_plot,ncol = 3,
+grid.arrange(p1_plot,p2_plot,p3_plot,
+             ncol = 3,
              top = paste(DATA_CASE[,"signature"],DATA_CASE[,"dtxsid"],sep = "\n"),
              left = "response",
              bottom = paste("log10(conc)",
