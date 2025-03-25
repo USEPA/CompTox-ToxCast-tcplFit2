@@ -428,22 +428,30 @@ subdat[wllt == 't',params:= myfun(.SD), by = .(spid)]
 
 After all models are fit to the data, `tcplhit2_core` is used to perform hitcalling, which  corresponds to Level 5 in `tcpl`. The continuous hitcall value (`hitc`) is the product of three proportional weights, and the resulting continuous value is between 0 and 1. The proportional weights as defined as:
 
-$p_1$
-: “the winning AIC value is less than that of the constant model.”
+### $p_1$
+
+:::{.center}
+“the winning AIC value is less than that of the constant model”
+:::
+
 Determine whether the constant model – if allowed to win – is a better fit than the winning model – i.e., is the winning model essentially flat or not. The constant model may never be selected as the winning model, but if the constant model has the lowest AIC compared to other models, the calculated continuous `hitc` will be zero.
 
 When `aicc` is `FALSE`, default:
 
-$$ p_1 = 1 - \frac{exp(0.5*AIC_{const})}{exp(0.5*AIC_{const})+exp(0.5*AIC_{winning})}$$
+$$ p_1 = 1 - \frac{exp(0.5*AIC_{constant})}{exp(0.5*AIC_{constant})+exp(0.5*AIC_{winning})}$$
 Otherwise, the corrected AICs (i.e. $AIC_c$) for the constant and winning model are used. The corrected AIC values are estimated as:
 
 $$ AIC_c= AIC + \frac{2+df*(df+1)}{n-df-1}$$
 
 where $df$ is the model's degrees of freedom and $n$ is the number of observed responses.
 
-$p_2$
-: “at least one median response is greater than the cutoff.”
-At least one dose group has a central tendency of the response values “outside” the cutoff band (consider bi-directional). Response is greater than cutoff in “+” direction and less than cutoff in “–” direction.
+### $p_2$
+
+:::{.center}
+“at least one median response is outside the cutoff band”
+:::
+
+At least one dose group has a central tendency of the response values “outside” the cutoff band (consider bi-directional). Response is greater than cutoff in “+” direction and less than the cutoff in “–” direction.
 
 When assuming the responses follow a t-distribution (default):
 
@@ -454,16 +462,20 @@ $$ p_2 = 1 - \prod_{k=1}^{D}N(\frac{y_k-sign(top)*cutoff}{exp(err)},1) $$
 
 where $y_k$ are the median responses at each experimental concentration/dose group $k$, $sign(top)$ is the sign (either positive or negative) of the maximal predicted response from baseline, $cutoff$ is the user defined response threshold indicating meaningful biological activity, and $err$ is the model error parameter.
 
-$p3$
-: “the top of the fitted curve is above the cutoff”
-Determine whether the predicted maximal response exceeds the cutoff, i.e. the response corresponding to the effect size of interest.
+### $p_3$
+
+::: {.center}
+“the top of the fitted curve is outside the cutoff band”
+:::
+
+Determine whether the predicted maximal response exceeds the cutoff, i.e. the response corresponding to the effect size of interest is outside the cutoff band (less than cutoff in the negative direction and greater than cutoff in the positive direction).
 
 $$ p_3 = \frac{1 \pm \chi_2(2*(MLL-LL),1)}{2} $$
-where $MLL$ is the maximum log-likelihood of the original predicted best fit model, $LL$ is the log-likelihood of the re-scaled predicted best fit model, and the $\pm$ is $+$ when $ |top| \geq | cutoff | $ and $-$ when $ |top| < | cutoff | $.
+where $MLL$ is the maximum log-likelihood of the original predicted best fit model, $LL$ is the log-likelihood of the re-scaled predicted best fit model, and the $\pm$ is "+" when $$ \mid top \mid \geq \mid cutoff \mid $$ and "-" when $$ \mid top \mid < \mid cutoff \mid $$.
 
 See Sheffield et al., 2021 for more information on tcplfit2.
 
-The following plots provide visual representations for the comparisons conducted in each of the proportional weights that make up the continuous hitcall value. Each figure has one item "highlighted" in blue and another "highlighted" in red.  The blue represents the reference for the proportional weight of interest, whereas the red represents an indicator for potential a biologically active response (i.e. key comparator) for the proportional weight of interest.  For example, for $p_1$ which (as mentioned previously) is meant determine whether the winning model (red), which is the best fit curve to the observed data given it has the lowest AIC, is much different from the constant model (blue), which indicates no biological response.
+The following plots provide visual representations for the comparisons conducted in each of the proportional weights that make up the continuous hitcall value. Each figure has one item "highlighted" in blue and another "highlighted" in red.  The blue represents the reference for the proportional weight of interest, whereas the red represents an indicator for potential a biologically active response (i.e. key comparator) for the proportional weight of interest.  For example, for $p_1$ which (as mentioned previously) is meant to determine whether the winning model (red), which is the best fit curve to the observed data given it has the lowest AIC, is much different from the constant model (blue), which indicates no biological response.
 
 ```{r hitc_plot_setup,echo=FALSE}
 # obtain the base example data
@@ -528,7 +540,7 @@ ref_df <- data.frame(
 plot_highlight_df <- rbind.data.frame(OG_data,cont_fit,ref_df)
 ```
 
-```{r hitc_plots,echo=FALSE,fig.height = 6, fig.width = 7}
+```{r hitc_plots,echo=FALSE,fig.height = 6, fig.width = 7,warning=FALSE,message=FALSE}
 ## Generate a Base Plot for the Concentration-Response ##
 base_plot <- ggplot2::ggplot()+
   geom_point(data = dplyr::filter(plot_highlight_df,df == "OG_data"),
