@@ -625,7 +625,7 @@ grid.arrange(p1_plot,p2_plot,p3_plot,
 
 One should note that the distribution of hitcall values does not follow a normal distribution, rather values tend towards 0 or 1. Hitcall values close to 1 indicate concentration-response series with biological activity in the measured response (i.e. ‘active’ hit).
 
-Users may consider binarizarizing the continuous hitcall values into active or inactive designations, setting the the activity threshold based on the level of stringency required by the user. Currently the ToxCast work, requires a `hitc` value greater than or equal to 0.90 to label a response as active, and anything less is considered inactive. For further details on the activity threshold used in ToxCast we refer readers to the `tcpl` vignette and Nyffeler et al., 2023.
+Users may consider binarizarizing the continuous hitcall values into active or inactive designations, setting the the activity threshold based on the level of stringency required by the user. Currently the ToxCast work, requires a `hitc` value greater than or equal to 0.90 to label a response as active, and anything less is considered inactive. For further details on the activity threshold used in ToxCast we refer readers to the [`tcpl` Vignette on CRAN](https://cran.R-project.org/package=tcpl) and Nyffeler et al., 2023.
 
 The output of `tcplfit2_core`, i.e. Level 4 data from invitroDB, may be fed directly to the `tcplhit2_core` function. The results are then pivoted wide, and the resulting data table is displayed below.
 
