@@ -557,8 +557,11 @@ p1_plot <- base_plot+
                         breaks = c("Constant Fit","Best Fit","Cutoff","BMR"),
                         values = c("solid","solid","dashed","dotted"))+
   theme(legend.position = "inside",
-        legend.position.inside = c(0.65,0.15),
-        legend.key.size = unit(0.5,"cm"),legend.text = element_text(size = 7))
+        legend.position.inside = c(0.5,0.15),
+        legend.key.size = unit(0.5,"cm"),
+        legend.text = element_text(size = 7),
+        legend.title = element_blank(),
+        legend.background = element_rect(fill = alpha("lemonchiffon",0.5)))
 
 ## Proportional Weight 2 Plot ##
 p2_plot <- base_plot+
@@ -578,8 +581,12 @@ p2_plot <- base_plot+
                         values = c("dashed","dotted"))+
   scale_shape(name = "")+
   theme(legend.position = "inside",
-        legend.position.inside = c(0.65,0.15),
-        legend.key.size = unit(0.5,"cm"),legend.text = element_text(size = 7))
+        legend.position.inside = c(0.5,0.15),
+        legend.key.size = unit(0.5,"cm"),
+        legend.spacing.y = unit(-4,"lines"),
+        legend.text = element_text(size = 7),
+        legend.title = element_blank(),
+        legend.background = element_rect(fill = alpha("lemonchiffon",0.5)))
 
 ## Proportional Weight 3 Plot ##
 p3_plot <- base_plot+
@@ -598,8 +605,11 @@ p3_plot <- base_plot+
                       breaks = c("Best Fit","Rescaled Best Fit","Cutoff","BMR","Top","Top at Cutoff"),
                       values = c("blue","red",rep("black",2),"skyblue","hotpink"))+
   theme(legend.position = "inside",
-        legend.position.inside = c(0.65,0.2),
-        legend.key.size = unit(0.5,"cm"),legend.text = element_text(size = 7))
+        legend.position.inside = c(0.5,0.175),
+        legend.key.size = unit(0.5,"cm"),
+        legend.text = element_text(size = 7),
+        legend.title = element_blank(),
+        legend.background = element_rect(fill = alpha("lemonchiffon",0.5)))
 
 ## All Plots ##
 grid.arrange(p1_plot,p2_plot,p3_plot,
@@ -607,7 +617,8 @@ grid.arrange(p1_plot,p2_plot,p3_plot,
              top = paste(DATA_CASE[,"signature"],DATA_CASE[,"dtxsid"],sep = "\n"),
              left = "response",
              bottom = paste("log10(conc)",
-                            paste(paste("hitc:",signif(hit[,"hitcall"],3)),paste("bmd:",signif(hit[,"bmd"],3)),sep = ", "),
+                            paste(paste("hitc:",signif(hit[,"hitcall"],3)),
+                                  paste("bmd:",signif(hit[,"bmd"],3)),sep = ", "),
                             sep = "\n")
              )
 ```
