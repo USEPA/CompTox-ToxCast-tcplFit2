@@ -424,11 +424,11 @@ subdat <- dat[spid %in% unique(spid)[10:15],]
 subdat[wllt == 't',params:= myfun(.SD), by = .(spid)]
 ```
 
-## -  Hitcalling
+# Hitcalling
 
-After all models are fit to the data, `tcplhit2_core` is used to perform hitcalling, which  corresponds to Level 5 in `tcpl`. The continuous hitcall value (`hitc`) is the product of three proportional weights, and the resulting continuous value is between 0 and 1. The proportional weights as defined as:
+After all models are fit to the data, `tcplhit2_core` is used to perform hitcalling, which  corresponds to Level 5 in `tcpl`. The continuous hitcall value (`hitc`) is the product of three proportional weights, and the resulting continuous value is between 0 and 1. The definition of each proportional weight is provided in the following subsections. For further details on the proportional weights not provided here we suggest the reader to see Sheffield et al., 2021 for more information on `tcplfit2` hit-calling.
 
-### $p_1$
+## - $p_1$: AIC Weight
 
 :::{.center}
 “the winning AIC value is less than that of the constant model”
@@ -445,7 +445,7 @@ $$ AIC_c= AIC + \frac{2+df*(df+1)}{n-df-1}$$
 
 where $df$ is the model's degrees of freedom and $n$ is the number of observed responses.
 
-### $p_2$
+## - $p_2$: Responses Outside Cutoff
 
 :::{.center}
 “at least one median response is outside the cutoff band”
@@ -462,7 +462,7 @@ $$ p_2 = 1 - \prod_{k=1}^{D}N(\frac{y_k-sign(top)*cutoff}{exp(err)},1) $$
 
 where $y_k$ are the median responses at each experimental concentration/dose group $k$, $sign(top)$ is the sign (either positive or negative) of the maximal predicted response from baseline, $cutoff$ is the user defined response threshold indicating meaningful biological activity, and $err$ is the model error parameter.
 
-### $p_3$
+## - $p_3$: Top Likelihood Ratio
 
 ::: {.center}
 “the top of the fitted curve is outside the cutoff band”
@@ -471,9 +471,12 @@ where $y_k$ are the median responses at each experimental concentration/dose gro
 Determine whether the predicted maximal response exceeds the cutoff, i.e. the response corresponding to the effect size of interest is outside the cutoff band (less than cutoff in the negative direction and greater than cutoff in the positive direction).
 
 $$ p_3 = \frac{1 \pm \chi_2(2*(MLL-LL),1)}{2} $$
-where $MLL$ is the maximum log-likelihood of the original predicted best fit model, $LL$ is the log-likelihood of the re-scaled predicted best fit model, and the $\pm$ is "+" when $$ \mid top \mid \geq \mid cutoff \mid $$ and "-" when $$ \mid top \mid < \mid cutoff \mid $$.
+where $MLL$ is the maximum log-likelihood of the original predicted best fit model, $LL$ is the log-likelihood of the re-scaled predicted best fit model, and the $\pm$ is:
 
-See Sheffield et al., 2021 for more information on tcplfit2.
+* "+" when $$ \mid top \mid \geq \mid cutoff \mid $$
+* "-" when $$ \mid top \mid < \mid cutoff \mid $$
+
+## Visual Representation of Proportional Weights
 
 The following plots provide visual representations for the comparisons conducted in each of the proportional weights that make up the continuous hitcall value. Each figure has one item "highlighted" in blue and another "highlighted" in red.  The blue represents the reference for the proportional weight of interest, whereas the red represents an indicator for potential a biologically active response (i.e. key comparator) for the proportional weight of interest.  For example, for $p_1$ which (as mentioned previously) is meant to determine whether the winning model (red), which is the best fit curve to the observed data given it has the lowest AIC, is much different from the constant model (blue), which indicates no biological response.
 
@@ -635,7 +638,11 @@ grid.arrange(p1_plot,p2_plot,p3_plot,
              )
 ```
 
+***Figure 4:** Each sub-plot displays the winning curve for a given concentration-response curve for a given concentration-response series in the `signatures` dataset. The sub-plots highlight the key items compared as part of a proportional weight calculation to provide an indication of bioactivity.*
+
 One should note that the distribution of hitcall values does not follow a normal distribution, rather values tend towards 0 or 1. Hitcall values close to 1 indicate concentration-response series with biological activity in the measured response (i.e. ‘active’ hit).
+
+## Consideration: Continuous Hitcalls to Activity Calls
 
 Users may consider binarizarizing the continuous hitcall values into active or inactive designations, setting the the activity threshold based on the level of stringency required by the user. Currently the ToxCast work, requires a `hitc` value greater than or equal to 0.90 to label a response as active, and anything less is considered inactive. For further details on the activity threshold used in ToxCast we refer readers to the [`tcpl` Vignette on CRAN](https://cran.R-project.org/package=tcpl) and Nyffeler et al., 2023.
 
@@ -683,7 +690,7 @@ The resulting output from the previous code chunk is the same format as the `res
   grid.arrange(grobs=plt_list,ncol=2)
 ```
 
-***Figure 4:** Each sub-plot displays the winning curve for a given concentration-response series in the `subdat` dataset.*
+***Figure 5:** Each sub-plot displays the winning curve for a given concentration-response series in the `subdat` dataset.*
 
 # Bounding the Benchmark Dose (BMD)
 
@@ -745,7 +752,7 @@ concRespPlot2(res_low, log_conc = T) +
                    yend = 30),col = "blue")
 ```
 
-***Figure 5:** This plot shows the winning curve, BMD estimation (represented by the solid blue line) and the estimated BMD confidence interval (represented by the light blue bar).*
+***Figure 6:** This plot shows the winning curve, BMD estimation (represented by the solid blue line) and the estimated BMD confidence interval (represented by the light blue bar).*
 
 ```{r example 4 lower-res}
 # function results
@@ -759,7 +766,7 @@ DT::datatable(res_low[1, c("Name","Min. Conc.", "bmd", "bmdl", "bmdu")],rownames
 
 Herein, The lowest tested concentration in the data is `r min(conc2)` but the estimated BMD from the hitcalling results is `r round(res_low$bmd, 3)`, which is lower. Users may allow the estimated BMD to be lower than the lowest concentration screened while restricting it to be no lower than a boundary set by using the argument `bmd_low_bnd`.
 
-If the BMD should be no lower than 80% of the lowest tested concentration, then `bmd_low_bnd = 0.8` can be used to set a boundary. This results in a computed boundary of $0.48$. If the estimated BMD is less than the computed boundary (like in this example), it will be "bounded" to the threshold set in `bmd_low_bnd`. Similarly, the confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the computed boundary. Figure 6 provides a visual representation of the lower boundary bounding. The valid input range for `bmd_low_bnd` is between 0 and 1, excluding 0, ($0 < \text{bmd_low_bnd} \leq 1$).
+If the BMD should be no lower than 80% of the lowest tested concentration, then `bmd_low_bnd = 0.8` can be used to set a boundary. This results in a computed boundary of $0.48$. If the estimated BMD is less than the computed boundary (like in this example), it will be "bounded" to the threshold set in `bmd_low_bnd`. Similarly, the confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the computed boundary. Figure 7 provides a visual representation of the lower boundary bounding. The valid input range for `bmd_low_bnd` is between 0 and 1, excluding 0, ($0 < \text{bmd_low_bnd} \leq 1$).
 
 ```{r example 4 lower-demo}
 # using the argument to set a lower bound for BMD
@@ -812,7 +819,7 @@ legend(1e-3, 60, legend=c("Lowest Dose Tested", "Boundary", "BMD-before", "BMD-a
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-***Figure 6**: This plot shows the estimated BMD and confidence interval before and after "bounding." The solid green line and "X" mark the estimated BMD before "bounding," and the green shaded region represents the estimated confidence interval. The solid blue line and "X" mark the BMD after "bounding," and the blue shaded region represents the "bounded" confidence interval. The solid brown line represents the minimum tested concentration, and the dashed dark violet line represents the boundary dose set by `bmd_low_bnd`. Here, the estimated BMD and the confidence interval were shifted right such that the BMD was "bounded" to the boundary value represented by the overlap between the blue "X" and dashed dark violet line.*
+***Figure 7:** This plot shows the estimated BMD and confidence interval before and after "bounding." The solid green line and "X" mark the estimated BMD before "bounding," and the green shaded region represents the estimated confidence interval. The solid blue line and "X" mark the BMD after "bounding," and the blue shaded region represents the "bounded" confidence interval. The solid brown line represents the minimum tested concentration, and the dashed dark violet line represents the boundary dose set by `bmd_low_bnd`. Here, the estimated BMD and the confidence interval were shifted right such that the BMD was "bounded" to the boundary value represented by the overlap between the blue "X" and dashed dark violet line.*
 
 ## Imposing Upper BMD Bounds
 
@@ -858,7 +865,7 @@ DT::datatable(res_up[1, c('Name','Max Conc.', "bmd", "bmdl", "bmdu")],rownames =
 
 The estimated BMD, `r round(res_up$bmd, 3)`, is greater than the maximum tested concentration, which is `r max(conc)`. As with the `bmd_low_bnd`, users may allow the BMD to be greater than the maximum tested concentration but no greater than a boundary dose set using `bmd_up_bnd`.
 
-Suppose it is desired that the estimated BMD not be larger than 2 times the maximum tested concentration. Here, `bmd_up_bnd = 2` can set the upper threshold dose to $160$. If the estimated BMD is greater than the upper boundary (like in this example), it will be "bounded" to this dose, and its confidence interval will be shifted left. Figure 7 provides a visual representation of upper boundary bounding. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$).
+Suppose it is desired that the estimated BMD not be larger than 2 times the maximum tested concentration. Here, `bmd_up_bnd = 2` can set the upper threshold dose to $160$. If the estimated BMD is greater than the upper boundary (like in this example), it will be "bounded" to this dose, and its confidence interval will be shifted left. Figure 8 provides a visual representation of upper boundary bounding. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$).
 
 ```{r example upper-demo}
 # using bmd_up_bnd = 2
@@ -910,7 +917,7 @@ legend(1e-3, 40, legend=c("Maximum Dose Tested", "Boundary", "BMD-before", "BMD-
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-***Figure 7**: This plot shows the estimated BMD and confidence interval before and after "bounding". The green line and "X" mark the estimated BMD before "bounding" and the green shaded region represents the estimated confidence interval. The solid blue line and "X" mark the "bounded" BMD, and the blue shaded region represents the "bounded" confidence interval. The solid brown line represents the maximum tested concentration, and the dashed dark violet line represents the boundary dose set by `bmd_up_bnd`. Here, the estimated BMD and the confidence interval were shifted left such that the BMD was "bounded" to the boundary value represented by the overlap between the blue "X" and dashed dark violet line.*
+***Figure 8:** This plot shows the estimated BMD and confidence interval before and after "bounding". The green line and "X" mark the estimated BMD before "bounding" and the green shaded region represents the estimated confidence interval. The solid blue line and "X" mark the "bounded" BMD, and the blue shaded region represents the "bounded" confidence interval. The solid brown line represents the maximum tested concentration, and the dashed dark violet line represents the boundary dose set by `bmd_up_bnd`. Here, the estimated BMD and the confidence interval were shifted left such that the BMD was "bounded" to the boundary value represented by the overlap between the blue "X" and dashed dark violet line.*
 
 ## Bounding BMDs with `tcplhit2_core`
 
@@ -987,7 +994,7 @@ legend(1e-3, 60, legend=c("Lowest Dose Tested", "Boundary Dose", "BMD-before", "
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
-***Figure 8**: This plot shows the estimated BMD and the confidence interval before and after "bounding". The dashed dark violet line represents the boundary dose and the solid brown line represents the minimum tested concentration, which are at `r 0.4*min(conc2)` and `r min(conc2)`, respectively. The estimated BMD of `r res_low3[, "bmd"]` falls between the boundary and lowest dose tested, which leaves the BMD and confidence intervals unchanged. Here, the estimated BMD and "bounded" BMD are the same. Thus, the green and blue lines and "X"s representing the estimated BMD before and after "bounding", respectively, as well as their confidence intervals indicated by the shaded regions completely overlap.*
+***Figure 9:** This plot shows the estimated BMD and the confidence interval before and after "bounding". The dashed dark violet line represents the boundary dose and the solid brown line represents the minimum tested concentration, which are at `r 0.4*min(conc2)` and `r min(conc2)`, respectively. The estimated BMD of `r res_low3[, "bmd"]` falls between the boundary and lowest dose tested, which leaves the BMD and confidence intervals unchanged. Here, the estimated BMD and "bounded" BMD are the same. Thus, the green and blue lines and "X"s representing the estimated BMD before and after "bounding", respectively, as well as their confidence intervals indicated by the shaded regions completely overlap.*
 
 # Plotting {#appendix}
 
@@ -1029,7 +1036,7 @@ The input data used for the demonstration contains 6 signatures for one chemical
   }
 ```
 
-***Figure 9:** This figure provides several example plots generated using the argument `do.plot=TRUE` in the `concRespCore` function. Each plot displays data for a single row of data in the `signatures` dataset, and like Figure 1 provides all model fits for a given response.  Note that the detail of smooth curves is not captured here as the curves are only sampled at the given concentrations.*
+***Figure 10:** This figure provides several example plots generated using the argument `do.plot=TRUE` in the `concRespCore` function. Each plot displays data for a single row of data in the `signatures` dataset, and like Figure 1 provides all model fits for a given response.  Note that the detail of smooth curves is not captured here as the curves are only sampled at the given concentrations.*
 
 ```{r appendix plt2, fig.height = 8, fig.width = 7}
   # set up a 3 x 2 grid for the plots
@@ -1042,7 +1049,7 @@ The input data used for the demonstration contains 6 signatures for one chemical
   }
 ```
 
-***Figure 10:** Each figure shows curve-fit results for a randomly selected set of responses in the `mc3` data. For each plot, the title contains the chemical name and assay ID. Summary statistics from the curve-fit results – including the winning model, AC50, top, BMD, ACC, and hitcall – are displayed at the top of the plot. Black dots represent observed responses, and the winning model fit is displayed as a solid black curve. The estimated BMD is displayed with a solid green vertical line, and the confidence interval around the BMD is represented with solid green lines bounding the green shaded region (i.e., lower and upper BMD confidence limits - BMDL and BMDU, respectively). The black horizontal lines bounding the grey shaded region indicate the estimated baseline noise and is centered around the x-axis (i.e. y = 0).*
+***Figure 11:** Each figure shows curve-fit results for a randomly selected set of responses in the `mc3` data. For each plot, the title contains the chemical name and assay ID. Summary statistics from the curve-fit results – including the winning model, AC50, top, BMD, ACC, and hitcall – are displayed at the top of the plot. Black dots represent observed responses, and the winning model fit is displayed as a solid black curve. The estimated BMD is displayed with a solid green vertical line, and the confidence interval around the BMD is represented with solid green lines bounding the green shaded region (i.e., lower and upper BMD confidence limits - BMDL and BMDU, respectively). The black horizontal lines bounding the grey shaded region indicate the estimated baseline noise and is centered around the x-axis (i.e. y = 0).*
 
 
 ## Plotting All Models From `tcplfit2_core`
@@ -1076,7 +1083,7 @@ basic_log <- plot_allcurves(output, conc, resp, log_conc = T)
 grid.arrange(basic, basic_log)
 ```
 
-***Figure 11**: Example plots generated by `plot_allcurves`. The two plots display the experimental data (open circles) with all successful curve fits, concentrations are in the original and $log_{10}$ scale (top and bottom plots, respectively).*
+***Figure 12:** Example plots generated by `plot_allcurves`. The two plots display the experimental data (open circles) with all successful curve fits, concentrations are in the original and $log_{10}$ scale (top and bottom plots, respectively).*
 
 ## Plotting the Winning Model
 Most users utilizing the `tcplfit2` package are only interested in generating a plot displaying the observed concentration-response data with the winning curve. This can be achieved with the `concRespPlot2` function, which generates a basic plot with minimal information.  `concRespPlot2` gives a slightly more aesthetic plot compared to the basic plotting functionality in `concRespPlot` by using the `ggplot2` package.  Minimalism in the resulting plot gives users the flexibility to include additional details they consider informative, while maintaining a clean visualization. More details on this is found in the Customization section. As with the `plot_allcurves` function, the `log_conc` argument is available to return a plot with concentrations on the $log_{10}$ scale.
@@ -1103,7 +1110,7 @@ basic_log <- concRespPlot2(out, log_conc = TRUE)
 res <- grid.arrange(basic_plot, basic_log)
 ```
 
-***Figure 12**: Example plots generated by `concRespPlot2`. The two plots display the experimental data (open circles) and the  best curve fit (red curve). Concentrations are in the original and $log_{10}$ scale (top and bottom plots, respectively).*
+***Figure 13:** Example plots generated by `concRespPlot2`. The two plots display the experimental data (open circles) and the  best curve fit (red curve). Concentrations are in the original and $log_{10}$ scale (top and bottom plots, respectively).*
 
 ## Plotting Customizations
 This section provides some examples on customizing a basic plot returned by `concRespPlot2` with additional information. Since `concRespPlot2` returns a `ggplot` object, additional details can be included in `ggplot2` layers. `ggplot2` layers can be added directly to the base plot with a `+` operator.
@@ -1145,7 +1152,7 @@ basic_plot +
   ) + geom_point(aes(x = out[, "bmd"], y = out[, "bmr"], fill = "BMD"), shape = 21, cex = 2.5)
 ```
 
-***Figure 13**: Basic plot generated with `concRespPlot2` with updated titles to provide additional details about the observed data. Experimental data is shown with the open circles and the red curve represents the best fit model. The title and subtitle display the compound name and assay endpoint, respectively. The light blue band represents responses within the cutoff threshold(s) -- i.e. cutoff band. The red point represents the BMD estimated from the winning model, given the BMR.  The horizontal and vertical blue lines display the BMR and the estimated BMD, respectively.*
+***Figure 14:** Basic plot generated with `concRespPlot2` with updated titles to provide additional details about the observed data. Experimental data is shown with the open circles and the red curve represents the best fit model. The title and subtitle display the compound name and assay endpoint, respectively. The light blue band represents responses within the cutoff threshold(s) -- i.e. cutoff band. The red point represents the BMD estimated from the winning model, given the BMR.  The horizontal and vertical blue lines display the BMR and the estimated BMD, respectively.*
 
 ## - Label All Potency Estimates 
 `concRespCore`, and `tcplfit2_core` return several potency estimates in addition to the BMD (displayed in Figure 3), e.g. AC50, ACC, etc. Users may want to compare several potency estimates on the plot.  The code chunk below demonstrates how to add all available potency estimates to the base plot. Note, when labeling potency estimates on the plot where `log_conc = TRUE`, the potency values also need to be log-transformed to be displayed in the correct positions.
@@ -1167,7 +1174,7 @@ basic_plot + geom_point(
 )
 ```
 
-***Figure 14**: Basic plot generated by `concRespPlot2` with potency estimates highlighted. Experimental data is shown with the open circles and the red curve represents the best fit model. Five colored points represent the various potency estimates from `concRespCore`.  These include the activity concentrations at 5, 10, and 50 percent of the maximal response (AC5 = gold, AC10 = red, and AC50 = green, respectively), as well as the activity concentration at the user-specified threshold (cutoff) and BMD (ACC = blue and BMD = purple, respectively).*
+***Figure 15:** Basic plot generated by `concRespPlot2` with potency estimates highlighted. Experimental data is shown with the open circles and the red curve represents the best fit model. Five colored points represent the various potency estimates from `concRespCore`.  These include the activity concentrations at 5, 10, and 50 percent of the maximal response (AC5 = gold, AC10 = red, and AC50 = green, respectively), as well as the activity concentration at the user-specified threshold (cutoff) and BMD (ACC = blue and BMD = purple, respectively).*
 
 ```{r}
 # add Potency Estimate Points and set colors - with plot in log-10 concentration
@@ -1177,7 +1184,7 @@ basic_log + geom_point(
 )
 ```
 
-***Figure 15**: Basic plot generated by `concRespPlot2`, where `log_conc = TRUE`, with potency estimates highlighted. Experimental data is shown with the open circles and the red curve represents the best fit model. Five colored points represent the various potency estimates from `concRespCore`.  These include the activity concentrations at 5, 10, and 50 percent of the maximal response (AC5 = gold, AC10 = red, and AC50 = green, respectively), as well as the activity concentration at the user-specified threshold (cutoff) and BMD (ACC = blue and BMD = purple, respectively).*
+***Figure 16:** Basic plot generated by `concRespPlot2`, where `log_conc = TRUE`, with potency estimates highlighted. Experimental data is shown with the open circles and the red curve represents the best fit model. Five colored points represent the various potency estimates from `concRespCore`.  These include the activity concentrations at 5, 10, and 50 percent of the maximal response (AC5 = gold, AC10 = red, and AC50 = green, respectively), as well as the activity concentration at the user-specified threshold (cutoff) and BMD (ACC = blue and BMD = purple, respectively).*
 
 ## - Add Additional Curves
 Working with `ggplot2` based functions can flexibly accommodate users' unique plotting needs. For example, a user might want to add one or more additional curve fits to the basic plot for comparing either various compounds, experimental scenarios, technologies, etc. To accomplish this, a user first needs to know the model to be displayed on the plot and the corresponding parameter estimates. Next, a user can generate a smooth curve by predicting responses for a series of 100 points within the concentration range, then add this curve to the basic plot. This section provides example code a user may modify to add another curve, and may be generalized to add more than one curve.
@@ -1195,9 +1202,9 @@ basic_plot +
   labs(title = "Curve 1 v.s. Curve 2")
 ```
 
-***Figure 16**: Basic plot generated by `concRespPlot2` with an additional curve for comparison. Experimental data is shown with the open circles, the red curve represents the best fit model for the baseline model, and the blue curve represents the additional curve of interest.*
+***Figure 17:** Basic plot generated by `concRespPlot2` with an additional curve for comparison. Experimental data is shown with the open circles, the red curve represents the best fit model for the baseline model, and the blue curve represents the additional curve of interest.*
 
-Plots like Figure 16 typically have similar concentrations and response ranges. If one is comparing curves that do not have similar concentration and/or response ranges, additional alterations may be necessary.
+Plots like Figure 17 typically have similar concentrations and response ranges. If one is comparing curves that do not have similar concentration and/or response ranges, additional alterations may be necessary.
 
 # Area Under the Curve (AUC)
 
@@ -1243,7 +1250,7 @@ grid.arrange(plot_allcurves(output_ex2, conc_ex2, resp_ex2),
           plot_allcurves(output_ex2, conc_ex2, resp_ex2, log_conc = TRUE), ncol = 2)
 ```
 
-***Figure 17:** This figure depicts all fit concentration-response curves. The models are polynomial 1 and 2, power, Hill, gain-loss, and exponential 2 to exponential 5.*
+***Figure 18:** This figure depicts all fit concentration-response curves. The models are polynomial 1 and 2, power, Hill, gain-loss, and exponential 2 to exponential 5.*
 
 The `get_AUC` function can be used to calculate the AUC for a single model. Inputs to this function are: the name of the model, lower and upper concentration bounds (usually the lowest and the highest concentrations in the data, respectively), and the estimated model parameters. The code chunk below demonstrates how to calculate AUC for the Hill model, starting by extracting information from the `tcplfit2_core` output then inputting this information into the `get_AUC` function. After estimating the AUC, the Hill curve is plotted and the corresponding region under the curve is shaded.
 
@@ -1267,7 +1274,7 @@ lines(conc_ex2, pred_resp)
 polygon(c(conc_ex2, max(conc_ex2)), c(pred_resp, min(pred_resp)), col=rgb(1, 0, 0,0.5))
 ```
 
-***Figure 18:** The red shaded region is the area under the Hill curve fit. The AUC estimated with `get_AUC` is `r round(estimated_auc1,5)`. This estimate seems to align with the area of the shaded region. *
+***Figure 19:** The red shaded region is the area under the Hill curve fit. The AUC estimated with `get_AUC` is `r round(estimated_auc1,5)`. This estimate seems to align with the area of the shaded region. *
 
 The AUC can be calculated for all other models, except the constant model, fit to the concentration-response series.
 
@@ -1308,7 +1315,8 @@ output_negative <- tcplfit2_core(conc, resp, cutoff)
 grid.arrange(plot_allcurves(output_negative, conc, resp),
           plot_allcurves(output_negative, conc, resp, log_conc = TRUE), ncol = 2)
 ```
-***Figure 19:** This plot depicts all concentration-response curves fit to the observed data. All curves show decreasing responses starting from 0 and below the x-axis. *
+
+***Figure 20:** This plot depicts all concentration-response curves fit to the observed data. All curves show decreasing responses starting from 0 and below the x-axis. *
 
 ```{r example 3 cont., fig.height = 6, fig.width = 6}
 fit_method <- "exp3"
@@ -1327,7 +1335,7 @@ lines(conc[order(conc)], pred_resp)
 polygon(c(conc[order(conc)], max(conc)), c(pred_resp, max(pred_resp)), col=rgb(1, 0, 0,0.5))
 ```
 
-***Figure 20:** Notice the function returns a negative AUC value, `r round(estimated_auc2, 5)`. The absolute value, `r abs(round(estimated_auc2,5))`, seems to align with the area between the curve and the x-axis. Note: The x-axis in this plot is in the original (un-logged) units.
+***Figure 21:** Notice the function returns a negative AUC value, `r round(estimated_auc2, 5)`. The absolute value, `r abs(round(estimated_auc2,5))`, seems to align with the area between the curve and the x-axis. Note: The x-axis in this plot is in the original (un-logged) units.
 
 As demonstrated, when integrating over a curve in the negative direction, the function will return a negative AUC value. However, some users may want to consider all "areas" as positive values. For this reason, the `return.abs = TRUE` argument in `get_AUC` converts negative AUC values to positive values when returned. This argument is by default `FALSE`.
 
@@ -1357,7 +1365,7 @@ plot(conc_sim, resp_sim, type = "l")
 abline(h = 0)
 ```
 
-***Figure 21:** This plot illustrates the simulated bi-phasic polynomial 2 curve. The curve initially decreases, then increases and crosses the x-axis.*
+***Figure 22:** This plot illustrates the simulated bi-phasic polynomial 2 curve. The curve initially decreases, then increases and crosses the x-axis.*
 
 ```{r, example 4 cont.}
 # get AUC for the simulated Polynomial 2 curve 
@@ -1417,7 +1425,7 @@ poly1_plot <- ggplot(mapping=aes(ex_conc)) +
 poly1_plot
 ```
 
-**Figure 22:** This plot illustrates how changing the parameter `a` (slope) affects the shape of the resulting curves.
+**Figure 23:** This plot illustrates how changing the parameter `a` (slope) affects the shape of the resulting curves.
 
 ## Polynomial 2 (Poly2)
 The Poly2 model is a quadratic model with the baseline response assumed to be zero.  The quadratic model implemented in `tcplfit2` is parameterized such that the `a` and `b` parameters are interpreted in terms of their impact on the the x- and y-scales, respectively. The Poly2 model is defined by the following equation:
@@ -1475,7 +1483,7 @@ poly2_plot2 <- ggplot(fits_poly, aes(ex_conc)) +
 grid.arrange(poly2_plot1, poly2_plot2, ncol = 2)
 ```
 
-**Figure 23:** The left plot illustrates how changing the `a` (y-scalar) affects the shape of the resulting polynomial 2 curves while holding `b` constant ($b = 2$). The right plot illustrates how changing `b` (x-scalar) affects the shape of the resulting polynomial 2 curves while holding `a` constant ($a = 4$).
+**Figure 24:** The left plot illustrates how changing the `a` (y-scalar) affects the shape of the resulting polynomial 2 curves while holding `b` constant ($b = 2$). The right plot illustrates how changing `b` (x-scalar) affects the shape of the resulting polynomial 2 curves while holding `a` constant ($a = 4$).
 
 It should be noted, the quadratic model may be optimized either allowing for the possibility of bi-phasic responses in the concentration/dose range (`poly2.biphasic=TRUE` argument in `tcplfit2_core`, default) or assuming the response is monotonic (`poly2.biphasic=FALSE`). When bi-phasic modeling is enabled, the polynomial 2 model is optimized using the typical quadratic function then parameters are converted to the x- and y-scalar parameterization.
 
@@ -1528,7 +1536,7 @@ pow_plot2 <- ggplot(fits_pow, aes(ex2_conc)) +
 grid.arrange(pow_plot1, pow_plot2, ncol = 2)
 ```
 
-**Figure 24:** The left plot illustrates how changing `a` (scaling factor) affects the shape of the resulting power curves while holding `p` constant ($p = 1.45$). The right plot illustrates how changing `p` (power) affects the shape of the resulting power curves while holding `a` constant ($a = 1.2$). Note: These plots use a concentration range from 0 to 3 to better show the impact of `p` on the resulting curves.
+**Figure 25:** The left plot illustrates how changing `a` (scaling factor) affects the shape of the resulting power curves while holding `p` constant ($p = 1.45$). The right plot illustrates how changing `p` (power) affects the shape of the resulting power curves while holding `a` constant ($a = 1.2$). Note: These plots use a concentration range from 0 to 3 to better show the impact of `p` on the resulting curves.
 
 ## Hill {#Hill}
 
@@ -1599,7 +1607,7 @@ hill_plot3 <- ggplot(fits_hill, aes(log10(ex_conc))) +
 grid.arrange(hill_plot1, hill_plot2, hill_plot3, ncol = 2, nrow = 2)
 ```
 
-**Figure 25:** The top left plot illustrates how changing `tp` (maximal change in response) affects the shape of the resulting Hill curves while holding all other parameters constant ($ga = 5, p = 1.76$). The top right plot illustrates how changing `ga` (slope) affects the shape of the resulting Hill curves while holding all other parameters constant ($tp = 120, p = 1.76$). The bottom left plot illustrates how changing `p` (power) affects the shape of the resulting Hill curves while holding all other parameters constant ($tp = 120, ga = 5$). Note: The x-axes are in the $log_{10}$ scale to reflect the scale the model is optimized in, i.e. log Hill model $f(x) = \frac{tp}{1 + 10^{(p*(ga-x))}}$.
+**Figure 26:** The top left plot illustrates how changing `tp` (maximal change in response) affects the shape of the resulting Hill curves while holding all other parameters constant ($ga = 5, p = 1.76$). The top right plot illustrates how changing `ga` (slope) affects the shape of the resulting Hill curves while holding all other parameters constant ($tp = 120, p = 1.76$). The bottom left plot illustrates how changing `p` (power) affects the shape of the resulting Hill curves while holding all other parameters constant ($tp = 120, ga = 5$). Note: The x-axes are in the $log_{10}$ scale to reflect the scale the model is optimized in, i.e. log Hill model $f(x) = \frac{tp}{1 + 10^{(p*(ga-x))}}$.
 
 ## Gain-Loss (Gnls)
 The Gain-Loss model is the product of two Hill models.  One Hill model fits the response going up (gain) and one fits the response going down (loss). A gain-loss curve can occur either as a gain in response first then changing to a loss, or vice-versa.
@@ -1652,7 +1660,7 @@ gnls_plot2 <- ggplot(fits_gnls, aes(log10(ex_conc))) +
 grid.arrange(gnls_plot1, gnls_plot2, ncol = 2)
 ```
 
-**Figure 26:** The left plot illustrates how changing `la` (loss slope) affects the shape of the resulting gain-loss curves while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,q = 1.34$). The right plot illustrates how changing `q` (loss power) affects the shape of the resulting gain-loss curves while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,la = 20$). Note: The x-axes are in the $log_{10}$ scale to reflect the scale the model is optimized in, i.e. the log gain-loss model $f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))})] }$.
+**Figure 27:** The left plot illustrates how changing `la` (loss slope) affects the shape of the resulting gain-loss curves while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,q = 1.34$). The right plot illustrates how changing `q` (loss power) affects the shape of the resulting gain-loss curves while holding all other parameters constant ($tp = 750,ga = 15,p = 1.45,la = 20$). Note: The x-axes are in the $log_{10}$ scale to reflect the scale the model is optimized in, i.e. the log gain-loss model $f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))})] }$.
 
 ## Exponential 2 (Exp2) {#exponential2}
 
@@ -1704,7 +1712,7 @@ exp2_plot2 <- ggplot(fits_exp2, aes(ex2_conc)) +
 grid.arrange(exp2_plot1, exp2_plot2, ncol = 2)
 ```
 
-**Figure 27:** The left plot illustrates how changing `a` (y-scalar) affects the shape of the resulting exponential 2 curves while holding `b` constant ($b=12$). The right plot illustrates how changing `b` (x-scalar) affects the shape of the resulting exponential 2 curves while holding `a` constant ($a=0.45$). Note: These plots use a smaller concentration range from 0 to 3 to better show the impact of `b` on the resulting curves.
+**Figure 28:** The left plot illustrates how changing `a` (y-scalar) affects the shape of the resulting exponential 2 curves while holding `b` constant ($b=12$). The right plot illustrates how changing `b` (x-scalar) affects the shape of the resulting exponential 2 curves while holding `a` constant ($a=0.45$). Note: These plots use a smaller concentration range from 0 to 3 to better show the impact of `b` on the resulting curves.
 
 ## Exponential 3 (Exp3)
 
@@ -1739,7 +1747,7 @@ exp3_plot <- ggplot(fits_exp3, aes(ex2_conc)) +
 exp3_plot
 ```
 
-**Figure 28:** This plot illustrates how changing `p` (power) affects the shape of the resulting exponential 3 curves while holding all other parameters constant ($a = 1.67,b = 12.5$). Note: This plot uses a smaller concentration range from 0 to 3 to better show the impact of `p` on the resulting curves.
+**Figure 29:** This plot illustrates how changing `p` (power) affects the shape of the resulting exponential 3 curves while holding all other parameters constant ($a = 1.67,b = 12.5$). Note: This plot uses a smaller concentration range from 0 to 3 to better show the impact of `p` on the resulting curves.
 
 ## Exponential 4 (Exp4) {#exponential4}
 
@@ -1791,7 +1799,7 @@ exp4_plot2 <- ggplot(fits_exp4, aes(ex_conc)) +
 grid.arrange(exp4_plot1, exp4_plot2, ncol = 2)
 ```
 
-**Figure 29:** The left plot illustrates how changing `tp` (maximal change in response) affects the shape of the resulting exponential 4 curves while holding `ga` constant ($ga = 15$). The right plot illustrates how changing `ga` (slope) affects the shape of the resulting exponential 4 curves while holding `tp` constant ($tp = 500$).
+**Figure 30:** The left plot illustrates how changing `tp` (maximal change in response) affects the shape of the resulting exponential 4 curves while holding `ga` constant ($ga = 15$). The right plot illustrates how changing `ga` (slope) affects the shape of the resulting exponential 4 curves while holding `tp` constant ($tp = 500$).
 
 ## Exponential 5 (Exp5)
 
@@ -1826,7 +1834,7 @@ exp5_plot <- ggplot(fits_exp5, aes(ex_conc)) +
 exp5_plot
 ```
 
-**Figure 30:** This plot illustrates how changing `p` (power) affects the shape of the resulting exponential 5 curves while holding all other parameters constant ($tp = 793, ga = 6.25$).
+**Figure 31:** This plot illustrates how changing `p` (power) affects the shape of the resulting exponential 5 curves while holding all other parameters constant ($tp = 793, ga = 6.25$).
 
 ## Table of All Model Details
 
