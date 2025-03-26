@@ -1,11 +1,11 @@
 #' Top Likelihood
 #'
-#' Probability of top (maximal change in response from response) being outside the cutoff band.
+#' Probability of top (maximal change in response from baseline) being outside the cutoff band.
 #'
 #' Should only be called by hitcontinner. Uses profile likelihood, similar
 #' to bmdbounds. Here, the y-scale type parameter is substituted in such a
 #' way that the top equals the cutoff. Then the log-likelihood is compared to
-#' the maximum log-likelihood using chisq function to retrieve probability.
+#' the maximum log-likelihood using pchisq function to retrieve probability.
 #'
 #' @param fname Model function name (equal to model name except hill which
 #'   uses "hillfn")

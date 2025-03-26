@@ -451,16 +451,23 @@ where $df$ is the model's degrees of freedom and $n$ is the number of observed r
 “at least one median response is outside the cutoff band”
 :::
 
-At least one dose group has a central tendency of the response values “outside” the cutoff band (consider bi-directional). Response is greater than cutoff in “+” direction and less than the cutoff in “–” direction.
+At least one dose group has a median response value (central tendency of observed responses within the dose group) “outside” the cutoff band (considering bi-directional fitting). Responses greater than the cutoff in positive (“+”) direction and less than the cutoff in negative (“–”) direction.
+
+To estimate whether the median response values for the experimental concentration/dose groups are outside the cutoff band we obtain a 'scaled' median response ($y_k^*$) for each group $k$:
+
+$$ y_k^* = \frac{y_k-sign(top)*cutoff}{exp(err)} $$
+
+$y_k$ is the median of observed responses for experimental concentration/dose group $k$, $sign(top)$ is the sign (either positive or negative) of the maximal predicted response from baseline, $cutoff$ is the user defined response threshold indicating meaningful biological activity, and $err$ is the model error parameter.
 
 When assuming the responses follow a t-distribution (default):
 
-$$ p_2 = 1 - \prod_{k=1}^{D}(x_k \sim t(\frac{y_k - sign(top) * cutoff}{exp(err)},df = 4))$$
+$$ p_2 = 1 - \prod_{k=1}^{D}(y_k^* \sim t(df = 4))$$
 alternatively, when assuming the responses follow a normal distribution:
 
-$$ p_2 = 1 - \prod_{k=1}^{D}N(\frac{y_k-sign(top)*cutoff}{exp(err)},1) $$
 
-where $y_k$ are the median responses at each experimental concentration/dose group $k$, $sign(top)$ is the sign (either positive or negative) of the maximal predicted response from baseline, $cutoff$ is the user defined response threshold indicating meaningful biological activity, and $err$ is the model error parameter.
+$$ p_2 = 1 - \prod_{k=1}^{D} y_k^* \sim N(0,1) $$
+
+where $D$ is the total number of experimental concentration/dose groups.
 
 ## - $p_3$: Top Likelihood Ratio
 
@@ -478,7 +485,7 @@ where $MLL$ is the maximum log-likelihood of the original predicted best fit mod
 
 ## Visual Representation of Proportional Weights
 
-The following plots provide visual representations for the comparisons conducted in each of the proportional weights that make up the continuous hitcall value. Each figure has one item "highlighted" in blue and another "highlighted" in red.  The blue represents the reference for the proportional weight of interest, whereas the red represents an indicator for potential a biologically active response (i.e. key comparator) for the proportional weight of interest.  For example, for $p_1$ which (as mentioned previously) is meant to determine whether the winning model (red), which is the best fit curve to the observed data given it has the lowest AIC, is much different from the constant model (blue), which indicates no biological response.
+The following plots provide visual representations for the comparisons conducted in each of the proportional weights that make up the continuous hitcall value. Each figure has one item "highlighted" in blue and another "highlighted" in red.  The blue represents the reference for the proportional weight of interest, whereas the red represents an indicator for a response with potential bioactivity (i.e. key comparator) for the proportional weight of interest.  For example, for $p_1$ which (as mentioned previously) is meant to determine whether the winning model (red), which is the best fit curve to the observed data given it has the lowest AIC, is much different from the constant model (blue), which indicates no biological response.
 
 ```{r hitc_plot_setup,echo=FALSE}
 # obtain the base example data
@@ -638,13 +645,13 @@ grid.arrange(p1_plot,p2_plot,p3_plot,
              )
 ```
 
-***Figure 4:** Each sub-plot displays the winning curve for a given concentration-response curve for a given concentration-response series in the `signatures` dataset. The sub-plots highlight the key items compared as part of a proportional weight calculation to provide an indication of bioactivity.*
+***Figure 4:** Each sub-plot displays the winning curve for a given concentration-response series in the `signatures` dataset. The sub-plots highlight the key items compared as part of a proportional weight calculation to provide an indication of bioactivity.*
 
 One should note that the distribution of hitcall values does not follow a normal distribution, rather values tend towards 0 or 1. Hitcall values close to 1 indicate concentration-response series with biological activity in the measured response (i.e. ‘active’ hit).
 
 ## Consideration: Continuous Hitcalls to Activity Calls
 
-Users may consider binarizarizing the continuous hitcall values into active or inactive designations, setting the the activity threshold based on the level of stringency required by the user. Currently the ToxCast work, requires a `hitc` value greater than or equal to 0.90 to label a response as active, and anything less is considered inactive. For further details on the activity threshold used in ToxCast we refer readers to the [`tcpl` Vignette on CRAN](https://cran.R-project.org/package=tcpl) and Nyffeler et al., 2023.
+Users may consider binarizing the continuous hitcall values into active or inactive designations, setting the activity threshold based on the level of stringency required by the user. Currently, the ToxCast work requires a `hitc` value greater than or equal to 0.90 to label a response as active, and anything less is considered inactive. For further details on the activity threshold used in ToxCast we refer readers to the [`tcpl` Vignette on CRAN](https://cran.R-project.org/package=tcpl) and Nyffeler et al., 2023.
 
 The output of `tcplfit2_core`, i.e. Level 4 data from invitroDB, may be fed directly to the `tcplhit2_core` function. The results are then pivoted wide, and the resulting data table is displayed below.
 
@@ -1871,7 +1878,7 @@ OutputParameters <- c(
   "a (y-scale) </br> b (x-scale)", # quadratic
   "a (y-scale) </br> p (power)", # power
   "tp (top parameter) </br> ga (gain AC50) </br> p (gain-power)", # hill
-  "tp (top) </br> ga (gain AC50) </br> p (gain power) </br> la (loss AC50) </br> q (loss power)", # gain-loss
+  "tp (top parameter) </br> ga (gain AC50) </br> p (gain power) </br> la (loss AC50) </br> q (loss power)", # gain-loss
   "a (y-scale) </br> b (x-scale)", # exp2
   "a (y-scale) </br> b (x-scale) </br> p (power)", # exp3
   "tp (top parameter) </br> ga (AC50)", # exp4
