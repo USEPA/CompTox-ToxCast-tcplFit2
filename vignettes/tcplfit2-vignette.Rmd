@@ -4,6 +4,7 @@ author: "US EPA's Center for Computational Toxicology and Exposure ccte@epa.gov"
 output:
   rmdformats::readthedown:
     fig_retina: false
+    code_folding: hide
 params:
   my_css: css/rmdformats.css
 vignette: >
@@ -27,17 +28,17 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The package `tcplfit2` is used to perform basic concentration-response curve fitting. The original tcplFit() functions in the [ToxCast Data Analysis Pipeline (tcpl)](https://cran.R-project.org/package=tcpl) package performed basic concentration-response curve fitting to 3 models: Hill, gain-loss [a modified Hill], and constant. With `tcplfit2`, the concentration-response functionality of the package `tcpl` has been expanded and is being used to process high-throughput screening (HTS) data generated at the US Environmental Protection Agency, including targeted assay data in ToxCast, high-throughput transcriptomics (HTTr), and high-throughput phenotypic profiling (HTPP) screening results. The `tcpl` R package continues to be used to manage, curve-fit, plot, and populate its linked MySQL database, invitrodb. Processing with  `tcpl` version 3.0 and beyond depends on the stand-alone `tcplfit2` package to allow a wider variety of concentration-response models (when using invitrodb in the 4.0 schema and beyond).
+The package `tcplfit2` is used to perform basic concentration-response curve fitting. The original `tcplFit()` functions in the [ToxCast Data Analysis Pipeline (tcpl)](https://cran.R-project.org/package=tcpl) package performed basic concentration-response curve fitting to 3 models: Hill, gain-loss [a modified Hill], and constant. With `tcplfit2`, the concentration-response functionality of the package `tcpl` has been expanded and is being used to process high-throughput screening (HTS) data generated at the US Environmental Protection Agency, including targeted assay data in ToxCast, high-throughput transcriptomics (HTTr), and high-throughput phenotypic profiling (HTPP) screening results. The `tcpl` R package continues to be used to manage, curve-fit, plot, and populate its linked MySQL database, invitrodb. Processing with  `tcpl` version 3.0 and beyond depends on the stand-alone `tcplfit2` package to allow a wider variety of concentration-response models (when using invitrodb in the 4.0 schema and beyond).
 
-The main set of extensions includes additional concentration-response models like those contained in the program [BMDExpress2](https://github.com/auerbachs/BMDExpress-2). These include exponential, polynomial (1 & 2), and power functions in addition to the original Hill, gain-loss and constant models. Similar to the program BMDExpress, a defined benchmark response (BMR) level is used to estimate a benchmark dose (BMD), which is the concentration where the curve-fit intersects with this BMR threshold. One final addition was to let the hitcall value be a  number ranging from 0 to 1 (in contrast to binary hitcall values from tcplFit()). Continuous hitcall in `tcplfit2` is defined as the product of three proportional weights: 1) the AIC of the winning model is better than the constant model (i.e. winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff, and 3) the top from the winning model exceeds the cutoff. 
+The main set of extensions includes additional concentration-response models like those contained in the program [BMDExpress2](https://github.com/auerbachs/BMDExpress-2). These include exponential, polynomial (1 & 2), and power functions in addition to the original Hill, gain-loss and constant models. Similar to BMDExpress2, a defined benchmark response (BMR) level is used to estimate a benchmark dose (BMD), which is the concentration where the curve-fit intersects with this BMR threshold. One final addition was to let the hitcall value be a  number ranging from 0 to 1 (in contrast to binary hitcall values from `tcplFit()`). Continuous hitcall values in `tcplfit2` are defined as the product of three proportional weights testing the following: 1) the AIC of the winning model is better than the constant model (i.e. the winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff (i.e. outside the cutoff band in bidirectional modeling cases), and 3) the top from the winning model exceeds the cutoff (i.e. outside the cutoff band in bidirectional modeling cases). 
  
-Although developed primarily for bioactivity data curve fitting in the Center for Computational Toxicology and Exposure, the `tcplfit2` package is written to be generally applicable to the chemical-screening community for standalone applications.
+Although developed primarily for bioactivity data curve fitting in the Center for Computational Toxicology and Exposure, the `tcplfit2` package is written to be generally applicable for the broader chemical-screening community and their standalone model-fitting applications.
 
 This vignette describes some functionality of the `tcplfit2` package with a few simple standalone examples.
 
 ## Suggested packages for use with this vignette
 
-```{r setup, class.source="scroll-100", warning = FALSE, message = FALSE}
+```{r setup,class.source="fold-show",warning = FALSE, message = FALSE}
 # Primary Packages #
 library(tcplfit2)
 library(tcpl)
@@ -54,36 +55,49 @@ library(gridExtra)
 
 # Concentration-Response Modeling
 
+Multiple concentration experiments allow one to evaluate a chemical's impact on a biological response with increasing concentration. Concentration-response modeling is aimed at leveraging multiple concentration data to predict the underlying relationship between increasing chemical concentrations and its impact on a measured/observable biological response.  Predicting the underlying concentration-response relationship can allow one to assess not just a chemical's bioactivity for a particular response of interest/concern, but also its potency.  Though, bioactivity and potency may be estimated via other statical analyses (e.g. one-way ANOVA) the advantage to concentration-response modeling is that it evaluates the the shape of the underlying relationship and allows one to derive a point-of-departure (POD) not dependent upon experimental concentrations.
+
+In this section we provide three examples for concentration-response modeling:
+
+- [Example 1](#ex1): Single series fit with `concRespCore`.
+- [Example 2](#ex2): Multiple series fit using `tcplfit2_core` and `tcplhit2_core` as stand-alone functions, sequentially.
+- [Example 3](#ex3): Curve fitting similar to what is executed in the ToxCast pipeline (`tcpl`).
+
+This is followed by a section providing details about the continuous hitcall estimation with a brief overview of interpreting these values.
+
 ## Concentration-Response Modeling for a Single Series with `concRespCore` {#ex1}
 
-`concRespCore` is the main wrapper function utilizing two other utility functions, `tcplfit2_core` and `tcplhit2_core`, to perform curve fitting, hitcalling and potency estimation. This example shows how to use the `concRespCore` function; refer to the [Concentration-Response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2) section to see how `tcplfit2_core` and `tcplhit2_core` may be used separately. The first argument for `concRespCore` is a named list, called 'row', containing the following inputs:
+`concRespCore` is the main wrapper function performing concentration-response modeling.  Under the hood, `concRespCore` utilizes the `tcplfit2_core` and `tcplhit2_core` functions, to perform curve fitting, hitcalling and potency estimation. The example in this section shows how to use the `concRespCore` function; and we refer readers to the [Concentration-Response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2) section later in the vignette to see how `tcplfit2_core` and `tcplhit2_core` may be used separately.
 
--   `conc` - a numeric vector of concentrations (not log concentrations).
--   `resp` - a numeric vector of responses, of the same length as `conc`. Note that replicates are allowed, i.e. there may be multiple response values (`resp`) for one concentration dose group. 
--   `cutoff`- a single numeric value indicating the response at which a relevant level of biological activity occurs. This value is typically used to determine if a curve is classified as a "hit". In ToxCast, this is usually 3 times the median absolute deviation around the baseline (BMAD). However, users are free to make other choices more appropriate for their given assay and data.
--   `bmed` - a single numeric value giving the baseline median response. If set to zero then the data are already zero-centered.  Otherwise, this value is used to zero-center the data by shifting the entire response series by the specified amount.\
--   `onesd`- a single numeric value giving one standard deviation of the baseline responses. This value is used to calculate the benchmark response (BMR), where $BMR = {\text{onesd}}\times{\text{bmr_scale}}$. The `bmr_scale` defaults to 1.349.
+The first argument for `concRespCore` is a named list, called 'row', containing the following inputs:
 
-The `row` object may include other elements which provide annotation which will be included as part of the `concRespCore` function output -- for example, chemical names (or other identifiers), assay name, name of the response being modeled, etc.
+- `conc` - a numeric vector of concentrations (not log concentrations).
+- `resp` - a numeric vector of responses, of the same length as `conc`. Note replicates are allowed, i.e. there may be multiple response values (`resp`) for one concentration dose group. 
+- `cutoff`- a single numeric value indicating the response at which a relevant level of biological activity occurs. This value is typically used to determine if a curve is classified as a "hit". In ToxCast, this is usually 3 times the median absolute deviation around the baseline (BMAD) (i.e. $cutoff = 3*BMAD$). However, users are free to make other choices more appropriate for their given assay and data.
+- `bmed` - a single numeric value giving the baseline median response. If set to zero then the data are already zero-centered.  Otherwise, this value is used to zero-center the data by shifting the entire response series by the specified amount.
+- `onesd`- a single numeric value giving one standard deviation of the baseline responses. This value is used to calculate the benchmark response (BMR), where $BMR = {\text{onesd}}\times{\text{bmr_scale}}$. The `bmr_scale` defaults to 1.349.
+
+The `row` object may include other elements providing meta-data/annotations to be included as part of the `concRespCore` function output -- for example, chemical names (or other identifiers), assay name, name of the response being modeled, etc.
 
 A user may also need to include other arguments in the `concRespCore` function, which internally control the execution of curve fitting, hitcalling, and potency estimation:
 
--   `conthits` - Boolean argument. If TRUE (the default, and recommended usage), the hitcall returned will be a  value between 0 and 1.
--   `errfun` - Allows user to specify the distribution of errors. The default is "dt4", models are fit assuming the errors follow a Student's t-distribution with 4 degrees of freedom. Can assume the errors are normally distributed by changing it to "dnorm".
--   `poly2.biphasic` - If TRUE (the default, and recommended usage), the polynomial 2 model will allow a biphasic curve to be fit to the response (i.e. increase then decrease or vice versa). Can force monotonic fitting with FALSE (parabola with vertex not in the tested concentration range).
--   `do.plot` - If this is set to TRUE (default is FALSE), a plot of all fitted curves will be generated. This plotting functionality is outdated by another plotting function in this package, `plot_allcurves`. More on this can be found under [Plotting](#appendix).
--   `fitmodels` - a character vector indicating which models to fit the concentration-response data with. If the `fitmodels` parameter is specified, the constant model (`cnst`) model must be included since it is used for comparison in the hitcalling process. However, any other model may be omitted by the user, for example the gain-loss (`gnls`) model is excluded in some applications.
+- `conthits` - Logical argument. If `TRUE` (the default, and recommended usage), the hitcall returned will be a  value between 0 and 1.
+- `errfun` - Allows a user to specify the assumed distribution of errors. The default is "dt4", indicating models are fit assuming the errors follow a Student's t-distribution with 4 degrees of freedom. Alternatively, one may assume the errors are normally distributed by changing it to "dnorm".
+- `poly2.biphasic` - Logical argument. If `TRUE` (the default, and recommended usage), the polynomial 2 model will allow a biphasic curve to be fit to the response (i.e. increase then decrease or vice versa). However, one may force monotonic fitting with `FALSE` (i.e. a parabola where the  vertex is not in the tested concentration range -- specifically the vertex will be somwhere less than 0).
+- `do.plot` - Logical argument. If `TRUE` (the default is `FALSE`), a plot of all fitted curves will be generated. Note, an alternative to this plotting functionality is provided by another plotting function in this package, namely `plot_allcurves` (see [Plotting](#plotting) for further details).
+- `fitmodels` - a character vector indicating which models to fit the concentration-response data with. If the `fitmodels` parameter is specified, the constant model (`cnst`) model must be included since it is used for comparison in the hitcalling process. However, any other model may be omitted by the user, for example the gain-loss (`gnls`) model is excluded in some applications.
+
 For a full list of potential arguments, refer to the function documentation (`?concRespCore`).
 
-The following code provides a simple example for setting up the input and executing the modeling with `concRespCore`.
+The following code provides a simple example for using `concRespCore`, including input data set-up and executing the modeling with `concRespCore`.
 
-```{r example1, warning=FALSE}
+```{r example1,class.source="fold-show",warning=FALSE}
 # tested concentrations
   conc <- list(.03,.1,.3,1,3,10,30,100)
 # observed responses at respective concentrations
   resp <- list(0,.2,.1,.4,.7,.9,.6, 1.2)
 # row object with relevant parameters
-  row = list(conc = conc, resp = resp, bmed = 0, cutoff = 1, onesd = .5,name="some chemical")
+  row = list(conc = conc,resp = resp,bmed = 0,cutoff = 1,onesd = 0.5,name="some chemical")
 # execute concentration-response modeling through potency estimation
   res <- concRespCore(row,
                       fitmodels = c("cnst", "hill", "gnls",
@@ -92,7 +106,7 @@ The following code provides a simple example for setting up the input and execut
                       conthits = T)
 ```
 
-The output of this run will be a data frame, with one row, summarizing the results for the winning model.
+The output of this run will be a data frame, with one row, summarizing the winning model results.
 
 ```{r, echo=FALSE}
 htmlTable::htmlTable(head(res),
@@ -102,7 +116,7 @@ htmlTable::htmlTable(head(res),
         css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
-One can plot winning curve by passing the output (`res`) to the function `concRespPlot2`. This function returns a basic `ggplot` object, which is meant to leverage the flexibility and modularity of `ggplot2` objects that allow users the ability to customize the plot by adding layers of detail. For more information on customizing plots we refer users to the [Plotting](#appendix) section.
+One can plot the winning curve by passing the output (`res`) to the function `concRespPlot2`. This function returns a basic `ggplot2` object, which is meant to leverage the flexibility and modularity of `ggplot2` objects allowing users the ability to customize the plot by adding layers of detail. For more information on customizing plots we refer users to the [Plotting](#plotting) section.
 
 ```{r example1 plot, fig.height = 4.55, fig.width = 8}
 # plot the winning curve from example 1, add a title
@@ -113,33 +127,34 @@ concRespPlot2(res, log_conc = TRUE) + ggtitle("Example 1: Chemical A")
 
 ## Concentration-Response Modeling for Multiple Series with `tcplfit2_core` and `tcplhit2_core` {#ex2}
 
-This example shows how to fit a set of concentration-response series from a single assay using the `tcplfit2_core` and `tcplhit2_core` functions sequentially. Using the functions sequentially allows users greater flexibility to examine the intermediate output. For example, the output from `tcplfit2_core` contains model parameters for all models fit to the concentration-response series provided. Furthermore, `tcplfit2_core` results may be passed to `plot_allcurves`, which generates a comparative plot of all curves fit to a concentration-response series.
+In this section, we provide an example of how to fit a set of concentration-response series from a single assay using the `tcplfit2_core` and `tcplhit2_core` functions sequentially. Using the functions sequentially allows users greater flexibility to examine the intermediate output. For example, the output from `tcplfit2_core` contains model parameters for all models fit to the provided concentration-response series. Furthermore, `tcplfit2_core` results may be passed to `plot_allcurves`, which generates a comparative plot of all curves fit to a concentration-response series (see [Plotting](#plotting) for further details).
 
-Here, data from a Tox21 high-throughput screening (HTS) assay measuring estrogen receptor (ER) agonist activity are examined. The data were processed by the ToxCast pipeline (`tcpl`), stored, and retrieved from the Level 3 (mc3) table in the database `invitrodb`. At Level 3, data have already undergone pre-processing steps (prior to `tcpl`), including transformation of response values (including zero centering) and concentration normalization. For this example, 6 out of the 100 available chemical samples (spids) from `mc3` are selected. [Concentration-response Modeling for tcpl-like data without a database connection](#ex3) highlights how to process from source data. 
+Here, data from a Tox21 high-throughput screening (HTS) assay measuring estrogen receptor (ER) agonist activity are examined. The data were processed with the ToxCast pipeline (`tcpl`), stored, and retrieved from the Level 3 (mc3) table in the `invitrodb` database. At Level 3, data have already undergone pre-processing steps (prior to `tcpl`), including transformation of response values (including zero centering) and concentration normalization. For this example, 6 out of the 100 available chemical samples (spids) from `mc3` are selected. [Concentration-response Modeling for tcpl-like data without a database connection](#ex3) highlights how to process from the original source data. 
 
 The following code demonstrates how to set up the input data and execute curve fitting and hitcalling with the `tcplfit2_core` and `tcplhit2_core` functions, respectively.
 
-```{r example2_load, warning=FALSE}
+```{r example2,class.source="fold-show",class.source="scroll-100",warning=FALSE}
 # read in the data
-# Loading in the level 3 example data set from invitrodb
+# Loading in the level 3 example data set from invitrodb stored in tcplfit2
   data("mc3")
+
+# view the first 6 rows of the mc3 data
   head(mc3)
-```
 
+# estimate the background variability
+# assume the two lowest concentrations (logc <= -2) for baseline in this example
+# Note: The baseline may be assay/application specific
+  temp <- mc3[mc3$logc<= -2,"resp"] # obtain response in the two lowest concentrations
+  bmad <- mad(temp) # obtain the baseline median absolute deviation
+  onesd <- sd(temp) # obtain the baseline standard deviation
+  cutoff <- 3*bmad  # estimate the cutoff, use the typical cutoff=3*BMAD
 
-```{r example2, warning=FALSE}
-# determine the background variation
-# chosen as logc <= -2 in this example but will be assay/application specific
-  temp <- mc3[mc3$logc<= -2,"resp"]
-  bmad <- mad(temp)
-  onesd <- sd(temp)
-  cutoff <- 3*bmad
-
-# select six chemical samples. Note that there may be more than one sample processed for a given chemical
+# select six chemical samples
+# Note: there may be more than one sample processed for a given chemical
   spid.list <- unique(mc3$spid)
   spid.list <- spid.list[1:6]
   
-# create empty objects to store results and plots
+# create empty objects to store fitting results and plots
   model_fits <- NULL
   result_table <- NULL
   plt_lst <- NULL
@@ -149,7 +164,7 @@ The following code demonstrates how to set up the input data and execute curve f
     # select the data for just this sample
     temp <- mc3[is.element(mc3$spid,spid),]
 
-    # The data file stores concentrations in log10 units, so back-transform
+    # The data file stores concentrations in log10 units, so back-transform to "raw scale"
     conc <- 10**temp$logc
     # Save the response values
     resp <- temp$resp
@@ -183,21 +198,22 @@ The following code demonstrates how to set up the input data and execute curve f
     # store all results in one table
     result_table <- rbind(result_table,out)
   }
-
 ```
 
 The output from `tcplfit2_core` is a nested list containing the following elements:
 
 - `modelnames` - a vector of the model names fit to the data.
 - `errfun` - a character string specifying the assumed error distribution for model fitting.
-- Nested list elements, specified by its model name, containing the estimated model parameters and other details when the corresponding model is fit to the provided data. 
+- Nested list elements, specified by their model names, and contain the estimated model parameters and other details when the corresponding model is fit to the provided data. 
+
+*The hidden code chunk (immediately below) shows how to view the structure of model fit output.*
 
 ```{r example 2 fit results}
 # shows the structure of the output object from tcplfit2_core (only top level)
 str(model_fits[[1]],max.lev = 1)
 ```
 
-Below the structure of the "Hill" elements are shown as an example of details contained in each of the model name elements:
+Taking the "Hill" model as an example, the structure of the "Hill" model output elements are as follows, along with details of what is contained in each of the elements:
 
 - `success` - a binary indicator, where 1 indicates the fit was successful.
 - `aic` - the Akaike Information Criterion (AIC)
@@ -215,11 +231,14 @@ Below the structure of the "Hill" elements are shown as an example of details co
 
 All of these details are provided for other models, except for the constant model. The constant model only includes the `success`, `aic`, `rme`, and `er` elements. 
 
-```{r}
+*The hidden code chunk below shows how to view the structure of fit output for a particular model of interest, we use the Hill model here for demonstration purposes.*
+
+```{r hill_model_fit_str}
+# structure of the model fit list - hill model results
 str(model_fits[[1]][["hill"]])
 ```
 
-The code below allows us to compile and display all the plots generated by `plot_allcurves` above:
+Here we display all model fits for each of the `spid`'s included in the analysis above, these plots are generated with `plot_allcurves`.
 
 ```{r example2 plot1, fig.height = 9, fig.width = 7}
 grid.arrange(grobs=plt_lst,ncol=2)
@@ -227,49 +246,56 @@ grid.arrange(grobs=plt_lst,ncol=2)
 
 ***Figure 2:** Example plots generated from `plot_allcurves`. Each plot depicts all model fits for a given sample (i.e. concentration-response series). In the plots, observed values are represented by the open circles and each model fit to the data is represented with a different color and line type.  Concentrations (x-axis) are displayed in $log_{10}$ units.*
 
-When running the fitting and hitcalling functions sequentially, one can save the result rows from `tcplhit2_core` in a data frame structure and export it for further analysis, see for loop above.
+When running the fitting and hitcalling functions sequentially, one can save the resulting rows from `tcplhit2_core` in a data frame structure and export it for further analysis (e.g. in the above code all results are saved to the `result_table` object).
 
-```{r}
-htmlTable::htmlTable(head(result_table),
+```{r echo=FALSE}
+htmlTable::htmlTable(result_table,
         align = 'l',
         align.header = 'l',
         rnames = FALSE  ,
         css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
-One can also pass output from `tcplhit2_core` directly to `concRespPlot2` to plot the best model fit, as shown in [Concentration-Response Modeling for a Single Series with concRespCore](#ex1).  The code below demonstrates how to select a single row/result and plot the winning model with `concRespPlot2`, along with a minor customization using `ggplot2` layers.
+One can also pass output from `tcplhit2_core` directly to `concRespPlot2` to plot the best model fit, as shown in [Concentration-Response Modeling for a Single Series with concRespCore](#ex1).
+
+*The hidden code below demonstrates modeling a single row/result and plotting the winning model with `concRespPlot2`, along with a minor customization using `ggplot2` layers.*
 
 ```{r example2 plot2}
 # plot the first row
 concRespPlot2(result_table[1,],log_conc = TRUE) + 
+  # add a descriptive title to the plot
   ggtitle(paste(result_table[1,"dtxsid"], result_table[1,"name"]))
 ```
 
 ***Figure 3:** Concentration-response data and the winning model fit for Bisphenol A using the `concRespPlot2` function. Concentrations (x-axis) are displayed in $log_{10}$ units.*
 
-## Concentration-response Modeling for `tcpl`-like data without a database connection {#ex3}
+Further details on hitcalling are provided in a later section [Hitcalling](#hitcalling).
 
-The `tcplLite` functionality was deprecated with the updates to `tcpl` and development of `tcplfit2`, because `tcplfit2` allows one to perform curve fitting and hitcalling independent of a database connection. This example demonstrates how to perform an analysis analogous to `tcplLite` with `tcplfit2`. More information on the ToxCast program can be found at https://www.epa.gov/comptox-tools/toxicity-forecasting-toxcast. A detailed explanation of processing levels can be found within the Data Processing section of the [`tcpl` Vignette on CRAN](https://cran.R-project.org/package=tcpl).
+## Concentration-Response Modeling for `tcpl`-like data without a database connection {#ex3}
 
-In this example, the example input data comes from the ACEA_AR assay. Data from the assay component ACEA_AR_agonist_80hr assumes the response changes in the positive direction relative to DMSO (neutral control & baseline activity) for this curve fitting analysis. Using an electrical impedance as a cell growth reporter, increased activity can be used to infer increased signaling at the pathway-level for the androgen receptor (as encoded by the AR gene). Given the heterogeneity in assay data reporting, source data often must go through pre-processing steps to transform into a uniform data format, namely Level 0 data. 
+The `tcplLite` functionality was deprecated with the updates to `tcpl` and development of `tcplfit2`, because `tcplfit2` allows one to perform curve fitting and hitcalling independent of a database connection. The example in this section demonstrates how to perform an analysis analogous to `tcplLite` with `tcplfit2`. More information on the ToxCast program can be found at https://www.epa.gov/comptox-tools/toxicity-forecasting-toxcast. A detailed explanation of processing levels can be found within the Data Processing section of the [`tcpl` Vignette on CRAN](https://cran.R-project.org/package=tcpl).
+
+In this example, the input data comes from the ACEA_AR assay. Data from the assay component ACEA_AR_agonist_80hr assumes the response changes in the positive direction relative to DMSO (neutral control & baseline activity) for this curve fitting analysis. Using an electrical impedance as a cell growth reporter, increased activity can be used to infer increased signaling at the pathway-level for the androgen receptor (as encoded by the AR gene). Given the heterogeneity in assay data reporting, source data often must go through pre-processing steps to transform into a uniform data format, namely Level 0 data. 
 
 ## - Source Data Formatting
 
-To run standalone `tcplfit2` fitting, without the need for a MySQL database connection like `invitrodb`, the user will need to step-through/replicate multiple levels of processing (i.e. through to Level 3). The below table is identical to the multi-concentration level 0 data (mc0) table one would see in `invitrodb` and is compatible with `tcpl`. Columns include:
+To run standalone `tcplfit2` fitting, without the need for a MySQL database connection like `invitrodb`, the user will need to step-through/replicate multiple levels of processing (i.e. Level 0 through to Level 3). The below table is identical to the multi-concentration level 0 data (mc0) table one would see in `invitrodb` and is compatible with `tcpl`. Columns include:
 
--   m0id = Level 0 id
--   spid = Sample id
--   acid = Unique assay component id; unique numeric id for each assay component
--   apid = Assay plate id
--   coli = Column index (location on assay plate)
--   rowi = Row index (location on assay plate)
--   wllt = Well type
--   wllq = Well quality
--   conc = Concentration
--   rval = Raw response value
--   srcf = Source file name
--   clowder_uid = Clowder unique id for source files
--   git_hash = Hash key for pre-processing scripts
+- `m0id` - Level 0 id
+- `spid` - Sample id
+- `acid` - Unique assay component id; unique numeric id for each assay component
+- `apid` - Assay plate id
+- `coli` - Column index (location on assay plate)
+- `rowi` - Row index (location on assay plate)
+- `wllt` - Well type
+- `wllq` - Well quality
+- `conc` - Concentration
+- `rval` - Raw response value
+- `srcf` - Source file name
+- `clowder_uid` - Clowder unique id for source files
+- `git_hash` - Hash key for pre-processing scripts
+
+*The hidden code below demonstrates obtaining the mc0 data file from `invitrodb`, which is saved as an example dataset in the `tcplfit2` R package.*
 
 ```{r example3_init, fig.height = 6, fig.width = 7, message=FALSE, warning = FALSE}
 # Loading in the Level 0 example data set from invitrodb
@@ -278,7 +304,10 @@ data.table::setDTthreads(2)
 dat <- mc0
 ```
 
+Here we show the top six rows of samples with a treatment well type identifier (i.e. `wllt == 't'`).
+
 ```{r, echo=FALSE}
+# only show the top 6 rows for the treatment samples
 htmlTable::htmlTable(head(dat[wllt=='t',]),
         align = 'l',
         align.header = 'l',
@@ -286,7 +315,9 @@ htmlTable::htmlTable(head(dat[wllt=='t',]),
         css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
-The first step is to establish the concentration index, and corresponds to Level 1 in `tcpl`. Concentration indices are integer values ranking N distinct concentrations from 1 to N, which correspond to the lowest and highest concentration groups, respectively. This index can be used to calculate the baseline median absolute deviation (BMAD) for an assay.
+The first step is to establish the concentration index, and corresponds to Level 1 in `tcpl`. Concentration indices are integer values ranking $N$ distinct concentrations from 1 to $N$, which correspond to the lowest and highest concentration groups, respectively. This index can be used to calculate the baseline median absolute deviation (BMAD) for an assay.
+
+*The hidden code chunk below demonstrates how to obtain and assign the concentration indices.*
 
 ```{r example3_cndx, class.source="scroll-100", fig.height = 6, fig.width = 7, warning=FALSE}
 # Order by the following columns
@@ -320,13 +351,11 @@ indexfunc <- function(x) as.integer(rank(unique(x))[match(x, unique(x))])
 dat[ , cndx := indexfunc(conc), by = list(rpid)]
 ```
 
-```{r, echo=FALSE}
-# tcplConf(user="_dataminer", pass="pass", db="invitrodb", drvr="MySQL", host="ccte-mysql-res.epa.gov")
-```
-
 ## - Adjustments
 
 The second step is perform any necessary data adjustments, and corresponds to Level 2 in `tcpl`. Generally, if the raw response values (`rval`) need to undergo logarithmic transformation or some other transformation, then those adjustments occur in this step. Transformed response values are referred to as corrected values and are stored in the `cval` field/variable. Here, the raw response values do not require transformation and are identical to the corrected values (`cval`). Samples with poor well quality (`wllq = 0`) and/or missing response values are removed from the overall dataset to consider in the concentration-response series.
+
+*The hidden code chunk below demonstrates how to assign the `cval` and filter the data as necessary.*
 
 ```{r example3_mc2, fig.height = 6, fig.width = 7}
 # If no adjustments are required for the data, the corrected value (cval) should be set as original rval
@@ -341,7 +370,7 @@ dat <- dat[!is.na(cval),]
 
 ## - Normalization
 
-The third step normalizes and zero-centers before model fitting, and corresponds to Level 3 in `tcpl`. Our example dataset has both neutral and negative controls available, and the code below demonstrates how to normalize responses to a control in this scenario. However, given experimental designs vary from assay to assay, this process also varies across assays. Thus, the steps shown in this example may not apply to other assays and should only be considered applicable for this example data set. In other applications/scenarios, such as when neutral control or positive/negative controls are not available, the user should normalize responses in a way that best accounts for baseline sampling variability within their experimental design and data. Provided below is a list of normalizing methods used in `tcpl` for reference.
+The third step normalizes and zero-centers data before model fitting, and corresponds to Level 3 in `tcpl`. Our example dataset has both neutral and negative controls available. The equation below demonstrates how to normalize responses to a control in this scenario. However, given experimental designs vary from assay to assay, this process also varies across assays. Thus, the steps shown in this example may not apply to other assays and should only be considered applicable for this example data set. In other applications/scenarios, such as when neutral control or positive/negative controls are not available, the user should normalize responses in a way that best accounts for baseline sampling variability within their experimental design and data. Provided below is a list of normalizing methods used in `tcpl` for reference.
 
 For this example, the normalized responses (`resp`) are calculated as a percent of control, i.e. the ratio of differences. The numerator is the difference between the corrected (`cval`) and baseline (`bval`) values and denominator is the difference between the positive/negative control (`pval`) and baseline (`bval`) values.
 
@@ -358,7 +387,9 @@ htmlTable::htmlTable(head(tcpl::tcplMthdList(3)),
         css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
-```{r example3 normalize}
+*The hidden code chunk below demonstrates how to perform the normalization described above and assign values as is done in `tcpl`.*
+
+```{r example3_normalize}
 # calculate bval of the median of all the wells that have a type of n
 dat[, bval := median(cval[wllt == "n"]), by = list(apid)]
 # calculate pval based on the wells that have type of m or o excluding any NA wells
@@ -391,9 +422,11 @@ onesd <- sd(dat[cndx %in% c(1, 2) & wllt == "t", resp])
 
 ## - Dose-Response Curve Fitting
 
-Once the data adjustments and normalization steps are complete, model fitting then hitcalling can be done, similar to what was shown in [Concentration-response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2).  Dose-Response Curve Fitting corresponds to Level 4 in `tcpl`.  This is where `tcplfit2` is used to fit all available models within `tcpl`.
+Once the data adjustments and normalization steps are complete, model fitting and hitcalling can be done, similar to what was shown in [Concentration-response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2).  Dose-Response Curve Fitting corresponds to Level 4 in `tcpl`.  This is where `tcplfit2` is used to fit all available models within `tcpl`.
 
-```{r example3_fitting, fig.height = 6, fig.width = 7}
+Here we set up a function for running our default model fitting approach and necessary arguments for our analysis.
+
+```{r example3_fitting,class.source="fold-show"}
 #do tcplfit2 fitting
 myfun <- function(y) {
   res <- tcplfit2::tcplfit2_core(y$conc,
@@ -410,21 +443,25 @@ myfun <- function(y) {
 }
 ```
 
-The following code performs dose-response modeling for all spids in the dataset. **Warning: The fitting step on the full data set, `dat`, can take 7-10 minutes with a single core laptop.** Hence the following code chunk provides an example subset of data to demonstrate curve fitting. The example subset data only contains records of six samples.
+Once the fitting funcion is set up, one can perform dose-response modeling for all `spid`'s in the dataset. **Warning: The fitting step on the full data set, `dat`, can take 7-10 minutes with a single core laptop.** Thus, the following hidden code chunk demonstrates how to curve fit the full example dataset, but is not executed.
 
-```{r example3_fitting_full, eval=FALSE, echo = FALSE}
+```{r example3_fitting_full, eval=FALSE}
 # only want to run tcplfit2 for test wells in this case
 # this chunk doesn't run, fit the curves on the subset below
 dat[wllt == 't',params:= myfun(.SD), by = .(spid)]
 ```
 
-```{r example3_fitting_subset}
+However, to demonstrate what the results will look like we execute the curve fitting on an example subset of the data, which only contains records of six samples.
+
+```{r example3_fitting_subset,class.source="fold-show"}
 # create a subset that contains 6 samples and run curve fitting
 subdat <- dat[spid %in% unique(spid)[10:15],]
 subdat[wllt == 't',params:= myfun(.SD), by = .(spid)]
 ```
 
-# Hitcalling
+Similar to the earlier example [Concentration-Response Modeling for Multiple Series with `tcplfit2_core` and `tcplhit2_core`](#ex2) one can combine the general hitcalling approach of using the `tcplhit2_core` function with the generalized function creation (shown above) to apply hitcalling to the example dataset. This will be further demonstrated in a later section, see [Consideration: Continuous Hitcalls to Activity Calls](#ex3_hitc).
+
+# Hitcalling{#hitcalling}
 
 After all models are fit to the data, `tcplhit2_core` is used to perform hitcalling, which  corresponds to Level 5 in `tcpl`. The continuous hitcall value (`hitc`) is the product of three proportional weights, and the resulting continuous value is between 0 and 1. The definition of each proportional weight is provided in the following subsections. For further details on the proportional weights not provided here we suggest the reader to see Sheffield et al., 2021 for more information on `tcplfit2` hit-calling.
 
@@ -434,12 +471,12 @@ After all models are fit to the data, `tcplhit2_core` is used to perform hitcall
 “the winning AIC value is less than that of the constant model”
 :::
 
-Determine whether the constant model – if allowed to win – is a better fit than the winning model – i.e., is the winning model essentially flat or not. The constant model may never be selected as the winning model, but if the constant model has the lowest AIC compared to other models, the calculated continuous `hitc` will be zero.
+Determine whether the constant model – if it were allowed to win – is a better fit to the observed data than the winning model – i.e., is the winning model essentially flat or not. The constant model can never be selected as the winning model, but if the constant model has the lowest AIC compared to other models, the calculated continuous `hitc` will be zero.
 
-When `aicc` is `FALSE`, default:
+When `aicc` is `FALSE`, default, $p_1$ is calculated as:
 
 $$ p_1 = 1 - \frac{exp(0.5*AIC_{constant})}{exp(0.5*AIC_{constant})+exp(0.5*AIC_{winning})}$$
-Otherwise, the corrected AICs (i.e. $AIC_c$) for the constant and winning model are used. The corrected AIC values are estimated as:
+Otherwise, the corrected AICs (i.e. $AIC_c$) for the constant and winning model are used. $p_1$ with the corrected AIC values is estimated as:
 
 $$ AIC_c= AIC + \frac{2+df*(df+1)}{n-df-1}$$
 
@@ -451,19 +488,18 @@ where $df$ is the model's degrees of freedom and $n$ is the number of observed r
 “at least one median response is outside the cutoff band”
 :::
 
-At least one dose group has a median response value (central tendency of observed responses within the dose group) “outside” the cutoff band (considering bi-directional fitting). Responses greater than the cutoff in positive (“+”) direction and less than the cutoff in negative (“–”) direction.
+At least one dose group has a median response value (central tendency of observed responses within the dose group) “outside” the cutoff band (when considering bi-directional fitting). Responses greater than the cutoff in the positive (“+”) direction and less than the cutoff in the negative (“–”) direction.
 
-To estimate whether the median response values for the experimental concentration/dose groups are outside the cutoff band we obtain a 'scaled' median response ($y_k^*$) for each group $k$:
+To estimate whether the median response values for the experimental concentration/dose groups are outside the cutoff band we first obtain a 'scaled' median response ($y_k^*$) value for each experimental dose/concentration group $k$:
 
 $$ y_k^* = \frac{y_k-sign(top)*cutoff}{exp(err)} $$
 
-$y_k$ is the median of observed responses for experimental concentration/dose group $k$, $sign(top)$ is the sign (either positive or negative) of the maximal predicted response from baseline, $cutoff$ is the user defined response threshold indicating meaningful biological activity, and $err$ is the model error parameter.
+where $y_k$ is the median of observed responses for experimental concentration/dose group $k$, $sign(top)$ is the sign (either positive or negative) of the maximal predicted response from baseline, $cutoff$ is the user defined response threshold indicating meaningful biological activity, and $err$ is the model error parameter.
 
-When assuming the responses follow a t-distribution (default):
+When assuming the responses follow a t-distribution, default, $p_2$ is calculated as:
 
 $$ p_2 = 1 - \prod_{k=1}^{D}(y_k^* \sim t(df = 4))$$
-alternatively, when assuming the responses follow a normal distribution:
-
+Alternatively, when assuming the responses follow a normal distribution, $p_2$ is calculated as:
 
 $$ p_2 = 1 - \prod_{k=1}^{D} y_k^* \sim N(0,1) $$
 
@@ -475,7 +511,7 @@ where $D$ is the total number of experimental concentration/dose groups.
 “the top of the fitted curve is outside the cutoff band”
 :::
 
-Determine whether the predicted maximal response exceeds the cutoff, i.e. the response corresponding to the effect size of interest is outside the cutoff band (less than cutoff in the negative direction and greater than cutoff in the positive direction).
+Determine whether the predicted maximal response from baseline (`top`) exceeds the cutoff, i.e. the response corresponding to the effect size of interest is outside the cutoff band (less than cutoff in the negative direction and greater than cutoff in the positive direction). $p_3$ is estimated as:
 
 $$ p_3 = \frac{1 \pm \chi_2(2*(MLL-LL),1)}{2} $$
 where $MLL$ is the maximum log-likelihood of the original predicted best fit model, $LL$ is the log-likelihood of the re-scaled predicted best fit model, and the $\pm$ is:
@@ -487,7 +523,8 @@ where $MLL$ is the maximum log-likelihood of the original predicted best fit mod
 
 The following plots provide visual representations for the comparisons conducted in each of the proportional weights that make up the continuous hitcall value. Each figure has one item "highlighted" in blue and another "highlighted" in red.  The blue represents the reference for the proportional weight of interest, whereas the red represents an indicator for a response with potential bioactivity (i.e. key comparator) for the proportional weight of interest.  For example, for $p_1$ which (as mentioned previously) is meant to determine whether the winning model (red), which is the best fit curve to the observed data given it has the lowest AIC, is much different from the constant model (blue), which indicates no biological response.
 
-```{r hitc_plot_setup,echo=FALSE}
+```{r hitc_plots,fig.height = 6, fig.width = 7,warning=FALSE,message=FALSE}
+#### Data Set-Up ####
 # obtain the base example data
 DATA_CASE <- tcplfit2::signatures[1,]
 conc <- strsplit(DATA_CASE[,"conc"],split = "[|]") %>% 
@@ -548,9 +585,8 @@ ref_df <- data.frame(
 
 ## plotting dataframe combined
 plot_highlight_df <- rbind.data.frame(OG_data,cont_fit,ref_df)
-```
 
-```{r hitc_plots,echo=FALSE,fig.height = 6, fig.width = 7,warning=FALSE,message=FALSE}
+#### Generate Plots ####
 ## Generate a Base Plot for the Concentration-Response ##
 base_plot <- ggplot2::ggplot()+
   geom_point(data = dplyr::filter(plot_highlight_df,df == "OG_data"),
@@ -640,7 +676,7 @@ grid.arrange(p1_plot,p2_plot,p3_plot,
              left = "response",
              bottom = paste("log10(conc)",
                             paste(paste("hitc:",signif(hit[,"hitcall"],3)),
-                                  paste("bmd:",signif(hit[,"bmd"],3)),sep = ", "),
+                                  paste("log10(bmd):",signif(log10(hit[,"bmd"]),3)),sep = ", "),
                             sep = "\n")
              )
 ```
@@ -649,13 +685,16 @@ grid.arrange(p1_plot,p2_plot,p3_plot,
 
 One should note that the distribution of hitcall values does not follow a normal distribution, rather values tend towards 0 or 1. Hitcall values close to 1 indicate concentration-response series with biological activity in the measured response (i.e. ‘active’ hit).
 
-## Consideration: Continuous Hitcalls to Activity Calls
+## Consideration: Continuous Hitcalls to Activity Calls{#ex3_hitc}
 
-Users may consider binarizing the continuous hitcall values into active or inactive designations, setting the activity threshold based on the level of stringency required by the user. Currently, the ToxCast work requires a `hitc` value greater than or equal to 0.90 to label a response as active, and anything less is considered inactive. For further details on the activity threshold used in ToxCast we refer readers to the [`tcpl` Vignette on CRAN](https://cran.R-project.org/package=tcpl) and Nyffeler et al., 2023.
+Users may consider binarizing the continuous hitcall values into active or inactive designations, setting the activity threshold based on the level of stringency required by the user. Currently, the ToxCast requires a `hitc` value to be greater than or equal to 0.90 for the response to be labeled as active, and anything less is considered inactive. For further details on the activity threshold used in ToxCast we refer readers to the [`tcpl` Vignette on CRAN](https://cran.R-project.org/package=tcpl) and Nyffeler et al., 2023.
 
-The output of `tcplfit2_core`, i.e. Level 4 data from invitroDB, may be fed directly to the `tcplhit2_core` function. The results are then pivoted wide, and the resulting data table is displayed below.
+As previously mentioned, the output of `tcplfit2_core`, i.e. Level 4 data from invitroDB, may be fed directly to the `tcplhit2_core` function. The results are then pivoted wide, and the resulting data table is displayed below.
 
-```{r example3_hitcalling, fig.height = 6, fig.width = 7}
+*The hidden code chunk below demonstrates performing hitcalling on the fitting results from [Concentration-Response Modeling for `tcpl`-like data without a database connection](#ex3) and setting a binary hitcall (`hitb`), where 0 indicates an inactive response and 1 indicates an active response.*
+
+```{r example3_hitcalling}
+#do tcplfit2 hitcalling
 myfun2 <- function(y) {
   res <- tcplfit2::tcplhit2_core(params = y$params[[1]],
                                  conc = y$conc,
@@ -672,6 +711,8 @@ res <- subdat[wllt == 't', myfun2(.SD), by = .(spid)]
 # pivot wider
 res_wide <- rbindlist(Map(cbind, spid = res$spid, res$V1))
 
+# add a binary hitcall column to the data
+res_wide[,hitb := ifelse(hitcall >= 0.9,1,0)]
 ```
 
 ```{r, echo=FALSE}
@@ -682,7 +723,7 @@ htmlTable::htmlTable(head(res_wide),
         css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
-*Please note, hitcalling can also be done with the full data set, `dat`, but here we only demonstrate hitcalling with the example dataset model fitting was performed on.*
+*Please note, hitcalling can also be done with the full data set, `dat`, but here we only demonstrate hitcalling with the example data subset model fitting was performed on in [Concentration-Response Modeling for `tcpl`-like data without a database connection](#ex3).*
 
 The resulting output from the previous code chunk is the same format as the `result_table` table in [Concentration-response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2). Thus, one can use the `concRespPlot2` function, as done previously to plot the results. The next code chunk demonstrates how to visualize the [Concentration-response Modeling for tcpl-like data](#ex3) fit results.
 
@@ -711,7 +752,7 @@ First, consider a situation when the estimated BMD is less than the lowest teste
 
 In the following code chunk, we use the `mc3` dataset with some minor modifications to demonstrate this case. Here, we take one of the concentration-response series and remove dose groups less than $0.41$. Removing the lower dose groups simulates the scenario where there is a lack of data in the low-dose region and causes the BMD estimate to be less than the lowest concentration remaining in the data.
 
-```{r example 4 lower, warning=FALSE}
+```{r ex4_lower,class.source="scroll-100",warning=FALSE}
 # We'll use data from mc3 in this section
 data("mc3")
 
@@ -749,40 +790,45 @@ row_low <- list(conc = conc2, resp = resp2, bmed = 0, cutoff = cutoff, onesd = o
 res_low <- concRespCore(row_low,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                           "pow", "exp2", "exp3", "exp4", "exp5"), 
                         bidirectional=F)
-
+# plotting the results
+min_conc <- min(conc2)
 concRespPlot2(res_low, log_conc = T) + 
+  geom_vline(aes(xintercept = log10(min_conc)),lty = "dashed")+
   geom_rect(aes(xmin = log10(res_low[1, "bmdl"]),
                 xmax = log10(res_low[1, "bmdu"]),ymin = 0,ymax = 30),
             alpha = 0.05,fill = "skyblue") + 
   geom_segment(aes(x = log10(res_low[, "bmd"]),
                    xend = log10(res_low[, "bmd"]), y = 0, 
-                   yend = 30),col = "blue")
+                   yend = 30),col = "blue")+
+  ggtitle(label = paste(name,"-",assay),subtitle = dtxsid)
 ```
 
-***Figure 6:** This plot shows the winning curve, BMD estimation (represented by the solid blue line) and the estimated BMD confidence interval (represented by the light blue bar).*
+***Figure 6:** This plot shows the winning curve, the lowest experimental concentration (represented by the dashed line), BMD estimation (represented by the solid blue line), and the estimated BMD confidence interval (represented by the light blue bar).*
 
-```{r example 4 lower-res}
+```{r ex4_lower-res}
 # function results
 res_low['Min. Conc.'] <- min(conc2)
 res_low['Name'] <- name
 res_low[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")] <- round(res_low[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")], 3)
 ```
-```{r example_4_table, echo=FALSE}
+```{r ex4_table, echo=FALSE}
 DT::datatable(res_low[1, c("Name","Min. Conc.", "bmd", "bmdl", "bmdu")],rownames = FALSE)
 ```
 
-Herein, The lowest tested concentration in the data is `r min(conc2)` but the estimated BMD from the hitcalling results is `r round(res_low$bmd, 3)`, which is lower. Users may allow the estimated BMD to be lower than the lowest concentration screened while restricting it to be no lower than a boundary set by using the argument `bmd_low_bnd`.
+The lowest tested concentration in the data is `r min(conc2)` but the estimated BMD from the hitcalling results is `r round(res_low$bmd, 3)`, which is lower. Users may allow the estimated BMD to be lower than the lowest concentration screened while restricting it to be no lower than a boundary set by using the argument `bmd_low_bnd`.
 
-If the BMD should be no lower than 80% of the lowest tested concentration, then `bmd_low_bnd = 0.8` can be used to set a boundary. This results in a computed boundary of $0.48$. If the estimated BMD is less than the computed boundary (like in this example), it will be "bounded" to the threshold set in `bmd_low_bnd`. Similarly, the confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the computed boundary. Figure 7 provides a visual representation of the lower boundary bounding. The valid input range for `bmd_low_bnd` is between 0 and 1, excluding 0, ($0 < \text{bmd_low_bnd} \leq 1$).
+Suppose the BMD should be no lower than 80% of the lowest tested concentration, then `bmd_low_bnd = 0.8` can be used to set this boundary. For this example, this results in a computed boundary of `r 0.8*min(conc2)`. The valid input range for `bmd_low_bnd` is between 0 and 1, excluding 0, ($0 < \text{bmd_low_bnd} \leq 1$). If `bmd_low_bnd` is set to 1, that makes the lowest experimental concentration the lower threshold value.
 
-```{r example 4 lower-demo}
+```{r ex4_lower-demo,class.source="fold-show"}
 # using the argument to set a lower bound for BMD
 res_low2 <- concRespCore(row_low,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                            "pow", "exp2", "exp3", "exp4", "exp5"), 
                          conthits = T, aicc = F, bidirectional=F, bmd_low_bnd = 0.8)
 ```
 
-```{r example 4 new lower-res}
+If the estimated BMD is less than the computed boundary (like in this example), it will be "bounded" to the threshold set in `bmd_low_bnd`. Similarly, the confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the computed boundary. The following data table provides the numerical adjustments after bounding is applied based on the lower bound threshold
+
+```{r ex4_lower-res-bnd}
 # print out the new results
 # include previous results side by side for comparison 
 res_low2['Min. Conc.'] <- min(conc2)
@@ -797,7 +843,9 @@ output_low <- rbind(res_low[1, c('Name', "Min. Conc.", "bmd", "bmdl", "bmdu")],
 DT::datatable(output_low,rownames = FALSE)
 ```
 
-```{r example 4 lower plot, class.source="scroll-100"}
+Below provides a visual representation of the before and after applying lower boundary BMD bounding.
+
+```{r ex4_lower-plot-bnd, class.source="scroll-100"}
 # generate some concentration for the fitted curve 
 logc_plot <- seq(from=-3,to=2,by=0.05)
 conc_plot <- 10**logc_plot
@@ -813,12 +861,12 @@ abline(v=res_low2$bmd, lty = 2, col = "darkviolet", lwd = 2)
 # add markers for BMD and its boundaries before `bounding`
 lines(c(res_low$bmd,res_low$bmd),c(0,50),col="green",lwd=2)
 rect(xleft=res_low$bmdl,ybottom=0,xright=res_low$bmdu,ytop=50,col=rgb(0,1,0, alpha = .5), border = NA)
-points(res_low$bmd, 0, pch = "x", col = "green")
+points(res_low$bmd, -0.5, pch = "x", col = "green")
 
 # add markers for BMD and its boundaries after `bounding`
 lines(c(res_low2$bmd,res_low2$bmd),c(0,50),col="blue",lwd=2)
 rect(xleft=res_low2$bmdl,ybottom=0,xright=res_low2$bmdu,ytop=50,col=rgb(0,0,1, alpha = .5), border = NA)
-points(res_low2$bmd, 0, pch = "x", col = "blue")
+points(res_low2$bmd, -0.5, pch = "x", col = "blue")
 
 # add the fitted curve
 lines(conc_plot, exp4(ps = c(res_low$tp, res_low$ga), conc_plot))
@@ -830,9 +878,11 @@ legend(1e-3, 60, legend=c("Lowest Dose Tested", "Boundary", "BMD-before", "BMD-a
 
 ## Imposing Upper BMD Bounds
 
-In the next scenario, the estimated BMD is much larger than the maximum tested concentration. Here, `bmd_up_bnd` is used to set an upper bound on extremely large BMD estimates.
+Next, let us consider a situation where the estimated BMD is much larger than the maximum tested concentration. This occurs when the experimental concentrations are too low to capture the transition between the baseline response and the minimum response considered adverse occurring around the benchmark response (BMR). In these situations, the chemical is likely inert or is only active in really high-doses, and should be flagged appropriately.
 
-```{r example 5 upper}
+In the following code chunk, we use an example from the `mc3` dataset to demonstrate this case.
+
+```{r ex5_upper,class.source="scroll-100",warning=FALSE}
 # load example data
 spid <- unique(mc3$spid)[26]
 ex_df <- mc3[is.element(mc3$spid,spid),]
@@ -855,11 +905,21 @@ row_up <- list(conc = conc, resp = resp, bmed = 0, cutoff = cutoff, onesd = ones
 res_up <- concRespCore(row_up,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                          "pow", "exp2", "exp3", "exp4", "exp5"), 
                        conthits = T, aicc = F, bidirectional=F)
-
-concRespPlot2(res_up, log_conc = T)
+# plotting the results
+max_conc <- max(conc)
+concRespPlot2(res_up, log_conc = T) + 
+  # geom_vline(aes(xintercept = max(log10(conc))),lty = "dashed")+
+  geom_vline(aes(xintercept = log10(max_conc)),lty = "dashed")+
+  geom_rect(aes(xmin = log10(res_up[1, "bmdl"]),
+                xmax = log10(res_up[1, "bmdu"]),ymin = 0,ymax = 125),
+            alpha = 0.05,fill = "skyblue") + 
+  geom_segment(aes(x = log10(res_up[, "bmd"]),
+                   xend = log10(res_up[, "bmd"]), y = 0, 
+                   yend = 125),col = "blue")+
+  ggtitle(label = paste(name,"-",assay),subtitle = dtxsid)
 ```
 
-```{r example 5 upper-res}
+```{r ex5_upper-res}
 # max conc
 res_up['Max Conc.'] <- max(conc)
 res_up['Name'] <- name
@@ -872,16 +932,18 @@ DT::datatable(res_up[1, c('Name','Max Conc.', "bmd", "bmdl", "bmdu")],rownames =
 
 The estimated BMD, `r round(res_up$bmd, 3)`, is greater than the maximum tested concentration, which is `r max(conc)`. As with the `bmd_low_bnd`, users may allow the BMD to be greater than the maximum tested concentration but no greater than a boundary dose set using `bmd_up_bnd`.
 
-Suppose it is desired that the estimated BMD not be larger than 2 times the maximum tested concentration. Here, `bmd_up_bnd = 2` can set the upper threshold dose to $160$. If the estimated BMD is greater than the upper boundary (like in this example), it will be "bounded" to this dose, and its confidence interval will be shifted left. Figure 8 provides a visual representation of upper boundary bounding. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$).
+Suppose it is desired that the estimated BMD not be larger than 2 times the maximum tested concentration. Here, `bmd_up_bnd = 2` can set the upper threshold dose to `r 2*max(conc)`. If the estimated BMD is greater than the upper boundary (like in this example), it will be "bounded" to this dose, and its confidence interval will be shifted left. The valid input range for `bmd_up_bnd` is any value greater than or equal to 1 ($\text{bmd_up_bnd} \geq 1$). If `bmd_up_bnd` is set to 1, that makes the highest experimental concentration the upper threshold value.
 
-```{r example upper-demo}
+```{r ex5_upper-demo,class.source="fold-show"}
 # using bmd_up_bnd = 2
 res_up2 <- concRespCore(row_up,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                           "pow", "exp2", "exp3", "exp4", "exp5"), 
                         conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 2)
 ```
 
-```{r example upper-2}
+Similar to the `bmd_low_bnd` bounding approach, if the estimated BMD is greater than the computed boundary (like in this example), it will be "bounded" to the threshold set in `bmd_up_bnd`. As before, the confidence interval will also be shifted to the left by a distance equal to the difference between the estimated BMD and the computed boundary.  The following data table provides the numerical adjustments after bounding is applied based on the upper bound threshold.
+
+```{r ex5_upper-bnd}
 # print out the new results
 # include previous results side by side for comparison 
 res_up2['Max Conc.'] <- max(conc)
@@ -896,31 +958,33 @@ output_up <- rbind(res_up[1, c('Name', "Max Conc.", "bmd", "bmdl", "bmdu")],
 DT::datatable(output_up,rownames = FALSE)
 ```
 
-```{r example upper plot, class.source="scroll-100"}
+Below provides a visual representation of the before and after applying the upper boundary BMD bounding.
+
+```{r ex5_upper-bnd-plot, class.source="scroll-100"}
 # generate some concentration for the fitting curve 
 logc_plot <- seq(from=-3,to=2,by=0.05)
 conc_plot <- 10**logc_plot
 
 # initiate plot
-plot(conc,resp,xlab="conc (uM)",ylab="Response",xlim=c(0.001,500),ylim=c(-5,40),
+plot(conc,resp,xlab="conc (uM)",ylab="Response",xlim=c(0.001,500),ylim=c(-5,150),
        log="x",main=paste(name,"\n",assay),cex.main=0.9)
 # add vertical lines to mark the maximum concentration in the data and the upper boundary set by bmd_up_bnd
 abline(v=max(conc), lty = 1, col = "brown", lwd=2)
 abline(v=160, lty = 2, col = "darkviolet", lwd=2)
 
 # add marker for BMD and its boundaries before `bounding`
-lines(c(res_up$bmd,res_up$bmd),c(0,50),col="green",lwd=2)
-rect(xleft=res_up$bmdl,ybottom=0,xright=res_up$bmdu,ytop=50,col=rgb(0,1,0, alpha = .5), border = NA)
-points(res_up$bmd, 0, pch = "x", col = "green")
+lines(c(res_up$bmd,res_up$bmd),c(0,125),col="green",lwd=2)
+rect(xleft=res_up$bmdl,ybottom=0,xright=res_up$bmdu,ytop=125,col=rgb(0,1,0, alpha = .5), border = NA)
+points(res_up$bmd, -0.5, pch = "x", col = "green")
 
 # add marker for BMD and its boundaries after `bounding`
-lines(c(res_up2$bmd,res_up2$bmd),c(0,50),col="blue",lwd=2)
-rect(xleft=res_up2$bmdl,ybottom=0,xright=res_up2$bmdu,ytop=50,col=rgb(0,0,1, alpha = .5), border = NA)
-points(res_up2$bmd, 0, pch = "x", col = "blue")
+lines(c(res_up2$bmd,res_up2$bmd),c(0,125),col="blue",lwd=2)
+rect(xleft=res_up2$bmdl,ybottom=0,xright=res_up2$bmdu,ytop=125,col=rgb(0,0,1, alpha = .5), border = NA)
+points(res_up2$bmd, -0.5, pch = "x", col = "blue")
 
 # add the fitting curve
 lines(conc_plot, poly1(ps = c(res_up$a), conc_plot))
-legend(1e-3, 40, legend=c("Maximum Dose Tested", "Boundary", "BMD-before", "BMD-after"),
+legend(1e-3, 150, legend=c("Maximum Dose Tested", "Boundary", "BMD-before", "BMD-after"),
        col=c("brown", "darkviolet", "green", "blue"), lty=c(1,2,1,1))
 ```
 
@@ -930,14 +994,16 @@ legend(1e-3, 40, legend=c("Maximum Dose Tested", "Boundary", "BMD-before", "BMD-
 
 The previous two examples provided for BMD bounding use the `concRespCore` function. However, the `bmd_low_bnd` and `bmd_up_bnd` arguments originate from the `tcplhit2_core` function, which is utilized within the `concRespCore` function. Thus, for users that perform dose-response modeling and hitcalling utilizing the `tcplfit2_core` and `tcplhit2_core` separately can do the same BMD "bounding." Regardless of whether a user utilizes the `bmd_low_bnd` and `bmd_up_bnd` arguments in the `concRespCore` or `tcplhit2_core` function the results should be identical. The code provided below shows how to replicate the results from the [lower bound example](#boundinglowerbound) using `tcplhit2_core` as an alternative.
 
-```{r example with hit core}
+```{r ex6_hitcore,class.source="fold-show"}
 # using the same data, fit curves 
 param <- tcplfit2_core(conc2, resp2, cutoff = cutoff)
 hit_res <- tcplhit2_core(param, conc2, resp2, cutoff = cutoff, onesd = onesd, 
                          bmd_low_bnd = 0.8)
 ```
 
-```{r res-hit core}
+The following data table provides the numerical adjustments after bounding is applied, here in the lower bound direction.
+
+```{r ex6_hitcore-res}
 # adding the result from tcplhit2_core to the output table for comparison
 hit_res["Name"]<-  paste("Chlorothalonil", "tcplhit2_core", sep = "-")
 hit_res['Min. Conc.'] <- min(conc2)
@@ -946,7 +1012,7 @@ hit_res[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")] <- round(hit_res[1, c("Min. C
 output_low <- rbind(output_low, 
                     hit_res[1, c('Name', "Min. Conc.", "bmd", "bmdl", "bmdu")])
 ```
-```{r res-hit_table, echo = FALSE}
+```{r ex6_res-hit_table, echo = FALSE}
 DT::datatable(output_low,rownames = FALSE)
 ```
 
@@ -954,15 +1020,17 @@ DT::datatable(output_low,rownames = FALSE)
 
 If the estimated BMD falls between the lowest dose tested and the defined threshold for an acceptable BMD, i.e. lowest tested dose and lower boundary dose, the estimated BMD will remain unchanged. For demonstration purposes, the lower bound example is used, but the same principle applies to the upper bound case.
 
-The same data from the [lower bound example](#boundinglowerbound) is used along with a smaller `bmd_low_bnd` value to obtain a lower boundary dose. Here, the estimated BMD is acceptable as long as it is no less than 40% (two-fifths) of the minimum tested concentration. The estimated BMD is `r res_low$bmd`, which is between the lowest tested dose, `r min(conc2)`, and the new computed boundary, $0.24$. Thus, the BMD estimate and its confidence interval will remain unchanged.
+The same data from the [lower bound example](#boundinglowerbound) is used along with a smaller `bmd_low_bnd` value to obtain a lower boundary dose. Here, the estimated BMD is acceptable as long as it is no less than 40% (two-fifths) of the minimum tested concentration. The estimated BMD is `r res_low$bmd`, which is between the lowest tested dose, `r min(conc2)`, and the new computed boundary, `r 0.4*min(conc2)`. Thus, the BMD estimate and its confidence interval will remain unchanged.
 
-```{r example even lower bound}
+```{r ex7_lower-bnd,class.source="fold-show"}
 res_low3 <- concRespCore(row_low,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                            "pow", "exp2", "exp3", "exp4", "exp5"), 
                          conthits = T, aicc = F, bidirectional=F, bmd_low_bnd = 0.4)
 ```
 
-```{r example even lower bound-res}
+The following data table provides the results after applying bounding based on the lower bound threshold.
+
+```{r ex7_lower-bnd-res}
 # print out the new results
 # add to previous results for comparison 
 res_low3['Min. Conc.'] <- min(conc2)
@@ -972,11 +1040,13 @@ res_low3[1, c("Min. Conc.", "bmd", "bmdl", "bmdu")] <- round(res_low3[1, c("Min.
 output_low <- rbind(output_low[-3, ], 
                     res_low3[1, c('Name', "Min. Conc.", "bmd", "bmdl", "bmdu")])
 ```
-```{r lower_bound_res_table, echo = FALSE}
+```{r ex7_lower-bnd-res-table, echo = FALSE}
 DT::datatable(output_low,rownames = FALSE)
 ```
 
-```{r example even lower bound-plot, class.source="scroll-100"}
+Below provides a visual representation of the before and after applying lower boundary BMD bounding.
+
+```{r ex7_lower-bnd-plot, class.source="scroll-100"}
 # initiate the plot
 plot(conc2,resp2,xlab="conc (uM)",ylab="Response",xlim=c(0.001,100),ylim=c(-5,60),
        log="x",main=paste(name,"\n",assay),cex.main=0.9)
@@ -1003,7 +1073,7 @@ legend(1e-3, 60, legend=c("Lowest Dose Tested", "Boundary Dose", "BMD-before", "
 
 ***Figure 9:** This plot shows the estimated BMD and the confidence interval before and after "bounding". The dashed dark violet line represents the boundary dose and the solid brown line represents the minimum tested concentration, which are at `r 0.4*min(conc2)` and `r min(conc2)`, respectively. The estimated BMD of `r res_low3[, "bmd"]` falls between the boundary and lowest dose tested, which leaves the BMD and confidence intervals unchanged. Here, the estimated BMD and "bounded" BMD are the same. Thus, the green and blue lines and "X"s representing the estimated BMD before and after "bounding", respectively, as well as their confidence intervals indicated by the shaded regions completely overlap.*
 
-# Plotting {#appendix}
+# Plotting {#plotting}
 
 [Concentration-response Modeling for a Single Series with concRespCore](#ex1) and [for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2) illustrated two plotting functions available in `tcplfit2` based on `ggplot2` plotting grammar. This section will show two other plotting options available in `tcplfit2`, which use base R plotting, namely the `do.plot` argument in `concRespCore` and the `concRespPlot` function.
 
@@ -1785,7 +1855,7 @@ exp4_plot1 <- ggplot(fits_exp4, aes(ex_conc)) +
   geom_line(aes(y = y2, color = "tp=200")) +
   geom_line(aes(y = y3, color = "tp=(-500)")) +
   labs(x = "Concentration", y = "Response") +
-  theme(legend.position = c(0.1,0.8)) +
+  theme(legend.position = c(0.15,0.8)) +
   scale_color_manual(name='tp values',
                      breaks=c('tp=(-500)', 'tp=200', 'tp=895'),
                      values=c('tp=(-500)'='black', 'tp=200'='red', 'tp=895'='blue'))
@@ -1913,6 +1983,7 @@ htmlTable(output,
 
 
 # Glossary
+
 The following glossary, though it may not be encompassing all terms included in this package, is provided to serve as a quick reference when using `tcplfit2`:
 
 a
@@ -1949,19 +2020,19 @@ bmd
 : Benchmark Dose, activity concentration observed at the Benchmark Response (BMR) level
 
 bmdl
-:  Benchmark Dose lower confidence limit. Derived using a 90% confidence interval around the BMD to reflect the uncertainty 
+:  Benchmark Dose lower confidence limit. Derived using a 90% confidence interval around the BMD to reflect the uncertainty
 
 bmdu
 : Benchmark Dose upper confidence limit. Derived using a 90% confidence interval around the BMD to reflect the uncertainty
 
 bmr
-: Benchmark Response. Response level at which the BMD is calculated as $onesd*bmr_scale$, where the default bmr_scale is 1.349
+: Benchmark Response. Response level at which the BMD is calculated as $BMR = {\text{onesd}}\times{\text{bmr_scale}}$, where the default `bmr_scale` is 1.349
 
 caikwt
-: Akaike weight of the constant model relative to the winning model, calculated as $exp(-aic(cnst)/2)/(exp(-aic(cnst)/2) + exp(-aic(fit method)/2))$. Used in calculating the continuous hitcall.
+: Akaike weight of the constant model relative to the winning model, calculated as $\frac{exp(0.5*AIC_{constant})}{exp(0.5*AIC_{constant})+exp(0.5*AIC_{winning})}$. Used in calculating the continuous hitcall.
 
 conc
-: Tested concentrations, typically micromolar (uM)
+: Tested concentrations, typically micromolar ($\mu M$)
 
 cutoff 
 : Efficacy threshold. User-specified to define activity and may reflect statistical, assay-specific, and biological considerations 
@@ -1979,7 +2050,7 @@ hitc or hitcall
 : Continuous hit call value ranging from 0 to 1
 
 mll
-: Maximum log-likelihood of winning model. Used in calculating the continuous hit call  $length(modpars) - aic(fit_method)/2$
+: Maximum log-likelihood of winning model. Used in calculating the continuous hit call  $length(modpars) - aic(fit_{method})/2$
 
 la
 : AC50 for the falling curve in a gain-loss model
@@ -2003,7 +2074,7 @@ rmse
 : Root mean square error of the data points relative to model fit. Lower RMSE indicate model fits the data well.
 
 top_over_cutoff
-: Ratio of the maximal predicted change in response value to the cutoff (top/cutoff)
+: Ratio of the maximal predicted change in response from baseline value to the cutoff (top/cutoff)
 
 top
 : Response value at the maximal predicted change in response from baseline ($y = 0$)
