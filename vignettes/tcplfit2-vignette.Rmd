@@ -1406,7 +1406,7 @@ pred_resp <- output_ex2[[fit_method]][["modl"]]
 ```{r ex2_AUC-getAUC-plot,fig.height = 6, fig.width = 6}
 # plot to see if the result make sense
 # the shaded area is what the function tries to find
-plot(conc_ex2, pred_resp,xlim = c(0,1))
+plot(conc_ex2, pred_resp,ylim = c(0,1))
 lines(conc_ex2, pred_resp)
 polygon(c(conc_ex2, max(conc_ex2)), c(pred_resp, min(pred_resp)), col=rgb(1,0,0,0.5))
 ```
