@@ -1,11 +1,11 @@
 #' Top Likelihood
 #'
-#' Probability of top being above cutoff.
+#' Probability of top (maximal change in response from baseline) being outside the cutoff band.
 #'
 #' Should only be called by hitcontinner. Uses profile likelihood, similar
 #' to bmdbounds. Here, the y-scale type parameter is substituted in such a
 #' way that the top equals the cutoff. Then the log-likelihood is compared to
-#' the maximum log-likelihood using chisq function to retrieve probability.
+#' the maximum log-likelihood using pchisq function to retrieve probability.
 #'
 #' @param fname Model function name (equal to model name except hill which
 #'   uses "hillfn")
@@ -13,7 +13,7 @@
 #' @param conc Vector of concentrations.
 #' @param resp Vector of responses.
 #' @param ps Vector of parameters, must be in order: a, tp, b, ga, p, la, q, er
-#' @param top Model top.
+#' @param top Model predicted top, maximal predicted change in response from baseline.
 #' @param mll Winning model maximum log-likelihood.
 #' @param errfun Which error distribution to assume for each point, defaults to
 #'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
@@ -23,7 +23,7 @@
 #'
 #' @importFrom stats pchisq
 #'
-#' @return Probability of top being above cutoff.
+#' @return Probability of top being outside the cutoff band.
 #' @export
 #'
 #' @examples

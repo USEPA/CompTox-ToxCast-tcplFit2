@@ -8,7 +8,7 @@
 #'
 #' @param conc Vector of concentrations.
 #' @param resp Vector of responses.
-#' @param top Model top.
+#' @param top Model predicted top, maximal predicted change in response from baseline.
 #' @param cutoff Desired cutoff.
 #' @param er Model error parameter.
 #' @param ps Vector of used model parameters in order: a, tp, b, ga, p, la, q, er.
