@@ -69,8 +69,12 @@ toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"
       ps[1] = cutoff * ( 1 + (ps[2]/x_top)^ps[3])
     }
   } else if(fname == "gnls"){
-    x_top = acy(y = top, modpars = list(tp=ps[1],ga=ps[2],p=ps[3],la=ps[4],q=ps[5],er=ps[6]), type = fname)
-    ps[1] = cutoff * (( 1 + (ps[2]/x_top)^ps[3])*( 1 + (x_top/ps[4])^ps[5]))
+    if (top == ps[1]) {
+      ps[1] = cutoff
+    } else {
+      x_top = acy(y = top, modpars = list(tp=ps[1],ga=ps[2],p=ps[3],la=ps[4],q=ps[5],er=ps[6]), type = fname)
+      ps[1] = cutoff * (( 1 + (ps[2]/x_top)^ps[3])*( 1 + (x_top/ps[4])^ps[5]))
+    }
   } else if(fname == "poly1"){
     x_top = acy(y = top, modpars = list(a=ps[1],er=ps[2]),type = fname)
     ps[1] = cutoff/x_top
