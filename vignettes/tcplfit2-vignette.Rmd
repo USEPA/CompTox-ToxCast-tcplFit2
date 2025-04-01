@@ -449,7 +449,7 @@ myfun <- function(y) {
 
 Once the fitting funcion is set up, one can perform dose-response modeling for all `spid`'s in the dataset. **Warning: The fitting step on the full data set, `dat`, can take 7-10 minutes with a single core laptop.**
 
-*The hidden code chunk below demonstrates how to curve fit the full example dataset, _but is not executed_.*
+*The hidden code chunk below demonstrates how to curve fit the full example dataset, <u>but is not executed</u>.*
 
 ```{r example3_fitting_full, eval=FALSE}
 # only want to run tcplfit2 for test wells in this case
