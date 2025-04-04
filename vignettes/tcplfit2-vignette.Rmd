@@ -69,7 +69,7 @@ This is followed by a section providing details about the continuous hitcall est
 
 ## Concentration-Response Modeling for a Single Series with `concRespCore` {#ex1}
 
-`concRespCore` is the main wrapper function performing concentration-response modeling.  Under the hood, `concRespCore` utilizes the `tcplfit2_core` and `tcplhit2_core` functions, to perform curve fitting, hitcalling and potency estimation. The example in this section shows how to use the `concRespCore` function; and we refer readers to the [Concentration-Response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2) section later in the vignette to see how `tcplfit2_core` and `tcplhit2_core` may be used separately.
+`concRespCore` is the main wrapper function performing concentration-response modeling.  Under the hood, `concRespCore` utilizes the `tcplfit2_core` and `tcplhit2_core` functions, to perform curve fitting, hitcalling and potency estimation. The example in this section shows how to use the `concRespCore` function; and we refer readers to the [Concentration-Response Modeling for Multiple Series with `tcplfit2_core` and `tcplhit2_core`](#ex2) section later in the vignette to see how `tcplfit2_core` and `tcplhit2_core` may be used separately.
 
 The first argument for `concRespCore` is a named list, called 'row', containing the following inputs:
 
@@ -131,7 +131,7 @@ concRespPlot2(res, log_conc = TRUE) + ggtitle("Example 1: Chemical A")
 
 In this section, we provide an example of how to fit a set of concentration-response series from a single assay using the `tcplfit2_core` and `tcplhit2_core` functions sequentially. Using the functions sequentially allows users greater flexibility to examine the intermediate output. For example, the output from `tcplfit2_core` contains model parameters for all models fit to the provided concentration-response series. Furthermore, `tcplfit2_core` results may be passed to `plot_allcurves`, which generates a comparative plot of all curves fit to a concentration-response series (see [Plotting](#plotting) for further details).
 
-Here, data from a Tox21 high-throughput screening (HTS) assay measuring estrogen receptor (ER) agonist activity are examined. The data were processed with the ToxCast pipeline (`tcpl`), stored, and retrieved from the Level 3 (mc3) table in the `invitrodb` database. At Level 3, data have already undergone pre-processing steps (prior to `tcpl`), including transformation of response values (including zero centering) and concentration normalization. For this example, 6 out of the 100 available chemical samples (spids) from `mc3` are selected. [Concentration-response Modeling for tcpl-like data without a database connection](#ex3) highlights how to process from the original source data. 
+Here, data from a Tox21 high-throughput screening (HTS) assay measuring estrogen receptor (ER) agonist activity are examined. The data were processed with the ToxCast pipeline (`tcpl`), stored, and retrieved from the Level 3 (mc3) table in the `invitrodb` database. At Level 3, data have already undergone pre-processing steps (prior to `tcpl`), including transformation of response values (including zero centering) and concentration normalization. For this example, 6 out of the 100 available chemical samples (spids) from `mc3` are selected. [Concentration-Response Modeling for `tcpl`-like data without a database connection](#ex3) highlights how to process from the original source data. 
 
 The following code demonstrates how to set up the input data and execute curve fitting and hitcalling with the `tcplfit2_core` and `tcplhit2_core` functions, respectively.
 
@@ -258,7 +258,7 @@ htmlTable::htmlTable(result_table,
         css.cell =  ' padding-bottom: 5px;  vertical-align:top; padding-right: 10px;min-width: 5em ')
 ```
 
-One can also pass output from `tcplhit2_core` directly to `concRespPlot2` to plot the best model fit, as shown in [Concentration-Response Modeling for a Single Series with concRespCore](#ex1).
+One can also pass output from `tcplhit2_core` directly to `concRespPlot2` to plot the best model fit, as shown in [Concentration-Response Modeling for a Single Series with `concRespCore`](#ex1).
 
 *The hidden code below demonstrates modeling a single row/result and plotting the winning model with `concRespPlot2`, along with a minor customization using `ggplot2` layers.*
 
@@ -426,7 +426,7 @@ onesd <- sd(dat[cndx %in% c(1, 2) & wllt == "t", resp])
 
 ## - Dose-Response Curve Fitting
 
-Once the data adjustments and normalization steps are complete, model fitting and hitcalling can be done, similar to what was shown in [Concentration-response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2).  Dose-Response Curve Fitting corresponds to Level 4 in `tcpl`.  This is where `tcplfit2` is used to fit all available models within `tcpl`.
+Once the data adjustments and normalization steps are complete, model fitting and hitcalling can be done, similar to what was shown in [Concentration-Response Modeling for Multiple Series with `tcplfit2_core` and `tcplhit2_core`](#ex2).  Dose-Response Curve Fitting corresponds to Level 4 in `tcpl`.  This is where `tcplfit2` is used to fit all available models within `tcpl`.
 
 Here we set up a function for running our default model fitting approach and necessary arguments for our analysis.
 
@@ -731,7 +731,7 @@ htmlTable::htmlTable(head(res_wide),
 
 *Please note, hitcalling can also be done with the full data set, `dat`, but here we only demonstrate hitcalling with the example data subset model fitting was performed on in [Concentration-Response Modeling for `tcpl`-like data without a database connection](#ex3).*
 
-The resulting output from the previous code chunk is the same format as the `result_table` table in [Concentration-response Modeling for Multiple Series with tcplfit2_core and tcplhit2_core](#ex2). Thus, one can use the `concRespPlot2` function, as done previously to plot the results. The next code chunk demonstrates how to visualize the [Concentration-response Modeling for tcpl-like data](#ex3) fit results.
+The resulting output from the previous code chunk is the same format as the `result_table` table in [Concentration-Response Modeling for Multiple Series with `tcplfit2_core` and `tcplhit2_core`](#ex2). Thus, one can use the `concRespPlot2` function, as done previously to plot the results. The next code chunk demonstrates how to visualize the [Concentration-Response Modeling for `tcpl`-like data without a database connection](#ex3) fit results.
 
 ```{r example3_plot, fig.height = 8, fig.width = 7}
 # allocate a place-holder object
@@ -894,7 +894,7 @@ spid <- unique(mc3$spid)[26]
 ex_df <- mc3[is.element(mc3$spid,spid),]
 
 # The data file has stored concentration in log10 form, so fix that
-conc <- 10**ex_df$logc # back-transforming concentrations on log10 scale
+conc <- 10^ex_df$logc # back-transforming concentrations on log10 scale
 resp <- ex_df$resp
 
 # pull out all of the chemical identifiers and the name of the assay
@@ -1081,11 +1081,11 @@ legend(1e-3, 60, legend=c("Lowest Dose Tested", "Boundary Dose", "BMD-before", "
 
 # Plotting {#plotting}
 
-[Concentration-response Modeling for a Single Series with concRespCore](#ex1) and [for Multiple Series with `tcplfit2_core` and `tcplhit2_core`](#ex2) illustrated two plotting functions available in `tcplfit2` based on `ggplot2` plotting grammar. This section will show two other plotting options available in `tcplfit2`, which use base R plotting, namely the `do.plot` argument in `concRespCore` and the `concRespPlot` function.
+[Concentration-Response Modeling for a Single Series with `concRespCore`](#ex1) and [for Multiple Series with `tcplfit2_core` and `tcplhit2_core`](#ex2) illustrated two plotting functions available in `tcplfit2` based on `ggplot2` plotting grammar. This section will show two other plotting options available in `tcplfit2`, which use base R plotting, namely the `do.plot` argument in `concRespCore` and the `concRespPlot` function.
 
 For this section of the vignette, we use the `signature` dataset from `tcplfit2` to demonstrate the utility of the plotting functions, see [High-Throughput Transcriptomics Platform for Screening Environmental Chemicals](https://doi.org/10.1093/toxsci/kfab009) for further details.  The `signatures` dataset contains 6 transcriptional signatures for one chemical. Each row in the data is treated as a chemical-assay endpoint pair and provides the experimental concentration-response data, along with the cutoff and baseline standard deviation.
 
-## Ploting All Models with `concRespCore` and `concRespPlot`
+## Plotting All Models with `concRespCore` and `concRespPlot`
 
 The `concRespPlot` function and the `do.plot` argument in `concRespCore` provide plots similar to Figure 1 and 2, respectively. The `do.plot` argument returns a plot of all curve fits of a chemical, and `concRespCore` returns a plot of the winning curve with the hitcalling results.
 
@@ -1168,7 +1168,7 @@ grid.arrange(basic, basic_log)
 
 ## Plotting the Winning Model with `concRespPlot2`
 
-Most users utilizing the `tcplfit2` package are only interested in generating a plot displaying the observed concentration-response data with the winning curve. This can be achieved with the `concRespPlot2` function, which generates a basic plot with minimal information. `concRespPlot2` gives a slightly more aesthetic plot compared to the basic plotting functionality in `concRespPlot` by using the `ggplot2` package.  Minimalism in the resulting plot gives users the flexibility to include additional details they consider informative, while maintaining a clean visualization. More details on this is found in the [Customizing `plot_allcurves` and `concRespPlot2` Plots](#plot_custom) section. As with the `plot_allcurves` function, the `log_conc` argument is available to return a plot with concentrations on the $\mathbf{log_{10}}$ scale.
+Most users utilizing the `tcplfit2` package are only interested in generating a plot displaying the observed concentration-response data with the winning curve. This can be achieved with the `concRespPlot2` function, which generates a basic plot with minimal information. `concRespPlot2` gives a slightly more aesthetic plot compared to the basic plotting functionality in `concRespPlot` by using the `ggplot2` package.  Minimalism in the resulting plot gives users the flexibility to include additional details they consider informative, while maintaining a clean visualization. More details on this is found in the [Customizing `concRespPlot2` Plots](#plot_custom) section. As with the `plot_allcurves` function, the `log_conc` argument is available to return a plot with concentrations on the $\mathbf{log_{10}}$ scale.
 
 *The hidden code chunk below shows how to format data and obtain perform fitting and hitcalling with `concRespCore`.  We also refer readers to the [Concentration-Response Modeling for a Single Series with `concRespCore`](#ex1) section if they are interested in further details.*
 
@@ -1347,7 +1347,7 @@ row <- list(conc = conc,
 concRespCore(row, conthits = TRUE, AUC = TRUE)
 ```
 
-## AUC with `tcplfit2_core` and `tcplhit2_core`
+## Area Under the Curve (AUC) with `tcplfit2_core` and `tcplhit2_core`
 
 Let us consider the case where a users wants to run the `tcplfit2_core` and `tcplhit2_core` functions separately and now wants to obtain AUC estimates.  Here, and in the following sub-sections, we demonstrate estimating the AUC for this type of scenario.  We will consider obtaining the AUC values for individual models from the fit results, and AUC values only for the best fit (i.e. winning) model.  Furthermore, we will consider the following response cases in the following sub-sections:
 
@@ -1375,7 +1375,7 @@ grid.arrange(plot_allcurves(output_ex2, conc_ex2, resp_ex2),
              ncol = 2)
 ```
 
-***Figure 18:** This figure depicts all fit concentration-response curves. The models are polynomial 1 and 2, power, hill, gain-loss, and exponentials 2-5.*
+***Figure 18:** This figure depicts all fit concentration-response curves. The models are polynomial 1 and 2, power, Hill, gain-loss, and exponentials 2-5.*
 
 Let us first consider the case where only the AUC estimate for the winning model is desirable. For this scenario, we included the `post_hit_AUC` function, which is a wrapper function for `get_AUC`, within `tcplfit2`.  This function takes the `tcplhit2_core` output, in the data frame format with a single row containing the concentration-response data, the winning model name, winning model's optimized parameter values, and hitcalling results.  Internally, the wrapper function extracts information from the one-row data frame output and passes it to `get_AUC`, which calculates the AUC.
 
@@ -2154,7 +2154,7 @@ n_gt_cutoff
 : Number of data points above the cutoff
 
 p
-: Model fitting parameter in the following models: exp3, exp5, gnls, hill, pow
+: Model fitting parameter in the following models: exp3, exp5, gnls, Hill, pow
 
 q
 : Model fitting parameter in the gnls model
@@ -2172,4 +2172,4 @@ top
 : Response value at the maximal predicted change in response from baseline ($y = 0$)
 
 tp
-: Model fitting parameter in the following models: hill, gnls, exp4, exp5 - the horizontal asymptote that the predicted curve is approaching (theoretical maximum)
+: Model fitting parameter in the following models: Hill, gnls, exp4, exp5 - the horizontal asymptote that the predicted curve is approaching (theoretical maximum)
