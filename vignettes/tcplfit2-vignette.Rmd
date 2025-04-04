@@ -30,9 +30,9 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The package `tcplfit2` is used to perform basic concentration-response curve fitting. The original `tcplFit()` functions in the [ToxCast Data Analysis Pipeline (tcpl)](https://cran.R-project.org/package=tcpl) package performed basic concentration-response curve fitting to 3 models: Hill, gain-loss [a modified Hill], and constant. With `tcplfit2`, the concentration-response functionality of the package `tcpl` has been expanded and is being used to process high-throughput screening (HTS) data generated at the US Environmental Protection Agency, including targeted assay data in ToxCast, high-throughput transcriptomics (HTTr), and high-throughput phenotypic profiling (HTPP) screening results. The `tcpl` R package continues to be used to manage, curve-fit, plot, and populate its linked MySQL database, invitrodb. Processing with  `tcpl` version 3.0 and beyond depends on the stand-alone `tcplfit2` package to allow a wider variety of concentration-response models (when using invitrodb in the 4.0 schema and beyond).
+The package `tcplfit2` is used to perform basic concentration-response curve fitting. The original `tcplFit()` functions in the [ToxCast Data Analysis Pipeline (tcpl)](https://cran.R-project.org/package=tcpl) package performed basic concentration-response curve fitting to 3 models: Hill, gain-loss [a modified Hill], and constant. With `tcplfit2`, the concentration-response functionality of the package `tcpl` has been expanded and is being used to process high-throughput screening (HTS) data generated at the US Environmental Protection Agency, including targeted assay data in ToxCast, high-throughput transcriptomics (HTTr), and high-throughput phenotypic profiling (HTPP) screening results. The `tcpl` R package continues to be used to manage, curve fit, plot, and populate its linked MySQL database, invitrodb. Processing with  `tcpl` version 3.0 and beyond depends on the stand-alone `tcplfit2` package to allow a wider variety of concentration-response models (when using invitrodb in the 4.0 schema and beyond).
 
-The main set of extensions includes additional concentration-response models like those contained in the program [BMDExpress2](https://github.com/auerbachs/BMDExpress-2). These include exponential, polynomial (1 & 2), and power functions in addition to the original Hill, gain-loss and constant models. Similar to BMDExpress2, a defined benchmark response (BMR) level is used to estimate a benchmark dose (BMD), which is the concentration where the curve-fit intersects with this BMR threshold. One final addition was to let the hitcall value be a  number ranging from 0 to 1 (in contrast to binary hitcall values from `tcplFit()`). Continuous hitcall values in `tcplfit2` are defined as the product of three proportional weights testing the following: 1) the AIC of the winning model is better than the constant model (i.e. the winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff (i.e. outside the cutoff band in bidirectional modeling cases), and 3) the top from the winning model exceeds the cutoff (i.e. outside the cutoff band in bidirectional modeling cases). 
+The main set of extensions includes additional concentration-response models like those contained in the program [BMDExpress2](https://github.com/auerbachs/BMDExpress-2). These include exponential, polynomial (1 & 2), and power functions in addition to the original Hill, gain-loss and constant models. Similar to BMDExpress2, a defined benchmark response (BMR) level is used to estimate a benchmark dose (BMD), which is the concentration where the curve fit intersects with this BMR threshold. One final addition was to let the hitcall value be a  number ranging from 0 to 1 (in contrast to binary hitcall values from `tcplFit()`). Continuous hitcall values in `tcplfit2` are defined as the product of three proportional weights testing the following: 1) the AIC of the winning model is better than the constant model (i.e. the winning model is not fit to background noise), 2) at least one concentration has a median response that exceeds cutoff (i.e. outside the cutoff band in bidirectional modeling cases), and 3) the top from the winning model exceeds the cutoff (i.e. outside the cutoff band in bidirectional modeling cases). 
  
 Although developed primarily for bioactivity data curve fitting in the Center for Computational Toxicology and Exposure, the `tcplfit2` package is written to be generally applicable for the broader chemical-screening community and their standalone model-fitting applications.
 
@@ -469,7 +469,7 @@ Similar to the earlier example [Concentration-Response Modeling for Multiple Ser
 
 # Hitcalling{#hitcalling}
 
-After all models are fit to the data, `tcplhit2_core` is used to perform hitcalling, which  corresponds to Level 5 in `tcpl`. The continuous hitcall value (`hitc`) is the product of three proportional weights, and the resulting continuous value is between 0 and 1. The definition of each proportional weight is provided in the following subsections. For further details on the proportional weights not provided here we suggest the reader to see Sheffield et al., 2021 for more information on `tcplfit2` hit-calling.
+After all models are fit to the data, `tcplhit2_core` is used to perform hitcalling, which  corresponds to Level 5 in `tcpl`. The continuous hitcall value (`hitc`) is the product of three proportional weights, and the resulting continuous value is between 0 and 1. The definition of each proportional weight is provided in the following subsections. For further details on the proportional weights not provided here we suggest the reader to see Sheffield et al., 2021 for more information on `tcplfit2` hitcalling.
 
 ## - $p_1$: AIC Weight
 
@@ -1131,7 +1131,7 @@ for(i in 1:nrow(res)){
 }
 ```
 
-***Figure 11:** Each figure shows curve-fitting results for a set of responses in the `signatures` data. Each plot title contains the chemical name and assay ID. Additionally, summary statistics from the curve-fitting results – including the winning model, AC50, top, BMD, ACC, and hitcall – are displayed at the top of the plot. The black dots represent the observed responses, and the winning model fit is displayed as a solid black curve. The estimated BMD is displayed with a solid green vertical line, and the confidence interval around the BMD is represented with solid green lines bounding the green shaded region (i.e., lower and upper BMD confidence limits - BMDL and BMDU, respectively). The black horizontal lines bounding the grey shaded region indicate the estimated baseline noise (per the user defined cutoff band) and is centered around the x-axis (i.e. y = 0).*
+***Figure 11:** Each figure shows curve fitting results for a set of responses in the `signatures` data. Each plot title contains the chemical name and assay ID. Additionally, summary statistics from the curve fitting results – including the winning model, AC50, top, BMD, ACC, and hitcall – are displayed at the top of the plot. The black dots represent the observed responses, and the winning model fit is displayed as a solid black curve. The estimated BMD is displayed with a solid green vertical line, and the confidence interval around the BMD is represented with solid green lines bounding the green shaded region (i.e., lower and upper BMD confidence limits - BMDL and BMDU, respectively). The black horizontal lines bounding the grey shaded region indicate the estimated baseline noise (per the user defined cutoff band) and is centered around the x-axis (i.e. y = 0).*
 
 ## Plotting All Models with `tcplfit2_core` Output
 
@@ -1188,7 +1188,7 @@ out <-  concRespCore(row,conthits=F)
 out
 ```
 
-The following code demonstrates utilizing the curve-fit and hitcalling results from `concRespCore` with the `concRespPlot2` function to visualize the winning model fit:
+The following code demonstrates utilizing the curve fit and hitcalling results from `concRespCore` with the `concRespPlot2` function to visualize the winning model fit:
 
 ```{r class.source="fold-show"}
 # pass the output to the plotting function
@@ -1448,7 +1448,7 @@ data.frame(mylist,row.names = "AUC")
 
 Next, let us consider a negative curve fit case -- (i.e. monotonic decreasing response about the x-axis). Here, we use example data from the `signatures` dataset. 
 
-*The hidden code chunk below shows the data set-up, curve-fitting, and plotting code for our negative curve fit example.*
+*The hidden code chunk below shows the data set-up, curve fitting, and plotting code for our negative curve fit example.*
 
 ```{r ex3_AUC, fig.height = 4.55, fig.width = 8}
 # use row 5 in the data
@@ -2109,16 +2109,16 @@ bmed
 : Baseline median response. If set to zero then the data are already zero-centered. Otherwise, this value is used to zero-center the data by shifting the entire response series by the specified amount.
 
 bmd
-: Benchmark Dose, activity concentration observed at the Benchmark Response (BMR) level
+: Benchmark dose, activity concentration observed at the benchmark response (BMR) level
 
 bmdl
-:  Benchmark Dose lower confidence limit. Derived using a 90% confidence interval around the BMD to reflect the uncertainty
+:  Benchmark dose lower confidence limit. Derived using a 90% confidence interval around the BMD to reflect the uncertainty
 
 bmdu
-: Benchmark Dose upper confidence limit. Derived using a 90% confidence interval around the BMD to reflect the uncertainty
+: Benchmark dose upper confidence limit. Derived using a 90% confidence interval around the BMD to reflect the uncertainty
 
 bmr
-: Benchmark Response. Response level at which the BMD is calculated as $BMR = {\text{onesd}}\times{\text{bmr_scale}}$, where the default `bmr_scale` is 1.349
+: Benchmark response. Response level at which the BMD is calculated as $BMR = {\text{onesd}}\times{\text{bmr_scale}}$, where the default `bmr_scale` is 1.349
 
 caikwt
 : Akaike weight of the constant model relative to the winning model, calculated as $\frac{exp(0.5*AIC_{constant})}{exp(0.5*AIC_{constant})+exp(0.5*AIC_{winning})}$. Used in calculating the continuous hitcall.
@@ -2139,10 +2139,10 @@ ga
 : AC50 for the rising curve in a Hill model or the gnls model
 
 hitc or hitcall
-: Continuous hit call value ranging from 0 to 1
+: Continuous hitcall value ranging from 0 to 1
 
 mll
-: Maximum log-likelihood of winning model. Used in calculating the continuous hit call  $length(modpars) - aic(fit_{method})/2$
+: Maximum log-likelihood of winning model. Used in calculating the continuous hitcall  $length(modpars) - aic(fit_{method})/2$
 
 la
 : AC50 for the falling curve in a gain-loss model
