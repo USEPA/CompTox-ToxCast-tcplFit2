@@ -84,10 +84,10 @@ The `row` object may include other elements providing meta-data/annotations to b
 A user may also need to include other arguments in the `concRespCore` function, which internally control the execution of curve fitting, hitcalling, and potency estimation:
 
 - `conthits` - Logical argument. If `TRUE` (the default, and recommended usage), the hitcall returned will be a  value between 0 and 1.
-- `errfun` - Allows a user to specify the assumed distribution of errors. The default is "dt4", indicating models are fit assuming the errors follow a Student's t-distribution with 4 degrees of freedom. Alternatively, one may assume the errors are normally distributed by changing it to "dnorm".
+- `errfun` - Allows a user to specify the assumed distribution of errors. The default is "dt4", indicating models are fit assuming the errors follow a Student's t-distribution with 4 degrees of freedom. This error distribution has wider tails that diminish the influence of outlier values to produce a more robust estimate. Alternatively, one may assume the errors are normally distributed by changing it to "dnorm".
 - `poly2.biphasic` - Logical argument. If `TRUE` (the default, and recommended usage), the polynomial 2 model will allow a biphasic curve to be fit to the response (i.e. increase then decrease or vice versa). However, one may force monotonic fitting with `FALSE` (i.e. a parabola where the  vertex is not in the tested concentration range -- specifically the vertex will be somwhere less than 0).
 - `do.plot` - Logical argument. If `TRUE` (the default is `FALSE`), a plot of all fitted curves will be generated. Note, an alternative to this plotting functionality is provided by another plotting function in this package, namely `plot_allcurves` (see [Plotting](#plotting) for further details).
-- `fitmodels` - a character vector indicating which models to fit the concentration-response data with. If the `fitmodels` parameter is specified, the constant model (`cnst`) model must be included since it is used for comparison in the hitcalling process. However, any other model may be omitted by the user, for example the gain-loss (`gnls`) model is excluded in some applications.
+- `fitmodels` - a character vector indicating which models to fit the concentration-response data with. If the `fitmodels` parameter is specified, the constant model (`cnst`) model must be included because it is used for comparison in the hitcalling process. However, any other model may be omitted by the user, for example the gain-loss (`gnls`) model is excluded in some applications.
 
 For a full list of potential arguments, refer to the function documentation (`?concRespCore`).
 
@@ -135,12 +135,19 @@ Here, data from a Tox21 high-throughput screening (HTS) assay measuring estrogen
 
 The following code demonstrates how to set up the input data and execute curve fitting and hitcalling with the `tcplfit2_core` and `tcplhit2_core` functions, respectively.
 
-```{r example2,class.source="fold-show",class.source="scroll-100",warning=FALSE}
+```{r example2,class.source="fold-show",warning=FALSE}
 # read in the data
 # Loading in the level 3 example data set from invitrodb stored in tcplfit2
   data("mc3")
 
 # view the first 6 rows of the mc3 data
+# dtxsid = unique chemical identifier from EPA's DSSTox Database 
+# casrn = unique chemical identifier from Chemical Abstracts Service 
+# name = chemical name 
+# spid = sample id 
+# logc = log 10 concentration value 
+# resp = response 
+# assay = assay name 
   head(mc3)
 
 # estimate the background variability
@@ -167,7 +174,7 @@ The following code demonstrates how to set up the input data and execute curve f
     temp <- mc3[is.element(mc3$spid,spid),]
 
     # The data file stores concentrations in log10 units, so back-transform to "raw scale"
-    conc <- 10**temp$logc
+    conc <- 10^temp$logc
     # Save the response values
     resp <- temp$resp
 
@@ -248,7 +255,7 @@ grid.arrange(grobs=plt_lst,ncol=2)
 
 ***Figure 2:** Example plots generated from `plot_allcurves`. Each plot depicts all model fits for a given sample (i.e. concentration-response series). In the plots, observed values are represented by the open circles and each model fit to the data is represented with a different color and line type.  Concentrations (x-axis) are displayed in $\mathbf{log_{10}}$ units.*
 
-When running the fitting and hitcalling functions sequentially, one can save the resulting rows from `tcplhit2_core` in a data frame structure and export it for further analysis (e.g. in the above code all results are saved to the `result_table` object).
+When running the fitting and hitcalling functions sequentially, one can save the resulting rows from `tcplhit2_core` in a data frame structure and export it for further analysis (e.g. in the above code, all results are saved to the `result_table` object). The `result_table` is shown below. 
 
 ```{r echo=FALSE}
 htmlTable::htmlTable(result_table,
@@ -319,7 +326,7 @@ htmlTable::htmlTable(head(dat[wllt=='t',]),
 
 The first step is to establish the concentration index, and corresponds to Level 1 in `tcpl`. Concentration indices are integer values ranking $N$ distinct concentrations from 1 to $N$, which correspond to the lowest and highest concentration groups, respectively. This index can be used to calculate the baseline median absolute deviation (BMAD) for an assay.
 
-*The hidden code chunk below demonstrates how to obtain and assign the concentration indices.*
+*The hidden code chunk below demonstrates how to obtain and assign the concentration indices using the `data.table` package.*
 
 ```{r example3_cndx, class.source="scroll-100", fig.height = 6, fig.width = 7, warning=FALSE}
 # Order by the following columns
@@ -328,8 +335,9 @@ setkeyv(dat, c('acid', 'srcf', 'apid', 'coli', 'rowi', 'spid', 'conc'))
 # Define a temporary replicate ID (rpid) column for test compound wells
 # rpid consists of the sample ID, well type (wllt), source file, assay plate ID, and 
 # concentration.
+# the := operator is a data.table function to add/update rows 
 nconc <- dat[wllt == "t" , ## denotes test well as the well type (wllt)
-             list(n = lu(conc)), #total number of unique concentrations
+             list(n = lu(conc)), # total number of unique concentrations
              by = list(acid, apid, spid)][ , list(nconc = min(n)), by = acid]
 dat[wllt == "t" & acid %in% nconc[nconc > 1, acid],
     rpid := paste(acid, spid, wllt, srcf, apid, "rep1", conc, sep = "_")]
@@ -349,7 +357,6 @@ dat[, rpid := paste0(rpid,"_rep",dat_rpid)]
 # For each replicate, define concentration index
 # by ranking the unique concentrations
 indexfunc <- function(x) as.integer(rank(unique(x))[match(x, unique(x))])
-# the := operator is a data.table function to add/update rows
 dat[ , cndx := indexfunc(conc), by = list(rpid)]
 ```
 
@@ -758,7 +765,7 @@ First, consider a situation when the estimated BMD is less than the lowest teste
 
 In the following code chunk, we use the `mc3` dataset with some minor modifications to demonstrate this case. Here, we take one of the concentration-response series and remove dose groups less than $0.41$. Removing the lower dose groups simulates the scenario where there is a lack of data in the low-dose region and causes the BMD estimate to be less than the lowest concentration remaining in the data.
 
-```{r ex4_lower,class.source="scroll-100",warning=FALSE}
+```{r ex4_lower,warning=FALSE}
 # We'll use data from mc3 in this section
 data("mc3")
 
@@ -829,7 +836,7 @@ Suppose the BMD should be no lower than 80% of the lowest tested concentration, 
 # using the argument to set a lower bound for BMD
 res_low2 <- concRespCore(row_low,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                            "pow", "exp2", "exp3", "exp4", "exp5"), 
-                         conthits = T, aicc = F, bidirectional=F, bmd_low_bnd = 0.8)
+                         bidirectional=F, bmd_low_bnd = 0.8)
 ```
 
 If the estimated BMD is less than the computed boundary (like in this example), it will be "bounded" to the threshold set in `bmd_low_bnd`. Similarly, the confidence interval will also be shifted right by a distance equal to the difference between the estimated BMD and the computed boundary. The following data table provides the numerical adjustments after bounding is applied based on the lower bound threshold
@@ -852,9 +859,9 @@ DT::datatable(output_low,rownames = FALSE)
 Below provides a visual representation of the before and after applying lower boundary BMD bounding.
 
 ```{r ex4_lower-plot-bnd, class.source="scroll-100"}
-# generate some concentration for the fitted curve 
+# generate some concentrations for the fitted curve 
 logc_plot <- seq(from=-3,to=2,by=0.05)
-conc_plot <- 10**logc_plot
+conc_plot <- 10^logc_plot
 
 # initiate the plot
 plot(conc2,resp2,xlab="conc (uM)",ylab="Response",xlim=c(0.001,100),ylim=c(-5,60),
@@ -888,7 +895,7 @@ Next, let us consider a situation where the estimated BMD is much larger than th
 
 In the following code chunk, we use an example from the `mc3` dataset to demonstrate this case.
 
-```{r ex5_upper,class.source="scroll-100",warning=FALSE}
+```{r ex5_upper,warning=FALSE}
 # load example data
 spid <- unique(mc3$spid)[26]
 ex_df <- mc3[is.element(mc3$spid,spid),]
@@ -910,7 +917,7 @@ row_up <- list(conc = conc, resp = resp, bmed = 0, cutoff = cutoff, onesd = ones
 # run the concentration-response modeling for a single sample
 res_up <- concRespCore(row_up,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                          "pow", "exp2", "exp3", "exp4", "exp5"), 
-                       conthits = T, aicc = F, bidirectional=F)
+                       bidirectional=F)
 # plotting the results
 max_conc <- max(conc)
 concRespPlot2(res_up, log_conc = T) + 
@@ -944,7 +951,7 @@ Suppose it is desired that the estimated BMD not be larger than 2 times the maxi
 # using bmd_up_bnd = 2
 res_up2 <- concRespCore(row_up,fitmodels = c("cnst", "hill", "gnls", "poly1", "poly2", 
                                           "pow", "exp2", "exp3", "exp4", "exp5"), 
-                        conthits = T, aicc = F, bidirectional=F, bmd_up_bnd = 2)
+                        bidirectional=F, bmd_up_bnd = 2)
 ```
 
 Similar to the `bmd_low_bnd` bounding approach, if the estimated BMD is greater than the computed boundary (like in this example), it will be "bounded" to the threshold set in `bmd_up_bnd`. As before, the confidence interval will also be shifted to the left by a distance equal to the difference between the estimated BMD and the computed boundary.  The following data table provides the numerical adjustments after bounding is applied based on the upper bound threshold.
@@ -969,7 +976,7 @@ Below provides a visual representation of the before and after applying the uppe
 ```{r ex5_upper-bnd-plot, class.source="scroll-100"}
 # generate some concentration for the fitting curve 
 logc_plot <- seq(from=-3,to=2,by=0.05)
-conc_plot <- 10**logc_plot
+conc_plot <- 10^logc_plot
 
 # initiate plot
 plot(conc,resp,xlab="conc (uM)",ylab="Response",xlim=c(0.001,500),ylim=c(-5,150),
@@ -1135,7 +1142,7 @@ for(i in 1:nrow(res)){
 
 ## Plotting All Models with `tcplfit2_core` Output
 
-While most users prefer to fit and hitcall all of their data in one step with `concRespCore`, some users (as mentioned in earlier sections) may prefer perform curve fitting with `tcplfit2_core`, then perform hitcalling with `tcplhit2_core`.  In this case, users may want to examine and compare each of the resulting concentration-response fits from all models included in the fitting step. The `plot_allcurves` function enables users to automatically generate this visualization with the output from the `tcplfit2_core` function. *Note, to utilize `plot_allcurves`, `tcplfit2_core` must be run separately to obtain the necessary input.* The resulting figure allows one to evaluate general behaviors and qualities of the resulting curve fits. Furthermore, some curves may fail to fit the observed data.  In these cases, failed models are excluded from the plot, and a warning message is provided, such that the user will know which models reasonably describe the data. Lastly, if a user wants to visualize their data with the concentrations on the $\mathbf{log_{10}}$ scale they can set the `log_conc` argument to `TRUE`.  
+While most users prefer to fit and hitcall all of their data in one step with `concRespCore`, some users (as mentioned in earlier sections) may prefer to perform curve fitting with `tcplfit2_core` and then hitcalling with `tcplhit2_core`.  In this case, users may want to examine and compare each of the resulting concentration-response fits from all models included in the fitting step. The `plot_allcurves` function enables users to automatically generate this visualization with the output from the `tcplfit2_core` function. *Note, to utilize `plot_allcurves`, `tcplfit2_core` must be run separately to obtain the necessary input.* The resulting figure allows one to evaluate general behaviors and qualities of the resulting curve fits. Furthermore, some curves may fail to fit the observed data.  In these cases, failed models are excluded from the plot, and a warning message is provided, such that the user will know which models reasonably describe the data. Lastly, if a user wants to visualize their data with the concentrations on the $\mathbf{log_{10}}$ scale, they can set the `log_conc` argument to `TRUE`.  
 
 *The hidden code chunk below shows how to load the data and obtain the curve fitting results with `tcplfit2_core`.  We also refer readers to the [Concentration-Response Modeling for Multiple Series with `tcplfit2_core` and `tcplhit2_core`](#ex2) section if they are interested in further details.*
 
@@ -1170,7 +1177,7 @@ grid.arrange(basic, basic_log)
 
 Most users utilizing the `tcplfit2` package are only interested in generating a plot displaying the observed concentration-response data with the winning curve. This can be achieved with the `concRespPlot2` function, which generates a basic plot with minimal information. `concRespPlot2` gives a slightly more aesthetic plot compared to the basic plotting functionality in `concRespPlot` by using the `ggplot2` package.  Minimalism in the resulting plot gives users the flexibility to include additional details they consider informative, while maintaining a clean visualization. More details on this is found in the [Customizing `concRespPlot2` Plots](#plot_custom) section. As with the `plot_allcurves` function, the `log_conc` argument is available to return a plot with concentrations on the $\mathbf{log_{10}}$ scale.
 
-*The hidden code chunk below shows how to format data and obtain perform fitting and hitcalling with `concRespCore`.  We also refer readers to the [Concentration-Response Modeling for a Single Series with `concRespCore`](#ex1) section if they are interested in further details.*
+*The hidden code chunk below shows how to format data and perform curve fitting and hitcalling with `concRespCore`.  We also refer readers to the [Concentration-Response Modeling for a Single Series with `concRespCore`](#ex1) section if they are interested in further details.*
 
 ```{r}
 # prepare the 'row' object for concRespCore
@@ -1204,7 +1211,7 @@ grid.arrange(basic_plot, basic_log)
 
 ## Customizing `concRespPlot2` Plots{#plot_custom}
 
-Users may want to generate a polished figure to include in a report or publication. However, the basic plot from `concRespPlot2` may not include enough context or information to be included as part of a report or publication. Thus, this section introduces a few simple modifications one can use to customize the basic plot returned by `concRespPlot2` to provide additional information.  Since `concRespPlot2` returns a `ggplot2` object, additional details can be included with `ggplot2` layers. `ggplot2` layers can be added directly to the base plot with a `+` operator.
+Users may want to generate a polished figure to include in a report or publication. However, the basic plot from `concRespPlot2` may not include enough context or information to be included as part of a report or publication. Thus, this section introduces a few simple modifications one can use to customize the basic plot returned by `concRespPlot2` to provide additional information. Because `concRespPlot2` returns a `ggplot2` object, additional details can be included with `ggplot2` layers. `ggplot2` layers can be added directly to the base plot with a `+` operator.
 
 Customizations one may want to include are:
 
@@ -1221,7 +1228,7 @@ Each of the following sub-sections explores the aforementioned customizations, b
 
 ### - Adding a Plot Title, Shade Cutoff Band, and Potency Estimates
 
-The first customization one would likely want to include on the basic plot from `concRespPlot2` would be a title with necessary chemical and response (i.e. assay endpoint) information.  Furthermore, since the estimated benchmark dose (BMD) (i.e. potency) is likely of interest for the applicable report/manuscript that the figure will be included in, then adding guidelines for the benchmark response (BMR) and BMD, as well as a shaded region representing the cutoff band (for reference) may be useful.
+The first customization one may want to include on the basic plot from `concRespPlot2` is a title with necessary chemical and response (i.e. assay endpoint) information.  Furthermore, because the estimated benchmark dose (BMD) (i.e. potency) is likely of interest for the applicable report/manuscript, then adding guidelines for the benchmark response (BMR) and BMD, as well as a shaded region representing the cutoff band (for reference) may be useful.
 
 *The hidden code chunk below adds a plot title, shades a region signifying the cutoff band, and highlights the specified adverse response level (BMR) with a horizontal blue line along with the potency estimate (BMD) represented by the vertical blue segment and red point.*
 
@@ -1255,7 +1262,7 @@ basic_plot +
 
 ### - Label All Potency Estimates 
 
-The `concRespCore`, and `tcplfit2_core` functions return several potency estimates in addition to the BMD (displayed in Figure 3), e.g. AC50, ACC, etc. Thus, it may be desirable to users to include and compare several of the resulting potency estimates on the same plot.
+The `concRespCore` and `tcplfit2_core` functions return several potency estimates in addition to the BMD (displayed in Figure 3), e.g. AC50, ACC, etc. Thus, it may be desirable to users to include and compare several of the resulting potency estimates on the same plot.
 
 *The hidden code chunk below demonstrates how to add all available potency estimates to the base plot.*
 
@@ -1295,9 +1302,9 @@ basic_log + geom_point(
 
 ### - Add Additional Curves
 
-Some users may want to compare one or more curve fits, which represent either various compounds, experimental scenarios, technologies, etc.  For, this example the flexibility of `ggplot2` accommodates a user's unique plotting needs. This sub-section provides example code a user may modify to add another curve, and may be generalized to add more than one curve.
+Some users may want to compare one or more curve fits, which represent either various compounds, experimental scenarios, technologies, etc.  For this example, the flexibility of `ggplot2` accommodates a user's unique plotting needs. This sub-section provides example code that a user may modify to add another curve, and may be generalized to add more than one curve.
 
-It is necessary the user first knows the models to be displayed on the plot and corresponding parameter estimates (i.e. must have all the fitting and hitcalling output prior to plotting), such that they can then generate smooth curves by predicting the responses for a series of points within the concentration range. The output for applicable curves (i.e. concentration points and predicted response for the smooth curve) can then be added to the basic plot.  Here, the smooth curves are generated using a series of one hundred points within the experimental concentration range, but a the curve resolution may be changed based on the number of points included in the concentration series (i.e. more points will result in higher resolution).
+It is necessary the user first knows the models to be displayed on the plot and corresponding parameter estimates (i.e. must have all the fitting and hitcalling output prior to plotting), such that they can then generate smooth curves by predicting the responses for a series of points within the concentration range. The output for applicable curves (i.e. concentration points and predicted response for the smooth curve) can then be added to the basic plot.  Here, the smooth curves are generated using a series of one hundred points within the experimental concentration range, but the curve resolution may be changed based on the number of points included in the concentration series (i.e. more points will result in higher resolution).
 
 *The hidden code chunk below demonstrates how to predict the responses for another curve and generate a smooth curve fit to be added to the basic plot. Additionally, we have included details for labeling the two curve fits plotted together.*
 
@@ -1419,10 +1426,10 @@ polygon(c(conc_ex2, max(conc_ex2)), c(pred_resp, min(pred_resp)), col=rgb(1,0,0,
 
 ***Figure 19:** The red shaded region is the area under the Hill curve fit. The AUC estimated with `get_AUC` is `r round(estimated_auc1,5)`. This estimate seems to align with the area of the shaded region. *
 
-Since the winning model in this example is the Hill model, if we compare the AUC from the two previous approaches the AUC values are identical -- i.e. `post_hit_AUC`: `r round(post_hit_AUC(out),5)`, `get_AUC`: `r round(estimated_auc1,5)`.
+Because the winning model in this example is the Hill model, if we compare the AUC from the two previous approaches the AUC values are identical -- i.e. `post_hit_AUC`: `r round(post_hit_AUC(out),5)`, `get_AUC`: `r round(estimated_auc1,5)`.
 
 
-As mentioned earlier, since `get_AUC` is the most granular of the AUC estimation functions and most flexible we can use this function to estimate the AUC for all models, excluding the constant model, fit to a concentration-response series.
+As mentioned earlier, because `get_AUC` is the most granular of the AUC estimation functions and most flexible we can use this function to estimate the AUC for all models, excluding the constant model, fit to a concentration-response series.
 
 *The hidden code chunk below demonstrates how to apply the `get_AUC` function across all models included in the `tcplfit2_core` output.*
 
@@ -1499,7 +1506,7 @@ get_AUC(fit_method, min(conc), max(conc), modpars, return.abs = TRUE)
 
 Finally, let us consider a bi-phasic curve fit case -- (i.e. response increases then decreases, or vice versa, and typically crosses the x-axis somewhere in the experimental concentration range).
 
-Currently, only the polynomial 2 model in `tcplfit2` is capable of fitting a bi-phasic response. Since curve fits (as implemented in the `tcplfit2` package) are bounded such that the baseline response is always assumed to be 0, there is typically some response above the x-axis and some below. This section demonstrates the AUC estimation for a simulated bi-phasic curve, with area under the curve both below and above the x-axis, for such events. 
+Currently, only the polynomial 2 model in `tcplfit2` is capable of fitting a bi-phasic response. Because curve fits (as implemented in the `tcplfit2` package) are bounded such that the baseline response is always assumed to be 0, there is typically some response above the x-axis and some below. This section demonstrates the AUC estimation for a simulated bi-phasic curve, with area under the curve both below and above the x-axis, for such events. 
 
 The polynomial 2 model in `tcplfit2` is implemented as $a*(\frac{x}{b} + \frac{x^2}{b^2})$. Here, we simulate a bi-phasic curve, where $a = 2.41$ and $b = (-1.86)$, which can also be represented in the typical form as $\frac{1}{4} x^2 - \frac{1}{2}x$.
 
@@ -1524,7 +1531,7 @@ abline(h = 0)
 
 ***Figure 22:** This plot illustrates the simulated bi-phasic polynomial 2 curve. The curve initially decreases, then increases and crosses the x-axis.*
 
-Since, the simulated parameters are know for this example we can merely utilize this information directly in the `get_AUC` function. *However, one could also add noise to the simulate curve and go through the typical curve fitting process outlined in earlier sections -- we will leave exercise to users if they so desire.*
+Because the simulated parameters are known for this example, we can utilize this information directly in the `get_AUC` function. *However, one could also add noise to the simulated curve and go through the typical curve fitting process outlined in earlier sections -- we will leave it as an exercise to the users if they desire.*
 
 ```{r ex4_AUC-cont,class.source="fold-show"}
 # get AUC for the simulated Polynomial 2 curve 
@@ -1643,7 +1650,7 @@ poly2_plot2 <- ggplot(fits_poly, aes(ex_conc)) +
 grid.arrange(poly2_plot1, poly2_plot2, ncol = 2)
 ```
 
-***Figure 25:** The left plot illustrates how changing the `a` (y-scalar) affects the shape of the resulting polynomial 2 curves while holding `b` constant ($b = 2$). The right plot illustrates how changing `b` (x-scalar) affects the shape of the resulting polynomial 2 curves while holding `a` constant ($a = 4$).*
+***Figure 25:** The left plot illustrates how changing `a` (y-scalar) affects the shape of the resulting polynomial 2 curves while holding `b` constant ($b = 2$). The right plot illustrates how changing `b` (x-scalar) affects the shape of the resulting polynomial 2 curves while holding `a` constant ($a = 4$).*
 
 It should be noted, the quadratic model may be optimized either allowing for the possibility of bi-phasic responses in the concentration/dose range (`poly2.biphasic=TRUE` argument in `tcplfit2_core`, default) or assuming the response is monotonic (`poly2.biphasic=FALSE`). When bi-phasic modeling is enabled, the polynomial 2 model is optimized using the typical quadratic function then parameters are converted to the x- and y-scalar parameterization.
 
@@ -1770,7 +1777,7 @@ hill_plot3 <- ggplot(fits_hill, aes(log10(ex_conc))) +
 grid.arrange(hill_plot1, hill_plot2, hill_plot3, ncol = 2, nrow = 2)
 ```
 
-***Figure 27:** The top left plot illustrates how changing `tp` (maximal change in response) affects the shape of the resulting Hill curves while holding all other parameters constant ($ga = 5, p = 1.76$). The top right plot illustrates how changing `ga` (slope) affects the shape of the resulting Hill curves while holding all other parameters constant ($tp = 120, p = 1.76$). The bottom left plot illustrates how changing `p` (power) affects the shape of the resulting Hill curves while holding all other parameters constant ($tp = 120, ga = 5$). Note: The x-axes are in the $\mathbf{log_{10}}$ scale to reflect the scale the model is optimized in, i.e. log Hill model $f(x) = \frac{tp}{1 + 10^{(p*(ga-x))}}$.*
+***Figure 27:** The top left plot illustrates how changing `tp` (maximal theoretical change in response) affects the shape of the resulting Hill curves while holding all other parameters constant ($ga = 5, p = 1.76$). The top right plot illustrates how changing `ga` (slope) affects the shape of the resulting Hill curves while holding all other parameters constant ($tp = 120, p = 1.76$). The bottom left plot illustrates how changing `p` (power) affects the shape of the resulting Hill curves while holding all other parameters constant ($tp = 120, ga = 5$). Note: The x-axes are in the $\mathbf{log_{10}}$ scale to reflect the scale the model is optimized in, i.e. log Hill model $f(x) = \frac{tp}{1 + 10^{(p*(ga-x))}}$.*
 
 ## Gain-Loss (gnls){#gnls}
 
