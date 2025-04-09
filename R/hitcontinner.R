@@ -20,6 +20,7 @@
 #'   supported distribution is "dnorm", the normal distribution.
 #' @param poly2.biphasic Which fitting method to use for poly2. If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 #'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
+#' @param verbose If verbose = TRUE, will print status of empirical calculations.
 #'
 #' @importFrom stats pt
 #' @importFrom stats aggregate
@@ -40,7 +41,7 @@
 #' hitcontinner(conc,resp,top,cutoff = 0.8, er,ps,fit_method, caikwt, mll)
 #' hitcontinner(conc,resp,top,cutoff = 1, er,ps,fit_method, caikwt, mll)
 #' hitcontinner(conc,resp,top,cutoff = 1.2, er,ps,fit_method, caikwt, mll)
-hitcontinner = function(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll, errfun = "dt4", poly2.biphasic = TRUE){
+hitcontinner = function(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll, errfun = "dt4", poly2.biphasic = TRUE, verbose = FALSE){
 
   #Each P represents the odds of the curve being a hit according to different criteria; multiply all Ps to get hit odds overall
   if(fit_method == "none") return(0)
@@ -66,7 +67,7 @@ hitcontinner = function(conc, resp, top, cutoff, er, ps, fit_method, caikwt, mll
   # P3 = pnorm((top-cutoff)/topsd) #odds of top above cutoff
   #assume ps may have nas in them
   ps = ps[!is.na(ps)]
-  P3 = toplikelihood(fname, cutoff, conc, resp, ps, top, mll, errfun = errfun, poly2.biphasic = poly2.biphasic) #odds of top above cutoff
+  P3 = toplikelihood(fname, cutoff, conc, resp, ps, top, mll, errfun = errfun, poly2.biphasic = poly2.biphasic, verbose = verbose) #odds of top above cutoff
 
   #multiply three probabilities
   return(P1*P2*P3)
