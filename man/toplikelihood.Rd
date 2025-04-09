@@ -13,7 +13,8 @@ toplikelihood(
   top,
   mll,
   errfun = "dt4",
-  poly2.biphasic = TRUE
+  poly2.biphasic = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -38,18 +39,20 @@ supported distribution is "dnorm", the normal distribution.}
 
 \item{poly2.biphasic}{Which fitting method to use for poly2. If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)}
+
+\item{verbose}{If verbose = TRUE, will print status of empirical calculations.}
 }
 \value{
 Probability of top being outside the cutoff band.
 }
 \description{
-Probability of top (maximal change in response from response) being outside the cutoff band.
+Probability of top (maximal change in response from baseline) being outside the cutoff band.
 }
 \details{
 Should only be called by hitcontinner. Uses profile likelihood, similar
 to bmdbounds. Here, the y-scale type parameter is substituted in such a
 way that the top equals the cutoff. Then the log-likelihood is compared to
-the maximum log-likelihood using chisq function to retrieve probability.
+the maximum log-likelihood using pchisq function to retrieve probability.
 }
 \examples{
 fname = "hillfn"
