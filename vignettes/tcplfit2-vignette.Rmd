@@ -145,7 +145,7 @@ The following code demonstrates how to set up the input data and execute curve f
 # casrn = unique chemical identifier from Chemical Abstracts Service 
 # name = chemical name 
 # spid = sample id 
-# logc = log 10 concentration value 
+# logc = log_10 concentration value 
 # resp = response 
 # assay = assay name 
   head(mc3)
