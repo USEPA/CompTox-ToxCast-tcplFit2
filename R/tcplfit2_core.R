@@ -12,7 +12,7 @@
 #'   force.fit = FALSE, will only fit constant model.
 #' @param force.fit If force.fit = TRUE, will fit all models regardless of cutoff.
 #' @param bidirectional If bidirectional = FALSE, will only give positive fits.
-#' @param verbose If verbose = TRUE, will print optimization details, aics, and status of empirical calculations.
+#' @param verbose If verbose = TRUE, will print optimization details, aics, and status of empirical calculations. (Defaults to FALSE.)
 #' @param do.plot If do.plot = TRUE, will generate a plot comparing model curves.
 #' @param fitmodels Vector of model names to try fitting. Missing models still
 #'   return a skeleton output filled with NAs.
@@ -99,10 +99,10 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
         modpars <- get(model)[get(model)$pars] #model parameters
         if (!model %in% c("cnst","gnls")) {
           if (model == "hill") {
-            top <- calcempirical(conc, unlist(modpars), "hillfn")[["top"]]
+            top <- calcempirical_top(conc, unlist(modpars), "hillfn")[["top"]]
             assign(model, append(get(model), list(top = top)))
           } else{
-            top <- calcempirical(conc, unlist(modpars), model)[["top"]]
+            top <- calcempirical_top(conc, unlist(modpars), model)[["top"]]
             assign(model, append(get(model), list(top = top)))
           }
           assign(model, append(get(model), list(ac50 = acy(.5 * get(model)$top, get(model), type = model))))
@@ -113,7 +113,7 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
           x_top = acy(y = top, modpars = get(model), type = model, verbose = verbose)
           if (x_top > max(conc) | x_top < min(conc) | is.na(x_top)){  # x_top outside tested concentration range or is NA, assign empirical top
             if (verbose) warning("NA returned for x_top or x_top outside tested concentration, finding empirical top\n")
-            top <- calcempirical(conc, unlist(modpars), model)[["top"]]
+            top <- calcempirical_top(conc, unlist(modpars), model)[["top"]]
             assign(model, append(get(model), list(top = top)))
           } else { # x_top within tested conc range and is not NA, assign top found with derivative
             assign(model, append(get(model), list(top = top)))

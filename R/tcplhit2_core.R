@@ -34,7 +34,7 @@
 #'   censored and shifted left.
 #' @param poly2.biphasic If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 #'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
-#' @param verbose If verbose = TRUE, will print status of empirical calculations.
+#' @param verbose If verbose = TRUE, will print status of empirical calculations. (Defaults to FALSE.)
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:

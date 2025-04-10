@@ -20,7 +20,7 @@
 #'   supported distribution is "dnorm", the normal distribution.
 #' @param poly2.biphasic Which fitting method to use for poly2. If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 #'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
-#' @param verbose If verbose = TRUE, will print status of empirical calculations.
+#' @param verbose If verbose = TRUE, will print status of empirical calculations. (Defaults to FALSE.)
 
 #' @importFrom stats pchisq
 #'
@@ -75,8 +75,8 @@ toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"
     } else {
       x_top = acy(y = top, modpars = list(tp=ps[1],ga=ps[2],p=ps[3],la=ps[4],q=ps[5],er=ps[6]), type = fname)
       if (is.na(x_top)) { # NA is returned for x_top, find empirical x_top
-        if (verbose) warning("NA returned for x_top in function toplikelihood, finding empirical x_top")
-        x_top = calcempirical(conc, ps, fname)[["x_top"]]
+        if (verbose) warning("NA returned for analytical x_top (i.e. when gnls derivative = 0) in function toplikelihood, finding empirical x_top")
+        x_top = calcempirical_top(conc, ps, fname)[["x_top"]]
       }
       ps[1] = cutoff * (( 1 + (ps[2]/x_top)^ps[3])*( 1 + (x_top/ps[4])^ps[5]))
     }

@@ -20,7 +20,7 @@
 #'   supported distribution is "dnorm", the normal distribution.
 #' @param poly2.biphasic Which fitting method to use for poly2. If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 #'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
-#' @param verbose If verbose = TRUE, will print status of empirical calculations.
+#' @param verbose If verbose = TRUE, will print status of empirical calculations. (Defaults to FALSE.)
 #'
 #' @importFrom stats pt
 #' @importFrom stats aggregate
