@@ -45,7 +45,7 @@ supported distribution is "dnorm", the normal distribution.}
 \item{poly2.biphasic}{Which fitting method to use for poly2. If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)}
 
-\item{verbose}{If verbose = TRUE, will print status of empirical calculations.}
+\item{verbose}{If verbose = TRUE, will print status of empirical calculations. (Defaults to FALSE.)}
 }
 \value{
 Continuous hitcall between 0 and 1.
