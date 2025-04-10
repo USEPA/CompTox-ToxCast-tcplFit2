@@ -17,7 +17,8 @@ tcplhit2_core(
   identifiers = NULL,
   bmd_low_bnd = NULL,
   bmd_up_bnd = NULL,
-  poly2.biphasic = TRUE
+  poly2.biphasic = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -60,6 +61,8 @@ censored and shifted left.}
 
 \item{poly2.biphasic}{If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)}
+
+\item{verbose}{If verbose = TRUE, will print status of empirical calculations. (Defaults to FALSE.)}
 }
 \value{
 A list of with the detailed results from all of the different model fits.
