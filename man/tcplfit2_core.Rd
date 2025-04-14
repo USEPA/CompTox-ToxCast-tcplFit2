@@ -31,7 +31,7 @@ force.fit = FALSE, will only fit constant model.}
 
 \item{bidirectional}{If bidirectional = FALSE, will only give positive fits.}
 
-\item{verbose}{If verbose = TRUE, will print optimization details and aics.}
+\item{verbose}{If verbose = TRUE, will print optimization details, aics, and status of empirical calculations. (Defaults to FALSE.)}
 
 \item{do.plot}{If do.plot = TRUE, will generate a plot comparing model curves.}
 

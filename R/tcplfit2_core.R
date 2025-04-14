@@ -12,7 +12,7 @@
 #'   force.fit = FALSE, will only fit constant model.
 #' @param force.fit If force.fit = TRUE, will fit all models regardless of cutoff.
 #' @param bidirectional If bidirectional = FALSE, will only give positive fits.
-#' @param verbose If verbose = TRUE, will print optimization details and aics.
+#' @param verbose If verbose = TRUE, will print optimization details, aics, and status of empirical calculations. (Defaults to FALSE.)
 #' @param do.plot If do.plot = TRUE, will generate a plot comparing model curves.
 #' @param fitmodels Vector of model names to try fitting. Missing models still
 #'   return a skeleton output filled with NAs.
@@ -96,39 +96,27 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
     }
 
       if (to.fit) {
+        modpars <- get(model)[get(model)$pars] #model parameters
         if (!model %in% c("cnst","gnls")) {
-          # replace untreated controls with psuedo-value
-          if (any(conc == 0)) warning("Data contains untreated controls (conc = 0). A pseudo value replaces -Inf after log-transform.  The pseudo value is set to one log-unit below the lowest experimental `conc`.")
-          logc_temp <- replace(logc, logc == -Inf, sort(unique(logc)[2]-1))
-          # generate concentration sequence over entire experimental concentration range
-          conc_seq <- 10**seq(from = min(logc_temp), to = max(logc_temp), length.out = 100)
-          modpars <- get(model)[get(model)$pars]
-          # fit the curve across concentration sequence
           if (model == "hill") {
-            fit = do.call("hillfn",list(unlist(modpars),conc_seq))
-          } else {
-            fit = do.call(model, list(unlist(modpars),conc_seq))
+            top <- calcempirical_top(conc, unlist(modpars), "hillfn")[["top"]]
+            assign(model, append(get(model), list(top = top)))
+          } else{
+            top <- calcempirical_top(conc, unlist(modpars), model)[["top"]]
+            assign(model, append(get(model), list(top = top)))
           }
-          # top is taken to be the maximal absolute predicted value of the model within the tested concentration range
-          assign(model, append(get(model), list(top = fit[which.max(abs(fit))] )))
           assign(model, append(get(model), list(ac50 = acy(.5 * get(model)$top, get(model), type = model))))
         } else if (model == "gnls") {
           # gnls methods; use calculated top/ac50, etc.
-          # before assigning to model, verify xtop is not outside conc range
+          # before assigning to model, verify xtop is not outside conc range or returns NA
           top = acy(0, get(model), type = model, returntop = T)
           x_top = acy(y = top, modpars = get(model), type = model, verbose = verbose)
-          if (x_top > max(conc) | x_top < min(conc) | is.na(x_top)){ #x_top outside tested conc range or is NA
-            # replace untreated controls with psuedo-value
-            if (any(conc == 0)) warning("Data contains untreated controls (conc = 0). A pseudo value replaces -Inf after log-transform.  The pseudo value is set to one log-unit below the lowest experimental `conc`.")
-            logc_temp <- replace(logc, logc == -Inf, sort(unique(logc)[2]-1))
-            # generate concentration sequence over entire experimental concentration range
-            conc_seq <- 10**seq(from = min(logc_temp), to = max(logc_temp), length.out = 100)
-            modpars <- get(model)[get(model)$pars]
-            fit = do.call(model, list(unlist(modpars),conc_seq))
-            top = fit[which.max(abs(fit))]
-            assign(model, append(get(model), list(top = top))) # assign empirical top
-          } else { #x_top within tested conc range
-            assign(model, append(get(model), list(top = top))) # assign analytical top
+          if (x_top > max(conc) | x_top < min(conc) | is.na(x_top)){  # x_top outside tested concentration range or is NA, assign empirical top
+            if (verbose) warning("NA returned for x_top or x_top outside tested concentration, finding empirical top\n")
+            top <- calcempirical_top(conc, unlist(modpars), model)[["top"]]
+            assign(model, append(get(model), list(top = top)))
+          } else { # x_top within tested conc range and is not NA, assign top found with derivative
+            assign(model, append(get(model), list(top = top)))
           }
           # check if the theoretical top was calculated
           if(is.na(get(model)$top)){

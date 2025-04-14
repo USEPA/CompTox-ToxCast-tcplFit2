@@ -34,6 +34,7 @@
 #'   censored and shifted left.
 #' @param poly2.biphasic If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 #'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
+#' @param verbose If verbose = TRUE, will print status of empirical calculations. (Defaults to FALSE.)
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:
@@ -74,7 +75,7 @@
 #'   }
 #' @export
 #'
-tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL,poly2.biphasic = TRUE) {
+tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL,poly2.biphasic = TRUE, verbose = FALSE) {
   # initialize parameters to NA
   a <- b <- tp <- p <- q <- ga <- la <- er <- top <- ac50 <- ac50_loss <- ac5 <- ac10 <- ac20 <- acc <- ac1sd <- bmd <- NA_real_
   bmdl <- bmdu <- caikwt <- mll <- NA_real_
@@ -145,7 +146,8 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     mll <- length(modpars) - aics[[fit_method]] / 2
     hitcall <- hitcontinner(conc, resp, top, cutoff, er,
       ps = unlist(modpars), fit_method,
-      caikwt = caikwt, mll = mll, errfun = errfun, poly2.biphasic = poly2.biphasic
+      caikwt = caikwt, mll = mll, errfun = errfun, poly2.biphasic = poly2.biphasic,
+      verbose = verbose
     )
   } else {
     hitcall <- hitloginner(conc, resp, top, cutoff, ac50)
