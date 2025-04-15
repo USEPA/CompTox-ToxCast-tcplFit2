@@ -1,3 +1,9 @@
+# tcplfit2 0.1.8
+==============
+* improve the doplot function in concrespcore
+* redefined top as max absolute resp across conc range
+* updates to vignette documentation 
+
 # tcplfit2 0.1.7
 ==============
 * updated documentation/vignettes

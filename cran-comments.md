@@ -1,25 +1,26 @@
 ## Changes from last version
-* updates to docs and vignette
-* Bug fix to tcplfit2 hit-calling 
-* Bug fixing and enhancements to better accommodate bidirectional curve-fitting with tcplfit2
-* Changes to the function of the poly2 so that it permits nonmonotonic fitting
-
+* transition package maintainer from Jason Brown to Sarah E. Davidson-Fritz
+* improve the doplot function in concrespcore
+* redefined top as max absolute resp across conc range
+* updates to vignette documentation 
 
 ## Test environments
 
-* local Windows 10 install, R 4.3.3
-* R Under development (unstable) (2024-09-21 r87186 ucrt)
+* local Windows 10 install, R 4.4.1
+* R Under development (unstable) (2025-04-13 r88141 ucrt)
 
 ## (local) R CMD check results
-0 errors ✔ | 0 warnings ✔ | 0 notes ✔
+0 errors ✔ | 0 warnings ✔ | 2 notes ✖
+* change maintainer from Jason Brown to Sarah E. Davidson-Fritz
+* false positive: checking for future file timestamps ... unable to verify current time
 
 ## win-builder results
-Installation time in seconds: 13
-Check time in seconds: 192
+Installation time in seconds: 8
+Check time in seconds: 163
 Status: 1 NOTE
-R Under development (unstable) (2024-09-21 r87186 ucrt)
+R Under development (unstable) (2025-04-13 r88141 ucrt)
 
-* this NOTE is related to possibly misspelled words in DESCRIPTION. All words are correctly spelled.
+* this NOTE is related to change maintainer from Jason Brown to Sarah E. Davidson-Fritz.
 
 
 ## revdepcheck results

@@ -32,7 +32,9 @@ calcempirical_top = function(conc, ps, fname, precision = 100) {
   fit = do.call(fname, list(ps, conc_seq))
   # calculate the largest change from baseline (y = 0) of the modeled fit
   top = fit[which.max(abs(fit))] # empirical top
+  if(all(is.na(top))) top = NA # if top returns a numeric(empty), replace with NA
   x_top = conc_seq[which.max(abs(fit))] # empirical x_top
+  if(all(is.na(x_top))) x_top = NA # if x_top returns a numeric(empty), replace with NA
 
   return(list("top" = top, "x_top" = x_top))
 }
