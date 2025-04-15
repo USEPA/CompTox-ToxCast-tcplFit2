@@ -2,13 +2,13 @@ Package: tcplfit2
 Title: A Concentration-Response Modeling Utility
 Version: 0.1.8
 Authors@R: c(person("Thomas", "Sheffield", role = c("aut")),
-				person("Richard S", "Judson", role = c("ctb"), comment = c(ORCID = "0000-0002-2348-9633")),
 				person("Jason", "Brown", role = "ctb", email = "brown.jason@epa.gov", comment = c(ORCID = "0009-0000-2294-641X")),
 				person("Sarah E.","Davidson-Fritz",role=c("cre"),email="davidsonfritz.sarah@epa.gov", comment = c(ORCID = "0000-0002-2891-9380")),
+				person("Madison","Feshuk",role = "ctb",email = "feshuk.madison@epa.gov", comment = c(ORCID = "0000-0002-1390-6405")),
+				person("Lindsay","Knupp",role=c("ctb"),email = "knupp.lindsay@epa.gov"),
 				person("Zhihui","Zhao",role=c("ctb")),
-    				person("Madison","Feshuk",role = "ctb",email = "feshuk.madison@epa.gov", comment = c(ORCID = "0000-0002-1390-6405")),
-				person("Katie", "Paul Friedman", role=c("ctb"), email = "paul-friedman.katie@epa.gov", comment = c(ORCID = "0000-0002-2710-1691")),
-				person("Lindsay","Knupp",role=c("ctb"))
+				person("Richard S", "Judson", role = c("ctb"), comment = c(ORCID = "0000-0002-2348-9633")),
+				person("Katie", "Paul Friedman", role=c("ctb"), email = "paul-friedman.katie@epa.gov", comment = c(ORCID = "0000-0002-2710-1691"))
 			)
 Description: The tcplfit2 R package performs basic concentration-response curve fitting. The original tcplFit() function in the tcpl R package performed basic concentration-response curvefitting to 3 models. With tcplfit2, the core tcpl concentration-response functionality has been expanded to process diverse high-throughput screen (HTS) data generated at the US Environmental Protection Agency, including targeted ToxCast, high-throughput transcriptomics (HTTr) and high-throughput phenotypic profiling (HTPP). tcplfit2 can be used independently to support analysis for diverse chemical screening efforts.
 URL: https://github.com/USEPA/CompTox-ToxCast-tcplFit2
