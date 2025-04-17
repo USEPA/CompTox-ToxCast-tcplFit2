@@ -7,8 +7,8 @@
 #' \eqn{f(x) = \frac{tp}{(1 + 10^{(p*(ga-x))} )}}, then ga and ga_sd are converted back to
 #' regular units before returning.
 #' Zero background and increasing initial absolute response are assumed.
-#' Parameters are "tp" (top), "ga" (gain AC50), "p" (gain power), and error
-#' term "er".
+#' Parameters are "tp" (top, theoretical maximal response), "ga" (gain AC50),
+#' "p" (gain power), and error term "er".
 #' success = 1 for a successful fit, 0 if optimization failed, and NA if
 #' nofit = TRUE. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
 #' if nofit = TRUE. aic, rme, modl, parameters, and parameter sds are set to

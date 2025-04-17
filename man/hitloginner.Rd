@@ -11,7 +11,7 @@ hitloginner(conc = NULL, resp, top, cutoff, ac50 = NULL)
 
 \item{resp}{Vector of responses.}
 
-\item{top}{Model top.}
+\item{top}{Model predicted top, maximal predicted change in response from baseline.}
 
 \item{cutoff}{Desired cutoff.}
 

@@ -34,6 +34,7 @@
 #'   censored and shifted left.
 #' @param poly2.biphasic If poly2.biphasic = TRUE, allows for biphasic polynomial 2
 #'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
+#' @param verbose If verbose = TRUE, will print status of empirical calculations. (Defaults to FALSE.)
 #'
 #' @return A list of with the detailed results from all of the different model fits.
 #' The elements of summary are:
@@ -48,7 +49,7 @@
 #'     \item b - fitting parameter methods: exp2, exp3, ploy2
 #'     \item p - fitting parameter methods: exp3, exp5, gnls, hill, pow
 #'     \item q - fitting parameter methods: gnls,
-#'     \item tp - top of the curve
+#'     \item tp - the theoretical top parameter for the curve fit - horizontal asymptote
 #'     \item ga - ac50 for the rising curve in a gnls model or the Hill model
 #'     \item la - ac50 for the falling curve in a gnls model
 #'     \item er - fitted error term for plotting error bars
@@ -61,7 +62,7 @@
 #'       selected method AIC is than that for the constant model
 #'     \item mll - another factor used in calcualting the continuous hitcall = length(modpars) - aic(fit_method)/2
 #'     \item hitcall - the final hitcall, a value ranging from 0 to 1
-#'     \item top - curve top
+#'     \item top - the model predicted maximal change in response from baseline
 #'     \item ac50 - curve value at 50\% of top, curve value at cutoff
 #'     \item lc50 - curve value at 50\% of top corresponding to the loss side of the gain-loss curve
 #'     \item ac5 - curve value at 5\% of top
@@ -74,7 +75,7 @@
 #'   }
 #' @export
 #'
-tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL,poly2.biphasic = TRUE) {
+tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, bmed = 0, conthits = TRUE, aicc = FALSE, identifiers = NULL, bmd_low_bnd = NULL, bmd_up_bnd = NULL,poly2.biphasic = TRUE, verbose = FALSE) {
   # initialize parameters to NA
   a <- b <- tp <- p <- q <- ga <- la <- er <- top <- ac50 <- ac50_loss <- ac5 <- ac10 <- ac20 <- acc <- ac1sd <- bmd <- NA_real_
   bmdl <- bmdu <- caikwt <- mll <- NA_real_
@@ -145,7 +146,8 @@ tcplhit2_core <- function(params, conc, resp, cutoff, onesd,bmr_scale = 1.349, b
     mll <- length(modpars) - aics[[fit_method]] / 2
     hitcall <- hitcontinner(conc, resp, top, cutoff, er,
       ps = unlist(modpars), fit_method,
-      caikwt = caikwt, mll = mll, errfun = errfun
+      caikwt = caikwt, mll = mll, errfun = errfun, poly2.biphasic = poly2.biphasic,
+      verbose = verbose
     )
   } else {
     hitcall <- hitloginner(conc, resp, top, cutoff, ac50)

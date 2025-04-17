@@ -1,11 +1,11 @@
 #' Top Likelihood
 #'
-#' Probability of top being above cutoff.
+#' Probability of top (maximal change in response from baseline) being outside the cutoff band.
 #'
 #' Should only be called by hitcontinner. Uses profile likelihood, similar
 #' to bmdbounds. Here, the y-scale type parameter is substituted in such a
 #' way that the top equals the cutoff. Then the log-likelihood is compared to
-#' the maximum log-likelihood using chisq function to retrieve probability.
+#' the maximum log-likelihood using pchisq function to retrieve probability.
 #'
 #' @param fname Model function name (equal to model name except hill which
 #'   uses "hillfn")
@@ -13,15 +13,18 @@
 #' @param conc Vector of concentrations.
 #' @param resp Vector of responses.
 #' @param ps Vector of parameters, must be in order: a, tp, b, ga, p, la, q, er
-#' @param top Model top.
+#' @param top Model predicted top, maximal predicted change in response from baseline.
 #' @param mll Winning model maximum log-likelihood.
 #' @param errfun Which error distribution to assume for each point, defaults to
 #'   "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
 #'   supported distribution is "dnorm", the normal distribution.
-#'
+#' @param poly2.biphasic Which fitting method to use for poly2. If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+#'   model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)
+#' @param verbose If verbose = TRUE, will print status of empirical calculations. (Defaults to FALSE.)
+
 #' @importFrom stats pchisq
 #'
-#' @return Probability of top being above cutoff.
+#' @return Probability of top being outside the cutoff band.
 #' @export
 #'
 #' @examples
@@ -34,30 +37,58 @@
 #' toplikelihood(fname, cutoff = .8, conc, resp, ps, top, mll)
 #' toplikelihood(fname, cutoff = 1, conc, resp, ps, top, mll)
 #' toplikelihood(fname, cutoff = 1.2, conc, resp, ps, top, mll)
-toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4"){
+toplikelihood = function(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4", poly2.biphasic = TRUE, verbose = FALSE){
   #cutoff needs to account for sign otherwise reparameterization will flip the model
   cutoff = cutoff*sign(top)
 
   #reparameterize so that top is exactly at cutoff
   if(fname == "exp2"){
-    ps[1] = cutoff/( exp(max(conc)/ps[2]) - 1 )
+    x_top = acy(y = top, modpars = list(a=ps[1],b=ps[2],er=ps[3]),type=fname)
+    ps[1] = cutoff/( exp(x_top/ps[2]) - 1 )
   } else if(fname == "exp3"){
-    ps[1] = cutoff/( exp((max(conc)/ps[2])^ps[3]) - 1 )
+    x_top = acy(y = top, modpars = list(a=ps[1],b=ps[2],p=ps[3],er=ps[4]),type=fname)
+    ps[1] = cutoff/( exp((x_top/ps[2])^ps[3]) - 1 )
   } else if(fname == "exp4"){
-    ps[1] = cutoff
+    if (top == ps[1]) {
+      ps[1] = cutoff
+    } else {
+      x_top = acy(y = top, modpars = list(tp=ps[1],ga=ps[2],er=ps[3]),type=fname)
+      ps[1] = cutoff/( 1 - 2^(-x_top/ps[2]))
+    }
   } else if(fname == "exp5"){
-    ps[1] = cutoff
+    if (top == ps[1]) {
+      ps[1] = cutoff
+    } else{
+      x_top = acy(y = top, modpars = list(tp=ps[1], ga=ps[2], p=ps[3], er=ps[4]), type = fname)
+      ps[1]  = cutoff/ (1-2^(-(x_top/ps[2])^ps[3]))
+    }
   } else if(fname == "hillfn"){
-    ps[1] = cutoff
+    if (top == ps[1]){
+      ps[1] = cutoff
+    } else {
+      x_top = acy(y = top, modpars = list(tp=ps[1], ga=ps[2], p=ps[3], er=ps[4]), type = "hill")
+      ps[1] = cutoff * ( 1 + (ps[2]/x_top)^ps[3])
+    }
   } else if(fname == "gnls"){
-    #approximating actual top with theoretical top for convenience.
-    ps[1] = cutoff
+    if (top == ps[1]) {
+      ps[1] = cutoff
+    } else {
+      x_top = acy(y = top, modpars = list(tp=ps[1],ga=ps[2],p=ps[3],la=ps[4],q=ps[5],er=ps[6]), type = fname)
+      if (is.na(x_top)) { # NA is returned for x_top, find empirical x_top
+        if (verbose) warning("NA returned for analytical x_top (i.e. when gnls derivative = 0) in function toplikelihood, finding empirical x_top")
+        x_top = calcempirical_top(conc, ps, fname)[["x_top"]]
+      }
+      ps[1] = cutoff * (( 1 + (ps[2]/x_top)^ps[3])*( 1 + (x_top/ps[4])^ps[5]))
+    }
   } else if(fname == "poly1"){
-    ps[1] = cutoff/max(conc)
+    x_top = acy(y = top, modpars = list(a=ps[1],er=ps[2]),type = fname)
+    ps[1] = cutoff/x_top
   } else if(fname == "poly2"){
-    ps[1] = cutoff/(max(conc)/ps[2] + (max(conc)/ps[2])^2 )
+    x_top = acy(y = top, modpars = list(a=ps[1], b=ps[2], er=ps[3]), type = fname, poly2.biphasic = poly2.biphasic)
+    ps[1] = cutoff/(x_top/ps[2] + (x_top/ps[2])^2 )
   } else if(fname == "pow"){
-    ps[1] = cutoff/(max(conc)^ps[2])
+    x_top = acy(y = top, modpars = list(a=ps[1], p=ps[2], er=ps[3]), type = fname)
+    ps[1] = cutoff/(x_top^ps[2])
   }
   #get loglikelihood of top exactly at cutoff, use likelihood profile test
   # to calculate probability of being above cutoff

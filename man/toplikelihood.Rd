@@ -4,7 +4,18 @@
 \alias{toplikelihood}
 \title{Top Likelihood}
 \usage{
-toplikelihood(fname, cutoff, conc, resp, ps, top, mll, errfun = "dt4")
+toplikelihood(
+  fname,
+  cutoff,
+  conc,
+  resp,
+  ps,
+  top,
+  mll,
+  errfun = "dt4",
+  poly2.biphasic = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{fname}{Model function name (equal to model name except hill which
@@ -18,25 +29,30 @@ uses "hillfn")}
 
 \item{ps}{Vector of parameters, must be in order: a, tp, b, ga, p, la, q, er}
 
-\item{top}{Model top.}
+\item{top}{Model predicted top, maximal predicted change in response from baseline.}
 
 \item{mll}{Winning model maximum log-likelihood.}
 
 \item{errfun}{Which error distribution to assume for each point, defaults to
 "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
 supported distribution is "dnorm", the normal distribution.}
+
+\item{poly2.biphasic}{Which fitting method to use for poly2. If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)}
+
+\item{verbose}{If verbose = TRUE, will print status of empirical calculations. (Defaults to FALSE.)}
 }
 \value{
-Probability of top being above cutoff.
+Probability of top being outside the cutoff band.
 }
 \description{
-Probability of top being above cutoff.
+Probability of top (maximal change in response from baseline) being outside the cutoff band.
 }
 \details{
 Should only be called by hitcontinner. Uses profile likelihood, similar
 to bmdbounds. Here, the y-scale type parameter is substituted in such a
 way that the top equals the cutoff. Then the log-likelihood is compared to
-the maximum log-likelihood using chisq function to retrieve probability.
+the maximum log-likelihood using pchisq function to retrieve probability.
 }
 \examples{
 fname = "hillfn"

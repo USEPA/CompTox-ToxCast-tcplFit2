@@ -12,7 +12,7 @@
 #'   force.fit = FALSE, will only fit constant model.
 #' @param force.fit If force.fit = TRUE, will fit all models regardless of cutoff.
 #' @param bidirectional If bidirectional = FALSE, will only give positive fits.
-#' @param verbose If verbose = TRUE, will print optimization details and aics.
+#' @param verbose If verbose = TRUE, will print optimization details, aics, and status of empirical calculations. (Defaults to FALSE.)
 #' @param do.plot If do.plot = TRUE, will generate a plot comparing model curves.
 #' @param fitmodels Vector of model names to try fitting. Missing models still
 #'   return a skeleton output filled with NAs.
@@ -39,14 +39,14 @@
 #'     \item cov - success of the the covariance matrix calculation
 #'     \item rme - root mean error of the data around the curve
 #'     \item modl - vector of model values at the given concentrations
-#'     \item tp - the top of the curve fit
-#'     \item ga - the AC50 or Hill paramters
+#'     \item tp - the theoretical top parameter for the curve fit - horizontal asymptote
+#'     \item ga - the AC50 or Hill parameters
 #'     \item er - the error term
-#'     \item ... other paramters specific to the model (see the documentation for the specific models)
-#'     \item tp_sd, ga_sd, p_sd, etc., the values of the standard deviations of the paramters for the models
+#'     \item ... other parameters specific to the model (see the documentation for the specific models)
+#'     \item tp_sd, ga_sd, p_sd, etc., the values of the standard deviations of the parameters for the models
 #'     \item er_sd - standard deviation of the error term
 #'     \item pars - the names of the parameters
-#'     \item sds - the names of the standard deviations of the paramters
+#'     \item sds - the names of the standard deviations of the parameters
 #'   }
 #' @export
 #'
@@ -96,17 +96,28 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
     }
 
       if (to.fit) {
-        if (model %in% c("poly1", "poly2", "pow", "exp2", "exp3")) {
-          # methods that grow without bound: top defined as model value at max conc
-          assign(model, append(get(model), list(top = get(model)$modl[which.max(abs(get(model)$modl))]))) # top is taken to be highest model value
+        modpars <- get(model)[get(model)$pars] #model parameters
+        if (!model %in% c("cnst","gnls")) {
+          if (model == "hill") {
+            top <- calcempirical_top(conc, unlist(modpars), "hillfn")[["top"]]
+            assign(model, append(get(model), list(top = top)))
+          } else{
+            top <- calcempirical_top(conc, unlist(modpars), model)[["top"]]
+            assign(model, append(get(model), list(top = top)))
+          }
           assign(model, append(get(model), list(ac50 = acy(.5 * get(model)$top, get(model), type = model))))
-        } else if (model %in% c("hill", "exp4", "exp5")) {
-          # methods with a theoretical top/ac50
-          assign(model, append(get(model), list(top = get(model)$tp)))
-          assign(model, append(get(model), list(ac50 = get(model)$ga)))
         } else if (model == "gnls") {
           # gnls methods; use calculated top/ac50, etc.
-          assign(model, append(get(model), list(top = acy(0, get(model), type = model, returntop = T))))
+          # before assigning to model, verify xtop is not outside conc range or returns NA
+          top = acy(0, get(model), type = model, returntop = T)
+          x_top = acy(y = top, modpars = get(model), type = model, verbose = verbose)
+          if (x_top > max(conc) | x_top < min(conc) | is.na(x_top)){  # x_top outside tested concentration range or is NA, assign empirical top
+            if (verbose) warning("NA returned for x_top or x_top outside tested concentration, finding empirical top\n")
+            top <- calcempirical_top(conc, unlist(modpars), model)[["top"]]
+            assign(model, append(get(model), list(top = top)))
+          } else { # x_top within tested conc range and is not NA, assign top found with derivative
+            assign(model, append(get(model), list(top = top)))
+          }
           # check if the theoretical top was calculated
           if(is.na(get(model)$top)){
             # if the theoretical top is NA return NA for ac50 and ac50_loss
@@ -141,16 +152,17 @@ tcplfit2_core <- function(conc, resp, cutoff, force.fit = FALSE, bidirectional =
   if (do.plot && sum(successes, na.rm = T) == length(shortnames)) {
     resp <- resp[order(logc)]
     #par(xpd = T)
-    cols <- c("black", brewer.pal(9, "Set1"))
+    cols <- c("black", "darkred", brewer.pal(8, "Dark2"))
     n <- length(logc)
-    allresp <- c(resp, sapply(shortnames, function(x) {
+    all_responses <- c(resp, sapply(shortnames, function(x) {
       get(x)[["modl"]][order(logc)]
     }))
     logc <- logc[order(logc)]
-    plot(rep(logc, length.out = length(allresp)), allresp, col = rep(cols, each = n), pch = 16)
+    log10_conc <- rep(logc, length.out = length(all_responses))
+    plot(log10_conc, all_responses, col = rep(cols, each = n), pch = 16)
 
-    for (i in 1:length(allresp)) {
-      points(logc, allresp[((i - 1) * n + 1):(i * n)], col = cols[i], type = "l")
+    for (i in 1:length(all_responses)) {
+      points(logc, all_responses[((i - 1) * n + 1):(i * n)], col = cols[i], type = "l")
     }
 
     legend("top", legend = c("resp", shortnames), col = cols, pch = 16, ncol = 10, inset = c(0, -.1))

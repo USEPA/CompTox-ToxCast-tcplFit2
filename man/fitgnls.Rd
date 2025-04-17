@@ -49,8 +49,8 @@ Concentrations are converted internally to log10 units and optimized with
 \eqn{f(x) = \frac{tp}{[(1 + 10^{(p*(ga-x))} )(1 + 10^{(q*(x-la))} )]}},
 then ga, la, ga_sd, and la_sd are converted back to regular units before returning.
 Zero background and increasing initial absolute response are assumed.
-Parameters are "tp" (top), "ga" (gain AC50), "p" (gain power), "la"
-(loss AC50),"q" (loss power) and error term "er".
+Parameters are "tp" (top, theoretical maximal response), "ga" (gain AC50),
+"p" (gain power), "la" (loss AC50),"q" (loss power) and error term "er".
 success = 1 for a successful fit, 0 if optimization failed, and NA if
 nofit = TRUE. cov = 1 for a successful hessian inversion, 0 if it fails, and NA
 if nofit = TRUE. aic, rme, modl, parameters, and parameter sds are set to

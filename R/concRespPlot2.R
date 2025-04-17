@@ -35,9 +35,8 @@ concRespPlot2 <- function(row, log_conc = FALSE) {
     conc <- log10(conc)
     # replace the negative infinity with a number that is one log-10 unit
     # less than the second lowest dose (in log).
-    conc <- replace(conc, conc==-Inf, sort(conc)[2]-1)
+    conc <- replace(conc, conc==-Inf, sort(unique(conc))[2]-1)
     conc_plot <- seq(from=min(conc),to=max(conc),length=100)
-    conc_plot <- replace(conc_plot, conc_plot==-Inf, sort(conc)[2]-1)
     # what will be passed into the object function to calculate responses for the curve
     calc.x <- 10**conc_plot
   } else {

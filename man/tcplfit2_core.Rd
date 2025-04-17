@@ -31,7 +31,7 @@ force.fit = FALSE, will only fit constant model.}
 
 \item{bidirectional}{If bidirectional = FALSE, will only give positive fits.}
 
-\item{verbose}{If verbose = TRUE, will print optimization details and aics.}
+\item{verbose}{If verbose = TRUE, will print optimization details, aics, and status of empirical calculations. (Defaults to FALSE.)}
 
 \item{do.plot}{If do.plot = TRUE, will generate a plot comparing model curves.}
 
@@ -60,14 +60,14 @@ is a sublist with elements including:
     \item cov - success of the the covariance matrix calculation
     \item rme - root mean error of the data around the curve
     \item modl - vector of model values at the given concentrations
-    \item tp - the top of the curve fit
-    \item ga - the AC50 or Hill paramters
+    \item tp - the theoretical top parameter for the curve fit - horizontal asymptote
+    \item ga - the AC50 or Hill parameters
     \item er - the error term
-    \item ... other paramters specific to the model (see the documentation for the specific models)
-    \item tp_sd, ga_sd, p_sd, etc., the values of the standard deviations of the paramters for the models
+    \item ... other parameters specific to the model (see the documentation for the specific models)
+    \item tp_sd, ga_sd, p_sd, etc., the values of the standard deviations of the parameters for the models
     \item er_sd - standard deviation of the error term
     \item pars - the names of the parameters
-    \item sds - the names of the standard deviations of the paramters
+    \item sds - the names of the standard deviations of the parameters
   }
 }
 \description{

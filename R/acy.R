@@ -4,11 +4,13 @@
 #'
 #' Mathematically inverts model functions of the given type, except for gnls,
 #' which is numerically inverted. gnls returns NA when y > tp. Other options
-#' return the actual top (as opposed to theoretical tp) and top location for
-#' gnls model. gnls model defaults to giving concentration on gain side. Only
-#' one of getloss, returntop, and returntoploc should be TRUE at a time.  If
-#' top location solution fails for gnls, top is set to tp. Returns NA if gnls
-#' numerical solver fails. Returns NA if model was not successfully fit.
+#' return the actual top (i.e. the maximal predicted change in response from
+#' baseline), as opposed to model parameter tp (i.e. theoretical maximum
+#' response), and top location for gnls model. gnls model defaults to giving
+#' concentration on gain side. Only one of getloss, returntop, and returntoploc
+#' should be TRUE at a time.  If top location solution fails for gnls, top is
+#' set to tp. Returns NA if gnls numerical solver fails. Returns NA if model was
+#' not successfully fit.
 #'
 #' @param y Activity value at which the concentration is desired. y
 #'   should be less than the model's top, if there is one, and greater
@@ -96,8 +98,8 @@ acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FAL
   } else if(type =="hill"){
     return(ga/(tp/y-1)^(1/p))
   } else if(type == "gnls"){
-    #gnls top can be much lower than tp, so first find top location by setting derivative to zero
-    #gnls outputs fraction of actual top, not theoretical top tp
+    # gnls top can be much lower than tp, so first find top location by setting derivative to zero
+    # gnls outputs fraction of actual top, not theoretical maximum response "tp"
     toploc = try(uniroot(gnlsderivobj, c(ga,la), tp = tp, ga = ga, p = p, la = la, q = q, tol = 1e-8)$root)
 
     #If toploc fails, set topval to tp, set toploc to NA
@@ -106,7 +108,7 @@ acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FAL
       topval = tp
       toploc = NA_real_
     } else {
-      #get actual top, as opposed to theoretical tp.
+      # get actual top, as opposed to theoretical maximum response "tp".
       topval = gnls(c(tp, ga, p, la, q), toploc)
     }
     if(returntoploc) return(toploc)
@@ -136,7 +138,7 @@ acy <- function(y, modpars, type = "hill", returntop = FALSE, returntoploc = FAL
 #' Derivative of the gnls function set to zero for top location solver.
 #'
 #' @param x Concentration.
-#' @param tp Top.
+#' @param tp Gain-loss Model Top Parameter.
 #' @param ga Gain AC50.
 #' @param p Gain power.
 #' @param la Loss AC50.
@@ -158,7 +160,7 @@ gnlsderivobj = function(x,tp,ga,p,la,q){
 #'
 #' @param x Concentration.
 #' @param y Desired activity level.
-#' @param tp Top.
+#' @param tp Gain-loss Model Top Parameter.
 #' @param ga Gain AC50.
 #' @param p Gain power.
 #' @param la Loss AC50.

@@ -14,7 +14,9 @@ hitcontinner(
   fit_method,
   caikwt,
   mll,
-  errfun = "dt4"
+  errfun = "dt4",
+  poly2.biphasic = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -22,7 +24,7 @@ hitcontinner(
 
 \item{resp}{Vector of responses.}
 
-\item{top}{Model top.}
+\item{top}{Model predicted top, maximal predicted change in response from baseline.}
 
 \item{cutoff}{Desired cutoff.}
 
@@ -39,6 +41,11 @@ hitcontinner(
 \item{errfun}{Which error distribution to assume for each point, defaults to
 "dt4". "dt4" is the original 4 degrees of freedom t-distribution. Another
 supported distribution is "dnorm", the normal distribution.}
+
+\item{poly2.biphasic}{Which fitting method to use for poly2. If poly2.biphasic = TRUE, allows for biphasic polynomial 2
+model fits (i.e. both monotonic and non-monotonic). (Defaults to TRUE.)}
+
+\item{verbose}{If verbose = TRUE, will print status of empirical calculations. (Defaults to FALSE.)}
 }
 \value{
 Continuous hitcall between 0 and 1.

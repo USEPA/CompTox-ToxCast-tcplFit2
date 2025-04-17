@@ -9,7 +9,7 @@
 #'
 #' @param conc Vector of concentrations (No longer necessary).
 #' @param resp Vector of responses.
-#' @param top Model top.
+#' @param top Model predicted top, maximal predicted change in response from baseline.
 #' @param cutoff Desired cutoff.
 #' @param ac50 Model AC50 (No longer necessary).
 #'
@@ -26,9 +26,9 @@ hitloginner = function(conc = NULL, resp, top, cutoff, ac50 = NULL){
 
   n_gt_cutoff = sum(abs(resp)>cutoff)
 
-  #hitlogic - hit must have: at least one point above abs cutoff,
+  # hitlogic - hit must have: at least one point above abs cutoff,
   # a defined top (implying there is a winning non-constant model),
-  #and an abs. top greater than the cutoff
+  # and an abs. top greater than the cutoff
   hitcall = 0
   if(n_gt_cutoff>0 && !is.na(top) && abs(top)>cutoff) hitcall <- 1
 

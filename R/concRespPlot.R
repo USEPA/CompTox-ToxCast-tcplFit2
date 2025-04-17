@@ -18,7 +18,7 @@
 #'     \item fit_method - curve fit method
 #'     \item bmd, bmdl, bmdu - bmd, bmd lower bound, and bmd upper bound
 #'     \item ac50, acc - curve value at 50\% of top, curve value at cutoff
-#'     \item top - curve top
+#'     \item top - curve top (maximal predicted change in response from baseline)
 #'     \item name - name of the chemical
 #'     \item assay - name of the assay, signature, or other endpoint
 #'     \item other identifiers
@@ -69,31 +69,38 @@ concRespPlot <- function(row,ymin=-120,ymax=120,draw.error.arrows=FALSE) {
   bmdl <- unlist(bmdl)
   bmdu <- unlist(bmdu)
 
-  #hard-code plotting points for curves
-  logc_plot <- seq(from=-3,to=2,by=0.05)
-  conc_plot <- 10**logc_plot
-
   #reformat conc and resp as vectors
   conc <- as.numeric(str_split(row[1,"conc"],"\\|")[[1]])
   resp <- as.numeric(str_split(row[1,"resp"],"\\|")[[1]])
+
+  # replace untreated controls with pseudo value
+  if (any(conc==0)) warning("Data contains untreated controls (conc = 0). A pseudo value replaces -Inf after log-transform.  The pseudo value is set to one log-unit below the lowest experimental `conc`.")
+  logconc <- log10(conc)
+  # replace the negative infinity with a number that is one log-10 unit
+  # less than the second lowest dose (in log).
+  logconc <- replace(logconc, logconc == -Inf, sort(unique(logconc))[2]-1)
+  conc <- 10**logconc
+
+  #plotting points for curves based on min/max experimental conc
+  conc_plot <- 10**seq(from = log10(min(conc)), to = log10(max(conc)), by = 0.05)
 
   #some deprecated code; later will use j =1 and col.list[j] to mean black
   col.list <- c("black","cyan","red")
 
   #empty plot to start with
-  plotrange = c(0.001,100)
+  plotrange = c(min(conc),max(conc))
   plot(c(1,1),type="n",xlab="conc (uM)",ylab="Response",xlim=plotrange,ylim=c(ymin,ymax),
        log="x",main=paste(name,"\n",assay),cex.main=0.9)
 
   #cutoffs and gray rectangular noise region
-  rect(xleft=0.001,ybottom=-cutoff,xright=100,ytop=cutoff,col="lightgray")
-  lines(c(0.001,100),c(cutoff,cutoff),lwd=1)
-  lines(c(0.001,100),c(-cutoff,-cutoff),lwd=1)
+  rect(xleft=plotrange[1],ybottom=-cutoff,xright=plotrange[2],ytop=cutoff,col="lightgray")
+  lines(plotrange,c(cutoff,cutoff),lwd=1)
+  lines(plotrange,c(-cutoff,-cutoff),lwd=1)
 
   #thick line at 0 and bmrs
-  lines(c(0.001,100),c(0,0),lwd=2)
-  lines(c(0.001,100),c(bmr,bmr),lwd=1)
-  lines(c(0.001,100),c(-bmr,-bmr),lwd=1)
+  lines(plotrange,c(0,0),lwd=2)
+  lines(plotrange,c(bmr,bmr),lwd=1)
+  lines(plotrange,c(-bmr,-bmr),lwd=1)
 
   #height for top labels
   yplot <- ymax*0.95
