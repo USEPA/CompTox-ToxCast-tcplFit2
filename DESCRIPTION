@@ -39,7 +39,7 @@ Imports:
     RColorBrewer,
     stringr,
     reshape2,
-    ggplot2
+    ggplot2 (>= 3.5.0)
 Depends: 
     R (>= 3.5.0)
 Config/testthat/edition: 3
